@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks';
 import { useWatchHistory } from '@/hooks/watch-history';
 import { useUserPreferences } from '@/hooks/user-preferences';
-import { User, History, Settings, Check, Loader2, Heart, Bookmark, Edit2, LogOut, Camera, Clock, Film, Key, AlertTriangle, Mail } from 'lucide-react';
+import { User, History, Settings, Check, Loader2, Heart, Bookmark, Edit2, LogOut, Camera, Clock, Film, Key, AlertTriangle, Mail, Info, ExternalLink } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import MediaGrid from '@/components/MediaGrid';
@@ -20,6 +20,7 @@ import { videoSources } from '@/utils/api';
 import Ads from '@/components/Ads';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import ChangePasswordDialog from '@/components/ChangePasswordDialog';
 import ChangeEmailDialog from '@/components/ChangeEmailDialog';
 import DeleteAccountDialog from '@/components/DeleteAccountDialog';
@@ -442,6 +443,35 @@ const Profile = () => {
               </div>
             </div>
           </motion.div>
+        </div>
+      </div>
+
+      {/* Service Limitations Disclaimer */}
+      <div className="px-4 sm:px-6 lg:px-8 mt-6">
+        <div className="max-w-7xl mx-auto">
+          <Alert className="bg-accent/5 border-accent/20">
+            <Info className="h-4 w-4 text-accent" />
+            <AlertTitle className="text-accent font-semibold">Service Update & Support</AlertTitle>
+            <AlertDescription className="mt-2 text-muted-foreground">
+              <p className="mb-3">
+                Due to current backend server limitations, some personalized services—including <strong>watchlist updates</strong> and <strong>watch history syncing</strong>—are temporarily suspended.
+              </p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 bg-accent/10 rounded-lg border border-accent/10">
+                <p className="text-sm">
+                  We're working hard to restore these features! Your support helps us upgrade our infrastructure and keep the project thriving. 💖
+                </p>
+                <Button 
+                  size="sm" 
+                  className="bg-accent hover:bg-accent/90 text-white shrink-0"
+                  onClick={() => window.open('https://ko-fi.com/jrevelacion', '_blank')}
+                >
+                  <Heart className="h-4 w-4 mr-2 fill-current" />
+                  Support the Project
+                  <ExternalLink className="h-3 w-3 ml-2" />
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
         </div>
       </div>
 

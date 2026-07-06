@@ -128,10 +128,10 @@ const Sports = () => {
   const getEmptyMessage = () => {
     if (selectedSport === 'all') {
       switch (activeTab) {
-        case 'popular': return "No popular matches available at the moment.";
-        case 'live': return "No live matches streaming right now.";
-        case 'all': return "No matches scheduled for today.";
-        default: return "No matches available.";
+        case 'popular': return "No popular matches available at the moment. Use a VPN as your ISP might have blocked the stream servers.";
+        case 'live': return "No live matches streaming right now. Use a VPN as your ISP might have blocked the stream servers.";
+        case 'all': return "No matches scheduled for today. Use a VPN as your ISP might have blocked the stream servers.";
+        default: return "No matches available. Use a VPN as your ISP might have blocked the stream servers.";
       }
     } else {
       const sportName = sportsList.find(s => s.id === selectedSport)?.name || '';

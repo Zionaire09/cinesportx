@@ -4,8 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MessageSquare, Send, Trash2, UserX, ShieldAlert, Ban, Crown, Zap } from 'lucide-react';
-import Survey from './Survey';
-import SurveyAdmin from './SurveyAdmin';
 import { db } from '@/lib/firebase';
 import { 
   collection, 
@@ -48,15 +46,17 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isLiveChatDisabled, setIsLiveChatDisabled] = useState(false);
-  const [activeSurveyId, setActiveSurveyId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const isEnforcingLimit = useRef(false);
 
   /**
    * Automatically delete oldest messages when exceeding MAX_MESSAGES limit
    * This function is called whenever messages are updated
    */
   const enforceMessageLimit = async (currentMessages: Message[]) => {
+    if (isEnforcingLimit.current) return;
     if (currentMessages.length > MAX_MESSAGES) {
+      isEnforcingLimit.current = true;
       const messagesToDelete = currentMessages.length - MAX_MESSAGES;
       const oldestMessages = currentMessages.slice(0, messagesToDelete);
       
@@ -70,6 +70,8 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
         console.log(`Deleted ${messagesToDelete} oldest message(s) to maintain ${MAX_MESSAGES} message limit`);
       } catch (error) {
         console.error('Error enforcing message limit:', error);
+      } finally {
+        isEnforcingLimit.current = false;
       }
     }
   };
@@ -85,37 +87,9 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
       }
     });
 
-    // Listen for active surveys
-    // Simplified query to avoid complex index requirements for all users
-    const surveysQuery = query(
-      collection(db, 'surveys'),
-      where('matchId', '==', matchId),
-      where('status', '==', 'active'),
-      limit(5) // Get a few to filter manually if needed, or just take the first
-    );
-    const unsubscribeSurveys = onSnapshot(surveysQuery, (snapshot) => {
-      if (!snapshot.empty) {
-        // Sort manually by createdAt if multiple exist to avoid index requirement
-        const sortedDocs = [...snapshot.docs].sort((a, b) => {
-          const aTime = a.data().createdAt?.toMillis() || 0;
-          const bTime = b.data().createdAt?.toMillis() || 0;
-          return bTime - aTime;
-        });
-        setActiveSurveyId(sortedDocs[0].id);
-      } else {
-        setActiveSurveyId(null);
-      }
-    }, (error) => {
-      console.error('Survey listener error:', error);
-    });
-
     // Query for the latest 50 messages to ensure we catch any overflow
     const chatRef = collection(db, 'chats', matchId, 'messages');
-    const q = query(
-      chatRef,
-      orderBy('createdAt', 'asc'),
-      limit(50)
-    );
+    const q = query(chatRef, orderBy('createdAt', 'asc'), limit(50));
 
     const unsubscribeMessages = onSnapshot(q, (snapshot) => {
       const msgs: Message[] = [];
@@ -139,7 +113,6 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
     return () => {
       unsubscribeSettings();
       unsubscribeMessages();
-      unsubscribeSurveys();
     };
   }, [matchId]);
 
@@ -263,13 +236,6 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
         </p>
       </div>
 
-      {/* Survey Area */}
-      {activeSurveyId && (
-        <div className="px-4 pt-4 border-b border-neutral-800">
-          <Survey matchId={matchId} surveyId={activeSurveyId} />
-        </div>
-      )}
-
       {/* Messages Area */}
       <div 
         ref={scrollRef}
@@ -366,13 +332,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
       </div>
 
       {/* Input Area */}
-      <div className={`p-4 bg-neutral-900/30 border-t border-neutral-900 ${
-        user?.isAdmin ? 'space-y-3' : ''
-      }`}>
-        {/* Admin Survey Controls */}
-        {user?.isAdmin && (
-          <SurveyAdmin matchId={matchId} />
-        )}
+      <div className="p-4 bg-neutral-900/30 border-t border-neutral-900">
         {isLiveChatDisabled && !user?.isAdmin ? (
           <div className="text-center py-2 bg-red-500/10 border border-red-500/20 rounded-xl">
             <p className="text-[10px] text-red-400 font-black uppercase tracking-widest">
@@ -386,7 +346,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
             </p>
           </div>
         ) : user ? (
-          <form onSubmit={handleSendMessage} className="flex gap-2 pt-3 border-t border-neutral-800">
+          <form onSubmit={handleSendMessage} className="flex gap-2">
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
@@ -403,9 +363,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
             </Button>
           </form>
         ) : (
-          <div className={`text-center py-2 ${
-            user?.isAdmin ? 'pt-3 border-t border-neutral-800' : ''
-          }`}>
+          <div className="text-center py-2">
             <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest mb-2">Sign in to join the chat</p>
             <Button 
               variant="outline" 

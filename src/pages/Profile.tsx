@@ -454,11 +454,11 @@ const Profile = () => {
             <AlertTitle className="text-accent font-semibold">Service Update & Support</AlertTitle>
             <AlertDescription className="mt-2 text-muted-foreground">
               <p className="mb-3">
-                Due to current backend server limitations, some personalized services—including <strong>watchlist updates</strong> and <strong>watch history syncing</strong>—are temporarily suspended.
+                Due to current backend server limitations, some personalized services—including <strong>watchlist updates</strong> and <strong>watch history syncing</strong> could stop working anytime.
               </p>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 bg-accent/10 rounded-lg border border-accent/10">
                 <p className="text-sm">
-                  We're working hard to restore these features! Your support helps us upgrade our infrastructure and keep the project thriving. 💖
+                  As an effect, few issues with navigation could happen. I'm currently working to fix this. So please understand. Your support helps us upgrade our infrastructure and keep the project thriving. 💖
                 </p>
                 <Button 
                   size="sm" 

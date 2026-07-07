@@ -286,7 +286,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
                     {msg.createdAt ? new Date(msg.createdAt.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}
                   </span>
                 </div>
-                <div className={`group relative px-3 py-2 rounded-2xl rounded-tl-none border ${
+                <div className={`group relative px-3 py-2 rounded-2xl rounded-tl-none border transition-all ${
                   msg.isAdmin 
                     ? 'bg-gradient-to-br from-amber-500/15 to-yellow-500/10 border-amber-500/40 shadow-lg shadow-amber-500/20' 
                     : 'bg-neutral-900/80 border-neutral-800/50'
@@ -296,11 +296,11 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
                   }`}>{msg.text}</p>
                   
                   {user?.isAdmin && (
-                    <div className="absolute -right-2 -top-2 hidden group-hover:flex gap-1">
+                    <div className="absolute -right-2 -top-3 flex opacity-0 group-hover:opacity-100 transition-opacity gap-1 z-10">
                       <Button
                         variant="destructive"
                         size="icon"
-                        className="h-6 w-6 rounded-full"
+                        className="h-6 w-6 rounded-full shadow-xl"
                         onClick={() => handleDeleteMessage(msg.id)}
                         title="Delete message"
                       >
@@ -310,7 +310,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
                         <Button
                           variant="destructive"
                           size="icon"
-                          className="h-6 w-6 rounded-full bg-orange-600 hover:bg-orange-700"
+                          className="h-6 w-6 rounded-full bg-orange-600 hover:bg-orange-700 shadow-xl"
                           onClick={() => handleBanUser(msg.userId, msg.userName)}
                           title="Ban user"
                         >
@@ -320,7 +320,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
                     </div>
                   )}
                   {msg.isAdmin && (
-                    <div className="absolute -right-3 -bottom-3 hidden group-hover:flex">
+                    <div className="absolute -right-3 -bottom-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Zap className="h-4 w-4 text-amber-400 fill-amber-400 drop-shadow-lg" />
                     </div>
                   )}

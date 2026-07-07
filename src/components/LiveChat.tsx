@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MessageSquare, Send, Trash2, UserX, ShieldAlert, Ban, Crown, Zap } from 'lucide-react';
+import Survey from './Survey';
+import SurveyAdmin from './SurveyAdmin';
 import { db } from '@/lib/firebase';
 import { 
   collection, 
@@ -46,6 +48,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isLiveChatDisabled, setIsLiveChatDisabled] = useState(false);
+  const [activeSurveyId, setActiveSurveyId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   /**
@@ -82,9 +85,29 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
       }
     });
 
+    // Listen for active surveys
+    const surveysQuery = query(
+      collection(db, 'surveys'),
+      where('matchId', '==', matchId),
+      where('status', '==', 'active'),
+      orderBy('createdAt', 'desc'),
+      limit(1)
+    );
+    const unsubscribeSurveys = onSnapshot(surveysQuery, (snapshot) => {
+      if (!snapshot.empty) {
+        setActiveSurveyId(snapshot.docs[0].id);
+      } else {
+        setActiveSurveyId(null);
+      }
+    });
+
     // Query for the latest 50 messages to ensure we catch any overflow
     const chatRef = collection(db, 'chats', matchId, 'messages');
-    const q = query(chatRef, orderBy('createdAt', 'asc'), limit(50));
+    const q = query(
+      chatRef,
+      orderBy('createdAt', 'asc'),
+      limit(50)
+    );
 
     const unsubscribeMessages = onSnapshot(q, (snapshot) => {
       const msgs: Message[] = [];
@@ -108,6 +131,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
     return () => {
       unsubscribeSettings();
       unsubscribeMessages();
+      unsubscribeSurveys();
     };
   }, [matchId]);
 
@@ -231,6 +255,13 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
         </p>
       </div>
 
+      {/* Survey Area */}
+      {activeSurveyId && (
+        <div className="px-4 pt-4 border-b border-neutral-800">
+          <Survey matchId={matchId} surveyId={activeSurveyId} />
+        </div>
+      )}
+
       {/* Messages Area */}
       <div 
         ref={scrollRef}
@@ -327,7 +358,13 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-neutral-900/30 border-t border-neutral-900">
+      <div className={`p-4 bg-neutral-900/30 border-t border-neutral-900 ${
+        user?.isAdmin ? 'space-y-3' : ''
+      }`}>
+        {/* Admin Survey Controls */}
+        {user?.isAdmin && (
+          <SurveyAdmin matchId={matchId} />
+        )}
         {isLiveChatDisabled && !user?.isAdmin ? (
           <div className="text-center py-2 bg-red-500/10 border border-red-500/20 rounded-xl">
             <p className="text-[10px] text-red-400 font-black uppercase tracking-widest">
@@ -341,7 +378,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
             </p>
           </div>
         ) : user ? (
-          <form onSubmit={handleSendMessage} className="flex gap-2">
+          <form onSubmit={handleSendMessage} className="flex gap-2 pt-3 border-t border-neutral-800">
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
@@ -358,7 +395,9 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
             </Button>
           </form>
         ) : (
-          <div className="text-center py-2">
+          <div className={`text-center py-2 ${
+            user?.isAdmin ? 'pt-3 border-t border-neutral-800' : ''
+          }`}>
             <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest mb-2">Sign in to join the chat</p>
             <Button 
               variant="outline" 

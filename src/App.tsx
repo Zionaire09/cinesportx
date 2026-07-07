@@ -48,10 +48,11 @@ const usePageTracking = () => {
 };
 
 /**
- * Guard for public auth routes (/login, /signup).
+ * Guard for /signup route only.
  * When user features are disabled and the visitor is not admin, redirect to home.
+ * NOTE: /login is intentionally NOT guarded to prevent admin lockout.
  */
-const AuthRoute = ({ children }: { children: React.ReactNode }) => {
+const SignupRoute = ({ children }: { children: React.ReactNode }) => {
   const { userFeaturesEnabled, settingsLoading } = useSiteSettings();
   const { user, loading } = useAuth();
 
@@ -101,15 +102,12 @@ const AnimatedRoutes = () => {
             <WatchHistory />
           </ProtectedRoute>
         } />
-        <Route path="/login" element={
-          <AuthRoute>
-            <Login />
-          </AuthRoute>
-        } />
+        {/* Login is intentionally NOT guarded to allow admin to always log back in */}
+        <Route path="/login" element={<Login />} />
         <Route path="/signup" element={
-          <AuthRoute>
+          <SignupRoute>
             <Signup />
-          </AuthRoute>
+          </SignupRoute>
         } />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />

@@ -316,7 +316,9 @@ const Player = () => {
 
   const [isFavorite, setIsFavorite] = useState(false);
   const [isInMyWatchlist, setIsInMyWatchlist] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const lastCheckTimeRef = useRef<number>(0);
   const animationFrameRef = useRef<number>();
@@ -588,6 +590,36 @@ const Player = () => {
       memoizedNavigate(`/${mediaType}/${id}`);
     }
   }, [id, mediaType, memoizedNavigate]);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!playerContainerRef.current) return;
+    
+    if (!document.fullscreenElement) {
+      playerContainerRef.current.requestFullscreen?.().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen?.();
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+    
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+    };
+  }, []);
 
   const goToNextEpisode = useCallback(async () => {
     if (mediaType !== 'tv' || !id || !season || !mediaDetails) return;
@@ -1121,7 +1153,13 @@ const Player = () => {
           isMobile ? "flex flex-col" : "flex flex-col md:flex-row gap-8"
         )}>
           <div className="flex-1">
-            <div className="relative aspect-video rounded-lg overflow-hidden shadow-2xl bg-black">
+            <div 
+              ref={playerContainerRef}
+              className={cn(
+                "relative aspect-video rounded-lg overflow-hidden shadow-2xl bg-black group",
+                isFullscreen && "rounded-none w-screen h-screen z-[9999]"
+              )}
+            >
               {isLoading ? (
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                   <div className="w-12 h-12 border-3 border-accent/30 border-t-accent rounded-full animate-spin" />
@@ -1146,6 +1184,21 @@ const Player = () => {
                   <p className="text-white text-lg">Failed to load video. Please try another source.</p>
                 </div>
               )}
+
+              {/* Fullscreen Toggle Button */}
+              <div className={cn(
+                "absolute bottom-4 right-4 z-50 transition-opacity duration-300",
+                isMobile ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              )}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-black/50 hover:bg-black/70 text-white rounded-full h-10 w-10 backdrop-blur-sm border border-white/10"
+                  onClick={toggleFullscreen}
+                >
+                  {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+                </Button>
+              </div>
             </div> 
 
             {mediaType === 'tv' && episodes.length > 1 && (

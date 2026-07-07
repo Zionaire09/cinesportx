@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageSquare, Send, Trash2, UserX, ShieldAlert, Ban } from 'lucide-react';
+import { MessageSquare, Send, Trash2, UserX, ShieldAlert, Ban, Crown, Zap } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { 
   collection, 
@@ -31,6 +31,7 @@ interface Message {
   userName: string;
   userPhoto?: string;
   createdAt: Timestamp;
+  isAdmin?: boolean;
 }
 
 interface LiveChatProps {
@@ -176,6 +177,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
         userName: user.displayName || user.email?.split('@')[0] || 'Anonymous',
         userPhoto: user.photoURL || null,
         createdAt: serverTimestamp(),
+        isAdmin: user.isAdmin || false,
       };
       
       await addDoc(chatRef, messageData);
@@ -246,24 +248,47 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
           </div>
         ) : (
           messages.map((msg) => (
-            <div key={msg.id} className="flex items-start gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <Avatar className="h-7 w-7 border border-neutral-800 shrink-0">
+            <div key={msg.id} className={`flex items-start gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 ${
+              msg.isAdmin ? 'relative' : ''
+            }`}>
+              {msg.isAdmin && (
+                <div className="absolute -left-2 top-0 bottom-0 w-1 bg-gradient-to-b from-amber-500 via-yellow-400 to-amber-500 rounded-full" />
+              )}
+              <Avatar className={`h-7 w-7 border shrink-0 ${
+                msg.isAdmin ? 'border-amber-500/60 bg-amber-500/10' : 'border-neutral-800'
+              }`}>
                 <AvatarImage src={msg.userPhoto} />
-                <AvatarFallback className="bg-neutral-900 text-[10px] font-bold text-neutral-400">
+                <AvatarFallback className={`text-[10px] font-bold ${
+                  msg.isAdmin ? 'bg-amber-500/20 text-amber-300' : 'bg-neutral-900 text-neutral-400'
+                }`}>
                   {getInitials(msg.userName)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col gap-1 min-w-0">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-[11px] font-black text-indigo-400 uppercase tracking-wide truncate">
+                  <span className={`text-[11px] font-black uppercase tracking-wide truncate ${
+                    msg.isAdmin ? 'text-amber-400' : 'text-indigo-400'
+                  }`}>
                     {msg.userName}
                   </span>
+                  {msg.isAdmin && (
+                    <div className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-500/40 rounded-full">
+                      <Crown className="h-2.5 w-2.5 text-amber-400" />
+                      <span className="text-[8px] font-black text-amber-400 uppercase tracking-widest">Admin</span>
+                    </div>
+                  )}
                   <span className="text-[9px] text-neutral-600 font-mono">
                     {msg.createdAt ? new Date(msg.createdAt.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}
                   </span>
                 </div>
-                <div className="group relative bg-neutral-900/80 border border-neutral-800/50 px-3 py-2 rounded-2xl rounded-tl-none">
-                  <p className="text-xs text-neutral-300 leading-relaxed break-words">{msg.text}</p>
+                <div className={`group relative px-3 py-2 rounded-2xl rounded-tl-none border ${
+                  msg.isAdmin 
+                    ? 'bg-gradient-to-br from-amber-500/15 to-yellow-500/10 border-amber-500/40 shadow-lg shadow-amber-500/20' 
+                    : 'bg-neutral-900/80 border-neutral-800/50'
+                }`}>
+                  <p className={`text-xs leading-relaxed break-words ${
+                    msg.isAdmin ? 'text-amber-50 font-medium' : 'text-neutral-300'
+                  }`}>{msg.text}</p>
                   
                   {user?.isAdmin && (
                     <div className="absolute -right-2 -top-2 hidden group-hover:flex gap-1">
@@ -287,6 +312,11 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
                           <Ban className="h-3 w-3" />
                         </Button>
                       )}
+                    </div>
+                  )}
+                  {msg.isAdmin && (
+                    <div className="absolute -right-3 -bottom-3 hidden group-hover:flex">
+                      <Zap className="h-4 w-4 text-amber-400 fill-amber-400 drop-shadow-lg" />
                     </div>
                   )}
                 </div>

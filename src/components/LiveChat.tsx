@@ -86,19 +86,27 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
     });
 
     // Listen for active surveys
+    // Simplified query to avoid complex index requirements for all users
     const surveysQuery = query(
       collection(db, 'surveys'),
       where('matchId', '==', matchId),
       where('status', '==', 'active'),
-      orderBy('createdAt', 'desc'),
-      limit(1)
+      limit(5) // Get a few to filter manually if needed, or just take the first
     );
     const unsubscribeSurveys = onSnapshot(surveysQuery, (snapshot) => {
       if (!snapshot.empty) {
-        setActiveSurveyId(snapshot.docs[0].id);
+        // Sort manually by createdAt if multiple exist to avoid index requirement
+        const sortedDocs = [...snapshot.docs].sort((a, b) => {
+          const aTime = a.data().createdAt?.toMillis() || 0;
+          const bTime = b.data().createdAt?.toMillis() || 0;
+          return bTime - aTime;
+        });
+        setActiveSurveyId(sortedDocs[0].id);
       } else {
         setActiveSurveyId(null);
       }
+    }, (error) => {
+      console.error('Survey listener error:', error);
     });
 
     // Query for the latest 50 messages to ensure we catch any overflow

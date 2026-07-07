@@ -6,17 +6,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from '@/components/ui/badge';
 import { db } from '@/lib/firebase';
 import {
-  collection,
-  addDoc,
-  query,
-  where,
-  orderBy,
-  onSnapshot,
-  updateDoc,
-  doc,
-  serverTimestamp,
-  Timestamp,
-} from 'firebase/firestore';
+      collection,
+      addDoc,
+      query,
+      where,
+      limit,
+      onSnapshot,
+      updateDoc,
+      doc,
+      serverTimestamp,
+      Timestamp,
+    } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { BarChart3, Plus, X, CheckCircle } from 'lucide-react';
 
@@ -57,7 +57,7 @@ const SurveyAdmin: React.FC<SurveyAdminProps> = ({ matchId }) => {
       collection(db, 'surveys'),
       where('matchId', '==', matchId),
       where('status', '==', 'active'),
-      orderBy('createdAt', 'desc')
+      limit(10)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -65,7 +65,15 @@ const SurveyAdmin: React.FC<SurveyAdminProps> = ({ matchId }) => {
       snapshot.forEach((doc) => {
         surveys.push({ ...doc.data(), id: doc.id } as SurveyData);
       });
+      // Sort by createdAt manually to avoid index requirement
+      surveys.sort((a, b) => {
+        const aTime = a.createdAt?.toMillis?.() || 0;
+        const bTime = b.createdAt?.toMillis?.() || 0;
+        return bTime - aTime;
+      });
       setActiveSurveys(surveys);
+    }, (error) => {
+      console.error('Survey admin listener error:', error);
     });
 
     return () => unsubscribe();

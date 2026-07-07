@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { db } from '@/lib/firebase';
 import {
   doc,
-  getDoc,
+  onSnapshot,
   updateDoc,
   arrayUnion,
   arrayRemove,
@@ -46,22 +46,26 @@ const Survey: React.FC<SurveyProps> = ({ matchId, surveyId }) => {
   useEffect(() => {
     if (!surveyId) return;
 
-    const unsubscribe = getDoc(doc(db, 'surveys', surveyId)).then((doc) => {
-      if (doc.exists()) {
-        const data = doc.data() as SurveyData;
-        setSurvey({ ...data, id: doc.id });
+    const surveyRef = doc(db, 'surveys', surveyId);
+    const unsubscribe = onSnapshot(surveyRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data() as SurveyData;
+        setSurvey({ ...data, id: docSnap.id });
         
         // Check if current user has already voted
         if (user && data.userVotes?.[user.uid]) {
           setUserVote(data.userVotes[user.uid]);
+        } else {
+          setUserVote(null);
         }
       }
       setIsLoading(false);
+    }, (error) => {
+      console.error('Error listening to survey:', error);
+      setIsLoading(false);
     });
 
-    return () => {
-      // Cleanup if needed
-    };
+    return () => unsubscribe();
   }, [surveyId, user]);
 
   const handleVote = async (optionId: string) => {

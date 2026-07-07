@@ -18,7 +18,9 @@ import {
   deleteDoc,
   updateDoc,
   getDoc,
-  setDoc
+  setDoc,
+  getDocs,
+  where
 } from 'firebase/firestore';
 import { toast } from 'sonner';
 
@@ -35,6 +37,8 @@ interface LiveChatProps {
   matchId: string;
 }
 
+const MAX_MESSAGES = 40;
+
 const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -42,6 +46,29 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLiveChatDisabled, setIsLiveChatDisabled] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Automatically delete oldest messages when exceeding MAX_MESSAGES limit
+   * This function is called whenever messages are updated
+   */
+  const enforceMessageLimit = async (currentMessages: Message[]) => {
+    if (currentMessages.length > MAX_MESSAGES) {
+      const messagesToDelete = currentMessages.length - MAX_MESSAGES;
+      const oldestMessages = currentMessages.slice(0, messagesToDelete);
+      
+      try {
+        // Delete the oldest messages in parallel
+        const deletePromises = oldestMessages.map(msg =>
+          deleteDoc(doc(db, 'chats', matchId, 'messages', msg.id))
+        );
+        await Promise.all(deletePromises);
+        
+        console.log(`Deleted ${messagesToDelete} oldest message(s) to maintain ${MAX_MESSAGES} message limit`);
+      } catch (error) {
+        console.error('Error enforcing message limit:', error);
+      }
+    }
+  };
 
   useEffect(() => {
     if (!matchId) return;
@@ -54,6 +81,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
       }
     });
 
+    // Query for the latest 50 messages to ensure we catch any overflow
     const chatRef = collection(db, 'chats', matchId, 'messages');
     const q = query(chatRef, orderBy('createdAt', 'asc'), limit(50));
 
@@ -64,6 +92,9 @@ const LiveChat: React.FC<LiveChatProps> = ({ matchId }) => {
       });
       setMessages(msgs);
       setIsLoading(false);
+      
+      // Enforce message limit
+      enforceMessageLimit(msgs);
       
       // Scroll to bottom on new messages
       setTimeout(() => {

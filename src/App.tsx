@@ -81,16 +81,8 @@ const AnimatedRoutes = () => {
         <Route path="/sports/player/:matchId" element={<SportMatchPlayer />} />
         <Route path="/movie/:id" element={<MovieDetails />} />
         <Route path="/tv/:id" element={<TVDetails />} />
-        <Route path="/player/movie/:id" element={
-          <ProtectedRoute>
-            <Player />
-          </ProtectedRoute>
-        } />
-        <Route path="/player/tv/:id/:season/:episode" element={
-          <ProtectedRoute>
-            <Player />
-          </ProtectedRoute>
-        } />
+        <Route path="/player/movie/:id" element={<Player />} />
+        <Route path="/player/tv/:id/:season/:episode" element={<Player />} />
         <Route path="/search" element={<Search />} />
         <Route path="/profile" element={
           <ProtectedRoute>

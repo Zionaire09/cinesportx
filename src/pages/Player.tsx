@@ -1133,8 +1133,12 @@ const Player = () => {
                   className="w-full h-full"
                   title={title}
                   allowFullScreen
+                  webkitallowfullscreen="true"
+                  mozallowfullscreen="true"
+                  oallowfullscreen="true"
+                  msallowfullscreen="true"
                   referrerPolicy="no-referrer"
-                  allow="autoplay; encrypted-media; fullscreen"
+                  allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
                   loading="lazy"
                 />
               ) : (

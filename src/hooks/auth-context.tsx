@@ -3,7 +3,7 @@ import { authService, User } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import { AuthContext, AuthContextType } from '@/contexts/auth';
 
-export function AuthProvider({ children }: { children: React.Node }) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -116,13 +116,21 @@ export function AuthProvider({ children }: { children: React.Node }) {
   };
 
   const logout = async () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    setUser(null);
-    toast({
-      title: "Signed out",
-      description: "You have been signed out successfully.",
-    });
+    try {
+      // Use authService.signOut() to correctly clear Firebase session
+      await authService.signOut();
+      setUser(null);
+      toast({
+        title: "Signed out",
+        description: "You have been signed out successfully.",
+      });
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Fallback: clear local state even if remote fails
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      setUser(null);
+    }
   };
 
   const value: AuthContextType = {

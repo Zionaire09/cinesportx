@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Home, Film, Tv, TrendingUp, Menu, X, Keyboard, ArrowRight, History, UserCircle, LogIn, UserPlus, Volleyball } from 'lucide-react';
+import { Search, Home, Film, Tv, TrendingUp, Menu, X, Keyboard, ArrowRight, History, UserCircle, LogIn, UserPlus, Volleyball, ShieldAlert } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/hooks';
 import { searchMedia } from '@/utils/api';
 import { Media } from '@/utils/types';
+import { useSiteSettings } from '@/contexts/site-settings';
+import { toast as sonnerToast } from 'sonner';
 
 const Logo = '/logo.png';
 
@@ -26,6 +28,7 @@ const Navbar = () => {
   const location = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { userFeaturesEnabled, toggleUserFeatures } = useSiteSettings();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchSuggestions, setSearchSuggestions] = useState<Media[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -33,21 +36,46 @@ const Navbar = () => {
   const mobileFormRef = useRef<HTMLFormElement>(null);
   const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const navItems: NavItem[] = [
+  // Base nav items
+  const baseNavItems: NavItem[] = [
     { title: 'Home', path: '/', icon: <Home className="h-5 w-5 mr-2" /> },
     { title: 'Movies', path: '/movies', icon: <Film className="h-5 w-5 mr-2" /> },
     { title: 'TV Shows', path: '/tv', icon: <Tv className="h-5 w-7 mr-2" /> },
     { title: 'Sports', path: '/sports', icon: <Volleyball className="h-5 w-5 mr-2" /> },
     { title: 'Trending', path: '/trending', icon: <TrendingUp className="h-5 w-5 mr-2" /> },
-    { title: 'Watch History', path: '/watch-history', icon: <History className="h-5 w-5 mr-2" /> },
   ];
 
-  const authItems: NavItem[] = user ? [
-    { title: 'Profile', path: '/profile', icon: <UserCircle className="h-4 w-4 mr-2" /> },
-  ] : [
-    { title: 'Login', path: '/login', icon: <LogIn className="h-4 w-4 mr-2" /> },
-    { title: 'Sign Up', path: '/signup', icon: <UserPlus className="h-4 w-4 mr-2" /> },
-  ];
+  // Watch History only shown when user features are enabled (or viewer is admin)
+  const navItems: NavItem[] = (userFeaturesEnabled || user?.isAdmin)
+    ? [
+        ...baseNavItems,
+        { title: 'Watch History', path: '/watch-history', icon: <History className="h-5 w-5 mr-2" /> },
+      ]
+    : baseNavItems;
+
+  // Auth items — only shown when user features are enabled (or viewer is admin)
+  const authItems: NavItem[] = (userFeaturesEnabled || user?.isAdmin)
+    ? (user
+        ? [{ title: 'Profile', path: '/profile', icon: <UserCircle className="h-4 w-4 mr-2" /> }]
+        : [
+            { title: 'Login', path: '/login', icon: <LogIn className="h-4 w-4 mr-2" /> },
+            { title: 'Sign Up', path: '/signup', icon: <UserPlus className="h-4 w-4 mr-2" /> },
+          ])
+    : [];
+
+  const handleAdminToggle = async () => {
+    if (!user?.isAdmin) return;
+    try {
+      await toggleUserFeatures(user.uid);
+      sonnerToast.success(
+        userFeaturesEnabled
+          ? 'User features disabled. Login, signup, profile and watch history are now hidden.'
+          : 'User features enabled. All user functionality is now visible.'
+      );
+    } catch (error) {
+      sonnerToast.error('Failed to update site settings.');
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -304,6 +332,22 @@ const Navbar = () => {
                   {item.title}
                 </Link>
               ))}
+
+              {/* Admin toggle button — only visible to admin */}
+              {user?.isAdmin && (
+                <button
+                  onClick={handleAdminToggle}
+                  title={userFeaturesEnabled ? 'Disable user features (login, signup, profile, watch history)' : 'Enable user features'}
+                  className={`px-3 py-2 rounded-md flex items-center text-sm font-medium transition-all duration-200 border ${
+                    userFeaturesEnabled
+                      ? 'border-green-500/50 text-green-400 hover:bg-green-500/10'
+                      : 'border-red-500/50 text-red-400 hover:bg-red-500/10'
+                  }`}
+                >
+                  <ShieldAlert className="h-4 w-4 mr-1" />
+                  {userFeaturesEnabled ? 'Users: ON' : 'Users: OFF'}
+                </button>
+              )}
             </nav>
 
             {/* Logo beside menu */}
@@ -381,7 +425,7 @@ const Navbar = () => {
                   <Input
                     type="search"
                     placeholder="Search... (Press /)"
-                    className="w-[180px] lg:w-[220px] bg-white/10 border-white/10 pl-9 text-white placeholder:text-white/50 focus:bg-white/15"
+                    className="w-[180px] lg:w-[220px] bg-white/10 border-white/10 pl-9 text-white placeholder:text-white/50 focus:bg-white/15 focus:w-[240px] lg:focus:w-[280px] transition-all duration-300"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => searchQuery.trim().length > 0 && setShowSuggestions(true)}
@@ -489,6 +533,21 @@ const Navbar = () => {
                   {item.title}
                 </Link>
               ))}
+
+              {/* Admin toggle — mobile */}
+              {user?.isAdmin && (
+                <button
+                  onClick={() => { handleAdminToggle(); setIsMobileMenuOpen(false); }}
+                  className={`w-full text-left block px-3 py-2 rounded-md text-base font-medium flex items-center transition-all duration-200 border ${
+                    userFeaturesEnabled
+                      ? 'border-green-500/50 text-green-400 hover:bg-green-500/10'
+                      : 'border-red-500/50 text-red-400 hover:bg-red-500/10'
+                  }`}
+                >
+                  <ShieldAlert className="h-5 w-5 mr-2" />
+                  {userFeaturesEnabled ? 'Users: ON — Click to Disable' : 'Users: OFF — Click to Enable'}
+                </button>
+              )}
             </div>
           </div>
         )}

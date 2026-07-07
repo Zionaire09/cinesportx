@@ -6,8 +6,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "r
 import { AnimatePresence } from "framer-motion";
 import { AuthProvider } from "@/hooks/auth-context";
 import { WatchHistoryProvider } from "@/contexts/watch-history";
-import { UserPreferencesProvider } from "@/contexts/types/user-preferences"; // Updated import
+import { UserPreferencesProvider } from "@/contexts/types/user-preferences";
+import { SiteSettingsProvider, useSiteSettings } from "@/contexts/site-settings";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { useAuth } from "@/hooks";
 import Index from "./pages/Index";
 import Movies from "./pages/Movies";
 import TVShows from "./pages/TVShows";
@@ -43,6 +45,23 @@ const usePageTracking = () => {
       page_path: location.pathname + location.search,
     });
   }, [location]);
+};
+
+/**
+ * Guard for public auth routes (/login, /signup).
+ * When user features are disabled and the visitor is not admin, redirect to home.
+ */
+const AuthRoute = ({ children }: { children: React.ReactNode }) => {
+  const { userFeaturesEnabled, settingsLoading } = useSiteSettings();
+  const { user, loading } = useAuth();
+
+  if (loading || settingsLoading) return null;
+
+  if (!userFeaturesEnabled && !user?.isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 const AnimatedRoutes = () => {
@@ -82,8 +101,16 @@ const AnimatedRoutes = () => {
             <WatchHistory />
           </ProtectedRoute>
         } />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={
+          <AuthRoute>
+            <Login />
+          </AuthRoute>
+        } />
+        <Route path="/signup" element={
+          <AuthRoute>
+            <Signup />
+          </AuthRoute>
+        } />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/dmca" element={<DMCANotice />} />
@@ -98,16 +125,18 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <UserPreferencesProvider>
-          <WatchHistoryProvider>
-            <Toaster />
-            <Sonner />
-            <Router>
-              <ChristmasGreeting />
-              <AnimatedRoutes />
-            </Router>
-          </WatchHistoryProvider>
-        </UserPreferencesProvider>
+        <SiteSettingsProvider>
+          <UserPreferencesProvider>
+            <WatchHistoryProvider>
+              <Toaster />
+              <Sonner />
+              <Router>
+                <ChristmasGreeting />
+                <AnimatedRoutes />
+              </Router>
+            </WatchHistoryProvider>
+          </UserPreferencesProvider>
+        </SiteSettingsProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

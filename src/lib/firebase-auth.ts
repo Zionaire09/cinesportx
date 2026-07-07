@@ -80,41 +80,68 @@ class FirebaseAuthService {
       const firebaseUser = userCredential.user;
 
       const isAdmin = firebaseUser.email === 'surotember@gmail.com' || firebaseUser.displayName === 'RabbitMeowAdmin';
-      
-      // Ensure user document exists in Firestore
-      const userRef = doc(db, 'users', firebaseUser.uid);
-      const userDoc = await getDoc(userRef);
-      let userData = userDoc.exists() ? userDoc.data() : null;
 
-      if (!userData) {
-        // Create the missing document
-        userData = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Anonymous',
-          photoURL: firebaseUser.photoURL || null,
-          isAdmin: isAdmin,
-          isBanned: false,
-          createdAt: new Date().toISOString(),
-        };
-        await setDoc(userRef, userData);
-      } else if (isAdmin && !userData.isAdmin) {
-        // Update admin status if it's missing in Firestore
-        await updateDoc(userRef, { isAdmin: true });
-        userData.isAdmin = true;
-      }
-
-      return {
-        user: {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: userData.displayName || firebaseUser.displayName,
-          photoURL: firebaseUser.photoURL,
-          isAdmin: userData.isAdmin || false,
-          isBanned: userData.isBanned || false,
-        },
+      // Build a safe fallback user from Firebase Auth data alone (no Firestore required)
+      const fallbackUser: User = {
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Anonymous',
+        photoURL: firebaseUser.photoURL,
+        isAdmin: isAdmin,
+        isBanned: false,
       };
+
+      // Attempt to read/sync the Firestore user document, but never block login on failure.
+      // This is especially important when the Firebase write quota has been reached.
+      try {
+        const userRef = doc(db, 'users', firebaseUser.uid);
+        const userDoc = await getDoc(userRef);
+        let userData = userDoc.exists() ? userDoc.data() : null;
+
+        if (!userData) {
+          // Document missing — try to create it, but silently ignore write errors
+          userData = {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Anonymous',
+            photoURL: firebaseUser.photoURL || null,
+            isAdmin: isAdmin,
+            isBanned: false,
+            createdAt: new Date().toISOString(),
+          };
+          try {
+            await setDoc(userRef, userData);
+          } catch (writeError) {
+            // Write quota exceeded or permission denied — proceed with fallback user
+            console.warn('Firestore write failed during sign-in (quota or permissions). Proceeding with auth-only user.', writeError);
+          }
+        } else if (isAdmin && !userData.isAdmin) {
+          // Update admin status if missing — ignore write errors
+          try {
+            await updateDoc(userRef, { isAdmin: true });
+          } catch (writeError) {
+            console.warn('Firestore admin update failed (quota or permissions). Proceeding with local admin flag.', writeError);
+          }
+          userData.isAdmin = true;
+        }
+
+        return {
+          user: {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: userData.displayName || firebaseUser.displayName,
+            photoURL: firebaseUser.photoURL,
+            isAdmin: userData.isAdmin || isAdmin,
+            isBanned: userData.isBanned || false,
+          },
+        };
+      } catch (firestoreError) {
+        // Firestore read failed (quota, offline, permission) — still allow login
+        console.warn('Firestore read failed during sign-in. Proceeding with auth-only user.', firestoreError);
+        return { user: fallbackUser };
+      }
     } catch (error: any) {
+      // Only re-throw if it is a Firebase Auth error (wrong password, user not found, etc.)
       throw new Error(error.message || 'Failed to sign in');
     }
   }
@@ -145,9 +172,14 @@ class FirebaseAuthService {
 
       const isAdmin = firebaseUser.email === 'surotember@gmail.com' || firebaseUser.displayName === 'RabbitMeowAdmin';
       
-      // We already have userData from the initial query, but let's ensure it's up to date
+      // We already have userData from the initial query, but let's ensure it's up to date.
+      // Ignore write errors (e.g. quota exceeded) — admin flag is still set locally.
       if (isAdmin && !userData.isAdmin) {
-        await updateDoc(doc(db, 'users', firebaseUser.uid), { isAdmin: true });
+        try {
+          await updateDoc(doc(db, 'users', firebaseUser.uid), { isAdmin: true });
+        } catch (writeError) {
+          console.warn('Firestore admin update failed during username sign-in (quota or permissions). Proceeding with local admin flag.', writeError);
+        }
         userData.isAdmin = true;
       }
 
@@ -157,7 +189,7 @@ class FirebaseAuthService {
           email: firebaseUser.email,
           displayName: firebaseUser.displayName,
           photoURL: firebaseUser.photoURL,
-          isAdmin: userData.isAdmin || false,
+          isAdmin: userData.isAdmin || isAdmin,
           isBanned: userData.isBanned || false,
         },
       };
@@ -182,6 +214,18 @@ class FirebaseAuthService {
     return onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         const isAdmin = firebaseUser.email === 'surotember@gmail.com' || firebaseUser.displayName === 'RabbitMeowAdmin';
+
+        // Always build a safe fallback from Firebase Auth data alone.
+        // This ensures the user is never stuck in a loading state when Firestore
+        // is unavailable (e.g. quota exceeded, offline, permission denied).
+        const fallbackUser: User = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+          isAdmin: isAdmin,
+          isBanned: false,
+        };
         
         try {
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
@@ -196,15 +240,10 @@ class FirebaseAuthService {
             isBanned: userData.isBanned || false,
           });
         } catch (error) {
-          console.error('Error fetching user data in onAuthStateChanged:', error);
-          callback({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            displayName: firebaseUser.displayName,
-            photoURL: firebaseUser.photoURL,
-            isAdmin: isAdmin,
-            isBanned: false,
-          });
+          // Firestore read failed (quota exceeded, offline, permission denied).
+          // Fall back to Firebase Auth data so the user is not stuck on a loading screen.
+          console.warn('Firestore read failed in onAuthStateChanged (quota or permissions). Using auth-only user data.', error);
+          callback(fallbackUser);
         }
       } else {
         callback(null);

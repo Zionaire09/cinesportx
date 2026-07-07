@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks';
 import { Button } from '@/components/ui/button';
@@ -9,13 +9,23 @@ import Navbar from '@/components/Navbar';
 import Ads from '@/components/Ads';
 import { useUserPreferences } from '@/hooks/user-preferences';
 
+
 export default function Login() {
   const { userPreferences } = useUserPreferences();
   const [identifier, setIdentifier] = useState(''); // Can be email or username
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, user, loading } = useAuth();
   const navigate = useNavigate();
+
+  // If the user is already authenticated, redirect them to the home page.
+  // This handles the case where someone navigates directly to /login while
+  // already signed in (e.g. after user features were re-enabled).
+  useEffect(() => {
+    if (!loading && user) {
+      navigate('/', { replace: true });
+    }
+  }, [user, loading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

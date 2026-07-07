@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, ReactNode } from 'react';
+import { useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { useAuth } from '@/hooks';
 import { useUserPreferences } from '@/hooks/user-preferences';
 import { Media } from '@/utils/types';
@@ -32,7 +32,11 @@ export function WatchHistoryProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [offset, setOffset] = useState(0);
+  // Use a ref for offset so that fetchWatchHistory does not need offset in its
+  // dependency array, which would otherwise cause an infinite re-fetch loop:
+  // fetchWatchHistory changes -> useEffect re-runs -> fetchWatchHistory calls
+  // setOffset -> offset changes -> fetchWatchHistory changes -> repeat.
+  const offsetRef = useRef(0);
   const { toast } = useToast();
 
   const loadLocalWatchHistory = useCallback(() => {
@@ -102,7 +106,10 @@ export function WatchHistoryProvider({ children }: { children: ReactNode }) {
 
     try {
       setIsLoading(true);
-      const currentOffset = isInitial ? 0 : offset;
+      // Use the ref value so this callback does not need `offset` in its deps,
+      // which would cause an infinite loop (setOffset -> offset changes ->
+      // fetchWatchHistory recreated -> useEffect re-runs -> repeat).
+      const currentOffset = isInitial ? 0 : offsetRef.current;
       const response = await watchHistoryService.getWatchHistory(20, currentOffset);
       
       const historyData = response.items.map(item => ({
@@ -115,7 +122,8 @@ export function WatchHistoryProvider({ children }: { children: ReactNode }) {
 
       setWatchHistory(prev => isInitial ? historyData : [...prev, ...historyData]);
       setHasMore(response.hasMore);
-      setOffset(currentOffset + response.items.length);
+      // Update the ref directly (no re-render, no dependency cycle)
+      offsetRef.current = currentOffset + response.items.length;
     } catch (error) {
       console.error('Error fetching watch history:', error);
       toast({
@@ -126,7 +134,7 @@ export function WatchHistoryProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [user?.uid, offset, toast, loadLocalWatchHistory]);
+  }, [user?.uid, toast, loadLocalWatchHistory]);
 
   const fetchFavorites = useCallback(async () => {
     if (!user) {
@@ -184,6 +192,8 @@ export function WatchHistoryProvider({ children }: { children: ReactNode }) {
     if (authLoading) return;
 
     if (user) {
+      // Reset offset ref before the initial fetch so pagination starts from 0
+      offsetRef.current = 0;
       Promise.all([
         fetchWatchHistory(true),
         fetchFavorites(),
@@ -196,9 +206,11 @@ export function WatchHistoryProvider({ children }: { children: ReactNode }) {
       setFavorites(loadLocalFavorites());
       setWatchlist(loadLocalWatchlist());
       setHasMore(true);
-      setOffset(0);
+      offsetRef.current = 0;
       setIsLoading(false);
     }
+  // fetchWatchHistory is stable (no `offset` dep) so this effect only fires
+  // when the user identity or auth loading state actually changes.
   }, [user?.uid, authLoading, fetchWatchHistory, fetchFavorites, fetchWatchlist, loadLocalWatchHistory]);
 
 const addToWatchHistory = useCallback(async (
@@ -276,7 +288,7 @@ const addToWatchHistory = useCallback(async (
       await watchHistoryService.clearWatchHistory();
       setWatchHistory([]);
       saveLocalWatchHistory([]);
-      setOffset(0);
+      offsetRef.current = 0;
       setHasMore(true);
     } catch (error) {
       console.error('Error clearing watch history:', error);

@@ -46,6 +46,7 @@
     "autoprefixer": "latest",
     "postcss": "latest",
     "tailwindcss": "^3.4.17",
+    "terser": "^5.48.0",
     "vite": "latest"
   }
 }

@@ -15,6 +15,25 @@
   <meta name="theme-color" content="#7f1d1d" />
 
   <title>MsportsX – Watch Sports, Movies & TV Shows Online</title>
+  <!-- Start Single Page Apps for GitHub Pages -->
+  <script type="text/javascript">
+    // Single Page Apps for GitHub Pages
+    // https://github.com/rafgraph/spa-github-pages
+    // This script takes the current url and checks to see if '?' is at the beginning of the query string.
+    // If it is, it takes the query string and converts it back into the correct url and adds it to the
+    // browser's history using window.history.replaceState(...), which will cause the browser to render the new site without reloading the page.
+    (function(l) {
+      if (l.search[1] === '/' ) {
+        var decoded = l.search.slice(1).split('&').map(function(s) { 
+          return s.replace(/~and~/g, '&')
+        }).join('?');
+        window.history.replaceState(null, null,
+            l.pathname.slice(0, -1) + decoded + l.hash
+        );
+      }
+    }(window.location))
+  </script>
+  <!-- End Single Page Apps for GitHub Pages -->
 
   <!-- SEO -->
   <meta name="description" content="MSportsX lets you watch Sports, Movies and TV shows online in high quality. Fast streaming, clean UI, and smooth playback experience." />

@@ -1,1 +1,3 @@
+# Standard SPA fallback for Cloudflare Pages
+# Note: Cloudflare Workers with [assets] might handle this differently than Pages
 /* /index.html 200

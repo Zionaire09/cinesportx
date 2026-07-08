@@ -25,13 +25,12 @@ This allows users to access the home page via either `/` or `/home`.
 Added a Cloudflare Pages/Netlify redirect rule:
 
 ```
-/* /index.html 200
+/*  /index.html  200
 ```
 
-This tells the server to serve `index.html` for all routes, allowing React Router to handle the routing on the client side. This file is automatically picked up by:
-- Cloudflare Pages
-- Netlify
-- Vercel (with configuration)
+This tells the server to serve `index.html` for all routes, allowing React Router to handle the routing on the client side. 
+
+**Note on Cloudflare Deployment**: An infinite loop error was previously encountered with certain `_redirects` syntax. The current syntax `/* /index.html 200` is the standard for SPAs, but if loops persist, Cloudflare may require specific handling in `wrangler.toml` or a custom Worker script.
 
 ### 3. Created `public/404.html` File
 Added a fallback 404 page with SPA routing script for GitHub Pages and other static hosts that don't support `_redirects`:

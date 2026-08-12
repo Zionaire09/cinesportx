@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Play, Sparkles } from 'lucide-react';
+import { X, Play, Sparkles, Film, Tv, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface WelcomeDialogProps {
   onClose: () => void;
@@ -10,6 +11,7 @@ interface WelcomeDialogProps {
 
 const WelcomeDialog: React.FC<WelcomeDialogProps> = ({ onClose, isOpen }) => {
   const [hasAnimated, setHasAnimated] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isOpen && !hasAnimated) {
@@ -63,6 +65,11 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({ onClose, isOpen }) => {
     },
   };
 
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    onClose();
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -85,16 +92,16 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({ onClose, isOpen }) => {
             className="fixed inset-0 flex items-center justify-center z-50 p-4"
           >
             <motion.div
-              className="relative w-full max-w-md bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl shadow-2xl border border-white/10 overflow-hidden"
+              className="relative w-full max-w-md bg-gradient-to-br from-slate-950 via-red-950/20 to-slate-950 rounded-3xl shadow-2xl border border-red-500/20 overflow-hidden"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             >
               {/* Animated background gradient */}
-              <div className="absolute inset-0 opacity-30">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl" />
-                <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
+              <div className="absolute inset-0 opacity-40">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-red-600/20 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 right-0 w-96 h-96 bg-rose-700/20 rounded-full blur-3xl" />
               </div>
 
               {/* Close button */}
@@ -102,17 +109,17 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({ onClose, isOpen }) => {
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}
-                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors border border-white/10"
               >
                 <X className="h-5 w-5 text-white" />
               </motion.button>
 
               {/* Content */}
-              <div className="relative z-10 px-8 py-12 text-center">
+              <div className="relative z-10 px-8 py-10 text-center">
                 {/* Logo */}
                 <motion.div
                   variants={logoVariants}
-                  className="mb-8 flex justify-center"
+                  className="mb-6 flex justify-center"
                 >
                   <motion.div
                     variants={pulseVariants}
@@ -121,52 +128,63 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({ onClose, isOpen }) => {
                   >
                     <img
                       src="/logo.png"
-                      alt="RabbitMeow"
-                      className="h-32 w-32 object-contain drop-shadow-lg"
+                      alt="MSportsX"
+                      className="h-28 w-28 object-contain drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]"
                     />
                     {/* Glow effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-purple-500/0 rounded-full blur-2xl" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-500/10 to-rose-500/0 rounded-full blur-2xl" />
                   </motion.div>
                 </motion.div>
 
                 {/* Title */}
                 <motion.div variants={itemVariants} className="mb-4">
-                  <h2 className="text-3xl font-black bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent mb-2">
-                    Welcome to RabbitMeow
+                  <h2 className="text-3xl font-black bg-gradient-to-r from-red-400 via-rose-500 to-red-600 bg-clip-text text-transparent mb-2">
+                    Welcome to MSportsX
                   </h2>
-                  <div className="flex items-center justify-center gap-2 text-sm text-white/60">
-                    <Sparkles className="h-4 w-4 text-yellow-400" />
-                    <span>Your Entertainment Hub</span>
-                    <Sparkles className="h-4 w-4 text-yellow-400" />
+                  <div className="flex items-center justify-center gap-2 text-xs font-medium uppercase tracking-wider text-red-400/80">
+                    <Sparkles className="h-3 w-3" />
+                    <span>Premium Entertainment</span>
+                    <Sparkles className="h-3 w-3" />
                   </div>
                 </motion.div>
 
                 {/* Description */}
-                <motion.p
-                  variants={itemVariants}
-                  className="text-white/70 text-sm leading-relaxed mb-8"
-                >
-                  Stream unlimited movies and TV shows in stunning quality. Discover your next favorite with our curated collections and personalized recommendations.
-                </motion.p>
-
-                {/* Features */}
                 <motion.div
                   variants={itemVariants}
-                  className="grid grid-cols-3 gap-4 mb-8"
+                  className="text-white/70 text-sm leading-relaxed mb-8 space-y-2"
+                >
+                  <p>
+                    Experience ultimate streaming with <span className="text-red-400 font-semibold text-base">16 working servers</span> for your favorite Movies and TV Shows.
+                  </p>
+                  <p className="text-white/60">
+                    Stay ahead with <span className="text-rose-400 font-medium">regularly updated live sports</span> events from around the globe.
+                  </p>
+                </motion.div>
+
+                {/* Features Grid */}
+                <motion.div
+                  variants={itemVariants}
+                  className="grid grid-cols-3 gap-3 mb-8"
                 >
                   {[
-                    { icon: '🎬', label: 'Movies' },
-                    { icon: '📺', label: 'TV Shows' },
-                    { icon: '⭐', label: 'Trending' },
+                    { icon: <Film className="h-6 w-6" />, label: 'Movies', path: '/movie', color: 'text-red-400' },
+                    { icon: <Tv className="h-6 w-6" />, label: 'TV Shows', path: '/tv', color: 'text-rose-400' },
+                    { icon: <Trophy className="h-6 w-6" />, label: 'Sports', path: '/sports', color: 'text-orange-400' },
                   ].map((feature, index) => (
-                    <motion.div
+                    <motion.button
                       key={index}
                       whileHover={{ scale: 1.05, y: -5 }}
-                      className="p-3 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors"
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleNavigation(feature.path)}
+                      className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-red-500/30 hover:bg-red-500/5 transition-all duration-300 group"
                     >
-                      <div className="text-2xl mb-1">{feature.icon}</div>
-                      <div className="text-xs font-medium text-white/80">{feature.label}</div>
-                    </motion.div>
+                      <div className={`mb-2 flex justify-center ${feature.color} group-hover:scale-110 transition-transform`}>
+                        {feature.icon}
+                      </div>
+                      <div className="text-[10px] font-bold uppercase tracking-tight text-white/70 group-hover:text-white transition-colors">
+                        {feature.label}
+                      </div>
+                    </motion.button>
                   ))}
                 </motion.div>
 
@@ -178,9 +196,9 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({ onClose, isOpen }) => {
                   >
                     <Button
                       onClick={onClose}
-                      className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-blue-500/30"
+                      className="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold py-6 rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-red-900/20 border border-red-400/20"
                     >
-                      <Play className="h-4 w-4" />
+                      <Play className="h-5 w-5 fill-current" />
                       Start Watching
                     </Button>
                   </motion.div>
@@ -189,24 +207,16 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({ onClose, isOpen }) => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={onClose}
-                    className="w-full py-3 rounded-xl bg-white/5 border border-white/20 hover:bg-white/10 text-white font-semibold transition-all duration-300"
+                    className="w-full py-3 rounded-xl text-white/40 hover:text-white/60 text-xs font-medium transition-all duration-300"
                   >
-                    Maybe Later
+                    Dismiss for now
                   </motion.button>
                 </motion.div>
-
-                {/* Footer text */}
-                <motion.p
-                  variants={itemVariants}
-                  className="text-xs text-white/40 mt-6"
-                >
-                  This dialog won't show again until you clear your browser data
-                </motion.p>
               </div>
 
               {/* Decorative corners */}
-              <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-white/10 rounded-br-3xl" />
-              <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-white/10 rounded-tl-3xl" />
+              <div className="absolute top-0 left-0 w-16 h-16 border-t border-l border-red-500/10 rounded-br-3xl pointer-events-none" />
+              <div className="absolute bottom-0 right-0 w-16 h-16 border-b border-r border-red-500/10 rounded-tl-3xl pointer-events-none" />
             </motion.div>
           </motion.div>
         </>

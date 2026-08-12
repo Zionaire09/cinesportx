@@ -18,8 +18,8 @@ const navItems: NavItem[] = [
   { title: 'Home', path: '/', icon: <Home className="h-4 w-4" /> },
   { title: 'Movies', path: '/movies', icon: <Film className="h-4 w-4" /> },
   { title: 'TV Shows', path: '/tv', icon: <Tv className="h-4 w-4" /> },
-  { title: 'Sports', path: '/sports', icon: <Volleyball className="h-4 w-4" /> },
   { title: 'Trending', path: '/trending', icon: <TrendingUp className="h-4 w-4" /> },
+  { title: 'Sports', path: '/sports', icon: <Volleyball className="h-4 w-4" /> },
   { title: 'Anime', path: 'https://animeow.live', icon: <ExternalLink className="h-4 w-4" />, external: true },
 ];
 

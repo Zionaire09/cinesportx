@@ -1,9 +1,7 @@
 import { AnimatePresence } from "framer-motion";
 import Ads from '@/components/Ads';
-import { useUserPreferences } from '@/hooks/user-preferences';
 
 const TermsOfService = () => {
-  const { userPreferences } = useUserPreferences();
   return (
     <div>
       <AnimatePresence mode="wait">
@@ -67,7 +65,7 @@ const TermsOfService = () => {
           </div>
         </div>
       </AnimatePresence>
-{userPreferences?.adsEnabled && <Ads />}    </div>
+<Ads />    </div>
   );
 };
 

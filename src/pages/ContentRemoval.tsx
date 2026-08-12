@@ -1,9 +1,7 @@
 import { AnimatePresence } from "framer-motion";
-import { useUserPreferences } from '@/hooks/user-preferences'; // Added
 import Ads from '@/components/Ads';
 
 const ContentRemoval = () => {
-  const { userPreferences } = useUserPreferences(); // Added
 
   return (
     <>
@@ -69,7 +67,7 @@ const ContentRemoval = () => {
           </div>
         </div>
       </AnimatePresence>
-      {userPreferences?.adsEnabled && <Ads />} {/* Updated to conditional rendering */}
+      <Ads /> {/* Updated to conditional rendering */}
     </>
   );
 };

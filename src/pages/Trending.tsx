@@ -9,14 +9,12 @@ import { MediaGridSkeleton } from '@/components/MediaSkeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, ChevronDown } from 'lucide-react';
-import { useUserPreferences } from '@/hooks/user-preferences'; // Added
 import Ads from '@/components/Ads';
 
 
 const ITEMS_PER_PAGE = 20;
 
 const Trending = () => {
-  const { userPreferences } = useUserPreferences(); // Added
   const [timeWindow, setTimeWindow] = useState<'day' | 'week'>('week');
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
@@ -151,7 +149,7 @@ const Trending = () => {
       </main>
       
       <Footer />
-      {userPreferences?.adsEnabled && <Ads />} {/* Updated to conditional rendering */}
+      <Ads /> {/* Updated to conditional rendering */}
     </div>
   );
 };

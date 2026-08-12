@@ -15,7 +15,6 @@ import {
 } from '@/utils/sports-api';
 import { getColorForSport } from '@/utils/sports-colors';
 import { useToast } from '@/hooks/use-toast';
-import { useUserPreferences } from '@/hooks/user-preferences';
 import Ads from '@/components/Ads';
 import { Search, Radio, Sparkles, CalendarDays, Activity, Zap, Flame } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -25,8 +24,7 @@ const Sports = () => {
   const [selectedSport, setSelectedSport] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { toast } = useToast();
-  const { userPreferences } = useUserPreferences();
-  const accentColor = userPreferences?.accentColor || 'hsl(var(--accent))';
+  const accentColor = 'hsl(var(--accent))';
 
 
 
@@ -326,6 +324,7 @@ const Sports = () => {
                     <SportsMatchGrid
                       matches={filterMatches(getCurrentMatches())}
                       emptyMessage={getEmptyMessage()}
+                      backupStreamHref="https://rmppv.xyz"
                     />
                   )}
                 </TabsContent>
@@ -334,7 +333,7 @@ const Sports = () => {
           </div>
         </div>
         <Footer />
-        {userPreferences?.adsEnabled && <Ads />}
+        <Ads />
       </div>
     </PageTransition>
   );

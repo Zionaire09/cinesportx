@@ -13,12 +13,10 @@ import { useToast } from '@/hooks/use-toast';
 import { MediaGridSkeleton } from '@/components/MediaSkeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Ads from '@/components/Ads';
-import { useUserPreferences } from '@/hooks/user-preferences';
 
 const ITEMS_PER_PAGE = 20;
 
 const TVShows = () => {
-  const { userPreferences } = useUserPreferences();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'popular' | 'top_rated'>('popular');
@@ -256,7 +254,7 @@ const TVShows = () => {
           </div>
         </main>
         <Footer />
-{userPreferences?.adsEnabled && <Ads />}      </div>
+<Ads />      </div>
     </PageTransition>
   );
 };

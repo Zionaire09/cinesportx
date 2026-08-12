@@ -6,18 +6,15 @@ import { Button } from '@/components/ui/button';
 import ContentRow from '@/components/ContentRow';
 import Navbar from '@/components/Navbar';
 import ReviewSection from '@/components/ReviewSection';
-import { Play, Calendar, Star, ArrowLeft, List, Shield, History, Heart, Bookmark, Shuffle } from 'lucide-react';
+import { Play, Calendar, Star, ArrowLeft, List, Shield, Shuffle } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useWatchHistory } from '@/hooks/watch-history';
 import { format } from 'date-fns';
 import Ads from '@/components/Ads';
 import DownloadTVButton from '@/components/DownloadTVButton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useUserPreferences } from '@/hooks/user-preferences';
 
 
 const TVDetailsPage = () => {
-  const { userPreferences } = useUserPreferences();
   const { id } = useParams<{ id: string }>();
   const [tvShow, setTVShow] = useState<TVDetails | null>(null);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
@@ -30,10 +27,7 @@ const TVDetailsPage = () => {
   const [recommendations, setRecommendations] = useState<Media[]>([]);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { watchHistory, addToFavorites, addToWatchlist, removeFromFavorites, removeFromWatchlist, isInFavorites, isInWatchlist } = useWatchHistory();
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isInMyWatchlist, setIsInMyWatchlist] = useState(false);
   
   useEffect(() => {
     const fetchTVData = async () => {
@@ -112,13 +106,6 @@ const TVDetailsPage = () => {
     
     fetchTrailer();
   }, [tvShow?.id]);
-
-  useEffect(() => {
-    if (tvShow?.id) {
-      setIsFavorite(isInFavorites(tvShow.id, 'tv'));
-      setIsInMyWatchlist(isInWatchlist(tvShow.id, 'tv'));
-    }
-  }, [tvShow?.id, isInFavorites, isInWatchlist]);
   
   const handlePlayEpisode = (seasonNumber: number, episodeNumber: number) => {
     if (tvShow) {
@@ -126,66 +113,6 @@ const TVDetailsPage = () => {
     }
   };
 
-  const handleToggleFavorite = () => {
-    if (!tvShow) return;
-    
-    if (isFavorite) {
-      removeFromFavorites(tvShow.id, 'tv');
-      setIsFavorite(false);
-    } else {
-      addToFavorites({
-        media_id: tvShow.id,
-        media_type: 'tv',
-        title: tvShow.name,
-        poster_path: tvShow.poster_path,
-        backdrop_path: tvShow.backdrop_path,
-        overview: tvShow.overview,
-        rating: tvShow.vote_average
-      });
-      setIsFavorite(true);
-    }
-  };
-
-  const handleToggleWatchlist = () => {
-    if (!tvShow) return;
-    
-    if (isInMyWatchlist) {
-      removeFromWatchlist(tvShow.id, 'tv');
-      setIsInMyWatchlist(false);
-    } else {
-      addToWatchlist({
-        media_id: tvShow.id,
-        media_type: 'tv',
-        title: tvShow.name,
-        poster_path: tvShow.poster_path,
-        backdrop_path: tvShow.backdrop_path,
-        overview: tvShow.overview,
-        rating: tvShow.vote_average
-      });
-      setIsInMyWatchlist(true);
-    }
-  };
-
-
-  const getLastWatchedEpisode = () => {
-    if (!tvShow || !watchHistory.length) return null;
-
-    const tvWatchHistory = watchHistory.filter(
-      item => item.media_id === tvShow.id && item.media_type === 'tv'
-    );
-
-    if (!tvWatchHistory.length) return null;
-
-    const lastWatched = tvWatchHistory.reduce((latest, current) => {
-      return new Date(current.created_at) > new Date(latest.created_at) ? current : latest;
-    });
-
-    return {
-      season: lastWatched.season,
-      episode: lastWatched.episode,
-      progress: Math.round((lastWatched.watch_position / lastWatched.duration) * 100)
-    };
-  };
   
   const formatSeasonEpisodeCount = (count: number) => {
     return `${count} ${count === 1 ? 'Episode' : 'Episodes'}`;
@@ -397,40 +324,6 @@ const TVDetailsPage = () => {
                  Shuffle Episode
                 </Button>
 
-                {getLastWatchedEpisode() && (
-                  <Button 
-                    onClick={() => {
-                      const lastWatched = getLastWatchedEpisode();
-                      if (lastWatched) {
-                        handlePlayEpisode(lastWatched.season, lastWatched.episode);
-                      }
-                    }}
-                    variant="outline"
-                    className="border-accent text-accent hover:bg-accent/10 flex items-center"
-                  >
-                    <History className="h-4 w-4 mr-2" />
-                    Continue S{getLastWatchedEpisode()?.season} E{getLastWatchedEpisode()?.episode} ({getLastWatchedEpisode()?.progress}%)
-                  </Button>
-                )}
-
-                <Button 
-                  onClick={handleToggleFavorite}
-                  variant="outline"
-                  className={`border-white/20 ${isFavorite ? 'bg-accent text-white' : 'bg-black/50 text-white hover:bg-black/70'}`}
-                >
-                  <Heart className={`h-4 w-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
-                  {isFavorite ? 'In Favorites' : 'Add to Favorites'}
-                </Button>
-
-                <Button 
-                  onClick={handleToggleWatchlist}
-                  variant="outline"
-                  className={`border-white/20 ${isInMyWatchlist ? 'bg-accent text-white' : 'bg-black/50 text-white hover:bg-black/70'}`}
-                >
-                  <Bookmark className={`h-4 w-4 mr-2 ${isInMyWatchlist ? 'fill-current' : ''}`} />
-                  {isInMyWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
-                </Button>
-
                 <DownloadTVButton 
                   tmdbId={tvShow.id.toString()} 
                   showTitle={tvShow.name || 'Unknown'} 
@@ -627,7 +520,7 @@ const TVDetailsPage = () => {
           media={recommendations}
         />
       )}
-      {userPreferences?.adsEnabled && <Ads />}
+      <Ads />
     </div>
   );
 };

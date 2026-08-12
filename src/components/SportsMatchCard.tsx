@@ -7,7 +7,6 @@ import { Clock, Radio, ShieldAlert, Zap, Eye } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { useUserPreferences } from '@/hooks/user-preferences';
 import { motion } from 'framer-motion';
 import { getColorForSport } from '@/utils/sports-colors';
 
@@ -17,8 +16,6 @@ interface SportMatchCardProps {
 }
 
 const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
-  const { userPreferences } = useUserPreferences();
-  const accentColor = userPreferences?.accentColor || 'hsl(var(--accent))';
   const [isHovered, setIsHovered] = useState(false);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   

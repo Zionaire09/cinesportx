@@ -31,7 +31,6 @@ import { Search as SearchIcon, X, Filter, ChevronDown } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import SearchSuggestions from '@/components/SearchSuggestions';
 import Ads from '@/components/Ads';
-import { useUserPreferences } from '@/hooks/user-preferences';
 
 
 const RESULTS_PER_PAGE = 20;
@@ -46,7 +45,6 @@ interface ExtendedMedia extends Omit<Media, 'id'> {
 }
 
 const Search = () => {
-  const { userPreferences } = useUserPreferences();
   const [searchParams] = useSearchParams();
   const [allResults, setAllResults] = useState<ExtendedMedia[]>([]);
   const [displayedResults, setDisplayedResults] = useState<ExtendedMedia[]>([]);
@@ -482,7 +480,7 @@ const Search = () => {
       </div>
       
       <Footer />
-{userPreferences?.adsEnabled && <Ads />}
+<Ads />
     </div>
   );
 };

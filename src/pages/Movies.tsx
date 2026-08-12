@@ -12,7 +12,6 @@ import { Film, ChevronDown, Grid3X3, List } from 'lucide-react';
 import PageTransition from '@/components/PageTransition';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useUserPreferences } from '@/hooks/user-preferences'; // Import the hook
 import Ads from '@/components/Ads';
 
 
@@ -21,7 +20,6 @@ const ITEMS_PER_PAGE = 20;
 const Movies = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { userPreferences } = useUserPreferences(); // Access user preferences
   const [activeTab, setActiveTab] = useState<'popular' | 'top_rated'>('popular');
   const [popularPage, setPopularPage] = useState(1);
   const [topRatedPage, setTopRatedPage] = useState(1);
@@ -274,7 +272,7 @@ const Movies = () => {
         </main>
 
         <Footer />
-        {userPreferences?.adsEnabled && <Ads />} {/* Conditionally render Ads */}
+        <Ads /> {/* Conditionally render Ads */}
       </div>
     </PageTransition>
   );

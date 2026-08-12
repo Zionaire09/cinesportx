@@ -1,15 +1,10 @@
- import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { AuthProvider } from "@/hooks/auth-context";
-import { WatchHistoryProvider } from "@/contexts/watch-history";
-import { UserPreferencesProvider } from "@/contexts/types/user-preferences";
-import { SiteSettingsProvider, useSiteSettings } from "@/contexts/site-settings";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { useAuth } from "@/hooks";
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import Movies from "./pages/Movies";
 import TVShows from "./pages/TVShows";
@@ -18,22 +13,16 @@ import MovieDetails from "./pages/MovieDetails";
 import TVDetails from "./pages/TVDetails";
 import Player from "./pages/Player";
 import Search from "./pages/Search";
-import Profile from "./pages/Profile";
-import WatchHistory from "./pages/WatchHistory";
 import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DMCANotice from "./pages/DMCANotice";
 import ContentRemoval from "./pages/ContentRemoval";
 import Sports from "./pages/Sports";
 import SportMatchPlayer from "./pages/SportMatchPlayer";
-import { useEffect } from "react";
 import ChristmasGreeting from "./components/ChristmasGreeting";
 
 const queryClient = new QueryClient();
-
 const GA_MEASUREMENT_ID = import.meta.env.VITE_FIREBASE_MEASUREMENT_ID;
 
 const usePageTracking = () => {
@@ -47,28 +36,10 @@ const usePageTracking = () => {
   }, [location]);
 };
 
-/**
- * Guard for /signup route only.
- * When user features are disabled and the visitor is not admin, redirect to home.
- * NOTE: /login is intentionally NOT guarded to prevent admin lockout.
- */
-const SignupRoute = ({ children }: { children: React.ReactNode }) => {
-  const { userFeaturesEnabled, settingsLoading } = useSiteSettings();
-  const { user, loading } = useAuth();
-
-  if (loading || settingsLoading) return null;
-
-  if (!userFeaturesEnabled && !user?.isAdmin) {
-    return <Navigate to="/" replace />;
-  }
-
-  return <>{children}</>;
-};
-
 const AnimatedRoutes = () => {
   const location = useLocation();
   usePageTracking();
-  
+
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
@@ -85,23 +56,6 @@ const AnimatedRoutes = () => {
         <Route path="/player/movie/:id" element={<Player />} />
         <Route path="/player/tv/:id/:season/:episode" element={<Player />} />
         <Route path="/search" element={<Search />} />
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        } />
-        <Route path="/watch-history" element={
-          <ProtectedRoute>
-            <WatchHistory />
-          </ProtectedRoute>
-        } />
-        {/* Login is intentionally NOT guarded to allow admin to always log back in */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={
-          <SignupRoute>
-            <Signup />
-          </SignupRoute>
-        } />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/dmca" element={<DMCANotice />} />
@@ -115,20 +69,12 @@ const AnimatedRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <SiteSettingsProvider>
-          <UserPreferencesProvider>
-            <WatchHistoryProvider>
-              <Toaster />
-              <Sonner />
-              <Router>
-                <ChristmasGreeting />
-                <AnimatedRoutes />
-              </Router>
-            </WatchHistoryProvider>
-          </UserPreferencesProvider>
-        </SiteSettingsProvider>
-      </AuthProvider>
+      <Toaster />
+      <Sonner />
+      <Router>
+        <ChristmasGreeting />
+        <AnimatedRoutes />
+      </Router>
     </TooltipProvider>
   </QueryClientProvider>
 );

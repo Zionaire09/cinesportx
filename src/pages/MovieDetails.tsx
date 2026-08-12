@@ -6,17 +6,14 @@ import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import ContentRow from '@/components/ContentRow';
 import ReviewSection from '@/components/ReviewSection';
-import { Play, Clock, Calendar, Star, ArrowLeft, Shield, Heart, Bookmark } from 'lucide-react';
+import { Play, Clock, Calendar, Star, ArrowLeft, Shield } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useWatchHistory } from '@/hooks/watch-history';
 import Ads from '@/components/Ads';
 import DownloadButton from '@/components/DownloadButton';
-import { useUserPreferences } from '@/hooks/user-preferences';
 
 
 
 const MovieDetailsPage = () => {
-  const { userPreferences } = useUserPreferences();
   const { id } = useParams<{ id: string }>();
   const [movie, setMovie] = useState<MovieDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,16 +23,6 @@ const MovieDetailsPage = () => {
   const [activeTab, setActiveTab] = useState<'about' | 'reviews'>('about');
   const [recommendations, setRecommendations] = useState<Media[]>([]);
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
-  const { 
-    addToFavorites, 
-    addToWatchlist,
-    removeFromFavorites,
-    removeFromWatchlist,
-    isInFavorites,
-    isInWatchlist 
-  } = useWatchHistory();
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isInMyWatchlist, setIsInMyWatchlist] = useState(false);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
@@ -95,58 +82,12 @@ const MovieDetailsPage = () => {
     fetchTrailer();
   }, [movie?.id]);
 
-  useEffect(() => {
-    if (movie?.id) {
-      setIsFavorite(isInFavorites(movie.id, 'movie'));
-      setIsInMyWatchlist(isInWatchlist(movie.id, 'movie'));
-    }
-  }, [movie?.id, isInFavorites, isInWatchlist]);
-
   const handlePlayMovie = () => {
     if (movie) {
       navigate(`/player/movie/${movie.id}`);
     }
   };
 
-  const handleToggleFavorite = () => {
-    if (!movie) return;
-    
-    if (isFavorite) {
-      removeFromFavorites(movie.id, 'movie');
-      setIsFavorite(false);
-    } else {
-      addToFavorites({
-        media_id: movie.id,
-        media_type: 'movie',
-        title: movie.title,
-        poster_path: movie.poster_path,
-        backdrop_path: movie.backdrop_path,
-        overview: movie.overview,
-        rating: movie.vote_average
-      });
-      setIsFavorite(true);
-    }
-  };
-
-  const handleToggleWatchlist = () => {
-    if (!movie) return;
-    
-    if (isInMyWatchlist) {
-      removeFromWatchlist(movie.id, 'movie');
-      setIsInMyWatchlist(false);
-    } else {
-      addToWatchlist({
-        media_id: movie.id,
-        media_type: 'movie',
-        title: movie.title,
-        poster_path: movie.poster_path,
-        backdrop_path: movie.backdrop_path,
-        overview: movie.overview,
-        rating: movie.vote_average
-      });
-      setIsInMyWatchlist(true);
-    }
-  };
 
 
   const formatRuntime = (minutes: number) => {
@@ -321,24 +262,6 @@ const MovieDetailsPage = () => {
                   Play
                 </Button>
 
-                <Button 
-                  onClick={handleToggleFavorite}
-                  variant="outline"
-                  className={`border-white/20 ${isFavorite ? 'bg-accent text-white' : 'bg-black/50 text-white hover:bg-black/70'}`}
-                >
-                  <Heart className={`h-4 w-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
-                  {isFavorite ? 'In Favorites' : 'Add to Favorites'}
-                </Button>
-
-                <Button 
-                  onClick={handleToggleWatchlist}
-                  variant="outline"
-                  className={`border-white/20 ${isInMyWatchlist ? 'bg-accent text-white' : 'bg-black/50 text-white hover:bg-black/70'}`}
-                >
-                  <Bookmark className={`h-4 w-4 mr-2 ${isInMyWatchlist ? 'fill-current' : ''}`} />
-                  {isInMyWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
-                </Button>
-
                 <DownloadButton 
                   tmdbId={movie.id.toString()} 
                   movieTitle={movie.title || 'Unknown'} 
@@ -448,7 +371,7 @@ const MovieDetailsPage = () => {
         />
       )} 
       
-      {userPreferences?.adsEnabled && <Ads />}
+      <Ads />
     </div>
   );
 };

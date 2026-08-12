@@ -1,9 +1,7 @@
 import { AnimatePresence } from "framer-motion";
 import Ads from '@/components/Ads';
-import { useUserPreferences } from '@/hooks/user-preferences';
 
 const DMCANotice = () => {
-  const { userPreferences } = useUserPreferences();
   return (
     <>
       <AnimatePresence mode="wait">
@@ -61,7 +59,7 @@ const DMCANotice = () => {
           </div>
         </div>
       </AnimatePresence>
-      {userPreferences?.adsEnabled && <Ads />}
+      <Ads />
     </>
   );
 };

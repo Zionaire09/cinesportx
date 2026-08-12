@@ -11,17 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Film, Tv, Check, SkipBack, SkipForward, Heart, Bookmark, Calendar, Star, Play, ExternalLink, Maximize2, Minimize2, ChevronRight, ChevronLeft, Shuffle } from 'lucide-react';
+import { ArrowLeft, Film, Tv, Check, SkipBack, SkipForward, Calendar, Star, Play, ExternalLink, Maximize2, Minimize2, ChevronRight, ChevronLeft, Shuffle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useWatchHistory } from '@/hooks/watch-history';
-import { useAuth } from '@/hooks';
-import { useUserPreferences } from '@/hooks/user-preferences';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import Ads from '@/components/Ads';
 import { AutoNextEpisode } from '@/components/AutoNextEpisode';
-import { useWatchProgress, getWatchProgress } from '@/hooks/useWatchProgress';
 
 // Simple debounce and throttle implementations (no lodash dependency)
 const debounce = <T extends (...args: any[]) => any>(func: T, wait: number) => {
@@ -279,10 +275,9 @@ SourceButton.displayName = 'SourceButton';
 
 const Player = () => {
   const { id, season, episode } = useParams<{ id: string; season?: string; episode?: string }>();
-  const { userPreferences, updatePreferences } = useUserPreferences();
   const [title, setTitle] = useState<string>('');
   const [selectedSource, setSelectedSource] = useState<string>(
-    userPreferences?.preferred_source || localStorage.getItem('selectedVideoSource') || videoSources[0].key
+    localStorage.getItem('selectedVideoSource') || videoSources[0].key
   );
   const [embedUrl, setEmbedUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -304,18 +299,6 @@ const Player = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const { user } = useAuth();
-  const { 
-    addToFavorites, 
-    addToWatchlist, 
-    removeFromFavorites,
-    removeFromWatchlist,
-    isInFavorites,
-    isInWatchlist
-  } = useWatchHistory();
-
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isInMyWatchlist, setIsInMyWatchlist] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
@@ -373,32 +356,15 @@ const Player = () => {
     };
   }, [isMobile, episodes.length, visibleEpisodesCount, isLoadingMore]);
 
-  // Synchronize selectedSource with userPreferences.preferred_source
   useEffect(() => {
-    if (userPreferences?.preferred_source && videoSources.some(src => src.key === userPreferences.preferred_source)) {
-      setSelectedSource(userPreferences.preferred_source);
-      localStorage.setItem('selectedVideoSource', userPreferences.preferred_source);
+    const storedSource = localStorage.getItem('selectedVideoSource');
+    if (storedSource && videoSources.some((source) => source.key === storedSource)) {
+      setSelectedSource(storedSource);
     } else {
-      const storedSource = localStorage.getItem('selectedVideoSource');
-      if (storedSource && videoSources.some(src => src.key === storedSource)) {
-        setSelectedSource(storedSource);
-      } else {
-        setSelectedSource(videoSources[0].key);
-        localStorage.setItem('selectedVideoSource', videoSources[0].key);
-      }
+      setSelectedSource(videoSources[0].key);
+      localStorage.setItem('selectedVideoSource', videoSources[0].key);
     }
-  }, [userPreferences?.preferred_source]);
-
-  useEffect(() => {
-    if (user && id && mediaType) {
-      const mediaId = parseInt(id, 10);
-      setIsFavorite(isInFavorites(mediaId, mediaType));
-      setIsInMyWatchlist(isInWatchlist(mediaId, mediaType));
-    } else {
-      setIsFavorite(false);
-      setIsInMyWatchlist(false);
-    }
-  }, [user, id, mediaType, isInFavorites, isInWatchlist]);
+  }, []);
 
   const updateEmbedUrl = useCallback(async (mediaId: number, seasonNum?: number, episodeNum?: number) => {
     const source = videoSources.find(src => src.key === selectedSource);
@@ -532,16 +498,6 @@ const Player = () => {
     }
   }, [id, season, episode, hasInitialized, mediaDetails, updateEmbedUrl, mediaType]);
 
-  // Optimized watch progress hook
-  useWatchProgress(
-    id ? parseInt(id, 10) : undefined,
-    mediaType,
-    season ? parseInt(season, 10) : undefined,
-    episode ? parseInt(episode, 10) : undefined,
-    mediaDetails,
-    title
-  );
-
   const handleAutoNextToggle = useCallback((enabled: boolean) => {
     setAutoNextEnabled(enabled);
     localStorage.setItem('autoNextEnabled', enabled.toString());
@@ -567,9 +523,6 @@ const Player = () => {
 
     setSelectedSource(sourceKey);
     localStorage.setItem('selectedVideoSource', sourceKey);
-    if (user) {
-      await updatePreferences({ preferred_source: sourceKey });
-    }
     const sourceName = videoSources.find(s => s.key === sourceKey)?.name || 'new source';
     memoizedToast({
       title: "Source Changed",
@@ -583,7 +536,7 @@ const Player = () => {
       const episodeNum = episode ? parseInt(episode, 10) : 1;
       updateEmbedUrl(mediaId, mediaType === 'tv' ? seasonNum : undefined, mediaType === 'tv' ? episodeNum : undefined);
     }
-  }, [user, updatePreferences, memoizedToast, id, mediaDetails, mediaType, season, episode, updateEmbedUrl]);
+  }, [memoizedToast, id, mediaDetails, mediaType, season, episode, updateEmbedUrl]);
 
   const goToDetails = useCallback(() => {
     if (id) {
@@ -593,7 +546,7 @@ const Player = () => {
 
   const toggleFullscreen = useCallback(() => {
     if (!playerContainerRef.current) return;
-    
+
     if (!document.fullscreenElement) {
       playerContainerRef.current.requestFullscreen?.().catch(err => {
         console.error(`Error attempting to enable full-screen mode: ${err.message}`);
@@ -607,12 +560,12 @@ const Player = () => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
-    
+
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
     document.addEventListener('mozfullscreenchange', handleFullscreenChange);
     document.addEventListener('MSFullscreenChange', handleFullscreenChange);
-    
+
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
@@ -751,52 +704,6 @@ const Player = () => {
     
     fetchAndPlayRandomEpisode();
   }, [mediaType, mediaDetails, memoizedNavigate, memoizedToast]);
-
-  const toggleFavorite = useCallback(() => {
-
-    if (!mediaDetails || !id) return;
-    const mediaId = parseInt(id, 10);
-    if (isFavorite) {
-      removeFromFavorites(mediaId, mediaType);
-      setIsFavorite(false);
-      memoizedToast({ title: "Removed from favorites", description: `${title} has been removed from your favorites.` });
-    } else {
-      addToFavorites({
-        media_id: mediaId,
-        media_type: mediaType,
-        title: (mediaDetails as MovieDetails).title || (mediaDetails as TVDetails).name || '',
-        poster_path: mediaDetails.poster_path,
-        backdrop_path: mediaDetails.backdrop_path,
-        overview: mediaDetails.overview,
-        rating: mediaDetails.vote_average
-      });
-      setIsFavorite(true);
-      memoizedToast({ title: "Added to favorites", description: `${title} has been added to your favorites.` });
-    }
-  }, [user, mediaDetails, id, isFavorite, mediaType, removeFromFavorites, addToFavorites, title, memoizedToast]);
-
-  const toggleWatchlist = useCallback(() => {
-
-    if (!mediaDetails || !id) return;
-    const mediaId = parseInt(id, 10);
-    if (isInMyWatchlist) {
-      removeFromWatchlist(mediaId, mediaType);
-      setIsInMyWatchlist(false);
-      memoizedToast({ title: "Removed from watchlist", description: `${title} has been removed from your watchlist.` });
-    } else {
-      addToWatchlist({
-        media_id: mediaId,
-        media_type: mediaType,
-        title: (mediaDetails as MovieDetails).title || (mediaDetails as TVDetails).name || '',
-        poster_path: mediaDetails.poster_path,
-        backdrop_path: mediaDetails.backdrop_path,
-        overview: mediaDetails.overview,
-        rating: mediaDetails.vote_average
-      });
-      setIsInMyWatchlist(true);
-      memoizedToast({ title: "Added to watchlist", description: `${title} has been added to your watchlist.` });
-    }
-  }, [user, mediaDetails, id, isInMyWatchlist, mediaType, removeFromWatchlist, addToWatchlist, title, memoizedToast]);
 
   const handlePlayEpisode = useCallback((seasonNumber: number, episodeNumber: number) => {
     if (id) {
@@ -1120,31 +1027,6 @@ const Player = () => {
 
           <h1 className="text-xl md:text-2xl font-semibold truncate flex-1">{title}</h1>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "rounded-full transition-colors duration-200",
-                isFavorite ? "text-red-500 hover:text-red-600" : "text-white/80 hover:text-white"
-              )}
-              onClick={toggleFavorite}
-            >
-              <Heart className={cn("h-5 w-5", isFavorite && "fill-current")} />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "rounded-full transition-colors duration-200",
-                isInMyWatchlist ? "text-accent hover:text-accent/90" : "text-white/80 hover:text-white"
-              )}
-              onClick={toggleWatchlist}
-            >
-              <Bookmark className={cn("h-5 w-5", isInMyWatchlist && "fill-current")} />
-            </Button>
-          </div>
         </div>
 
 
@@ -1153,7 +1035,7 @@ const Player = () => {
           isMobile ? "flex flex-col" : "flex flex-col md:flex-row gap-8"
         )}>
           <div className="flex-1">
-            <div 
+            <div
               ref={playerContainerRef}
               className={cn(
                 "relative aspect-video rounded-lg overflow-hidden shadow-2xl bg-black group",
@@ -1171,12 +1053,8 @@ const Player = () => {
                   className="w-full h-full"
                   title={title}
                   allowFullScreen
-                  webkitallowfullscreen="true"
-                  mozallowfullscreen="true"
-                  oallowfullscreen="true"
-                  msallowfullscreen="true"
                   referrerPolicy="no-referrer"
-                  allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                  allow="autoplay; encrypted-media; fullscreen"
                   loading="lazy"
                 />
               ) : (
@@ -1199,7 +1077,7 @@ const Player = () => {
                   {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
                 </Button>
               </div>
-            </div> 
+            </div>
 
             {mediaType === 'tv' && episodes.length > 1 && (
               <div className="mt-6 flex justify-center gap-4">
@@ -1369,7 +1247,7 @@ const Player = () => {
               </div>
             </div>
           )}
-          {userPreferences?.adsEnabled && <Ads />}
+          <Ads />
         </div>
       </div>
 

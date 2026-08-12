@@ -5,7 +5,6 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageTransition from '@/components/PageTransition';
 import { getActiveSourcesForMatch, getStreamsGroupedBySource, getMatchById } from '@/utils/sports-api';
-import { useUserPreferences } from '@/hooks/user-preferences';
 import Ads from '@/components/Ads';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +12,8 @@ import {
   Loader2, 
   Wifi, 
   RefreshCw, 
-  Signal, 
+  Signal,
+  ExternalLink,
   ArrowLeft, 
   Tv, 
   Check,
@@ -27,10 +27,22 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
-import LiveChat from '@/components/LiveChat';
+
+const BACKUP_STREAM_URL = 'https://rmppv.xyz';
+
+const BackupStreamLink = () => (
+  <a
+    href={BACKUP_STREAM_URL}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-300/40 bg-cyan-400/10 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-cyan-100 transition-all hover:border-cyan-200/80 hover:bg-cyan-400/20 hover:text-white"
+  >
+    Try rmppv.xyz backup stream
+    <ExternalLink className="h-3.5 w-3.5" />
+  </a>
+);
 
 const SportMatchPlayer = () => {
-  const { userPreferences } = useUserPreferences();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { matchId } = useParams();
@@ -42,6 +54,7 @@ const SportMatchPlayer = () => {
   const [iframeKey, setIframeKey] = useState<number>(0);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [isLoadingPlayer, setIsLoadingPlayer] = useState<boolean>(true);
+  const [isSignalUnavailable, setIsSignalUnavailable] = useState<boolean>(false);
   const [showSourceDropdown, setShowSourceDropdown] = useState<boolean>(false);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   
@@ -95,9 +108,20 @@ const SportMatchPlayer = () => {
   useEffect(() => {
     if (selectedSource && currentStream) {
       setIsLoadingPlayer(true);
+      setIsSignalUnavailable(false);
       setIframeKey(prev => prev + 1);
     }
   }, [selectedSource, selectedStreamNo, currentStream]);
+
+  useEffect(() => {
+    if (!embedUrl || !isLoadingPlayer) return;
+
+    const noSignalTimer = window.setTimeout(() => {
+      setIsSignalUnavailable(true);
+    }, 12000);
+
+    return () => window.clearTimeout(noSignalTimer);
+  }, [embedUrl, iframeKey, isLoadingPlayer]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -132,6 +156,9 @@ const SportMatchPlayer = () => {
   };
 
   const handleRefresh = () => {
+    setIsSignalUnavailable(false);
+    setIsLoadingPlayer(true);
+    setIframeKey(prev => prev + 1);
     refetchSources();
     refetchStreams();
     toast({
@@ -199,21 +226,10 @@ const SportMatchPlayer = () => {
             </motion.div>
 
             {/* Split Screen Control Architecture - SWAPPED LAYOUT */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-              
-              {/* Live Chat Sidebar - NOW ON LEFT */}
-              <motion.div 
-                className="lg:h-[calc(100vh-200px)] min-h-[500px] order-2 lg:order-1"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-              >
-                {matchId && <LiveChat matchId={matchId} />}
-              </motion.div>
-
+            <div className="grid grid-cols-1 gap-8 items-start">
               {/* Theater View Block - NOW IN CENTER AND LARGER */}
               <motion.div 
-                className="lg:col-span-2 space-y-6 order-1 lg:order-2"
+                className="space-y-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
@@ -230,30 +246,56 @@ const SportMatchPlayer = () => {
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           referrerPolicy="strict-origin-when-cross-origin"
                           allowFullScreen
-                          onLoad={() => setIsLoadingPlayer(false)}
+                          onLoad={() => {
+                            setIsLoadingPlayer(false);
+                            setIsSignalUnavailable(false);
+                          }}
                         />
                         {isLoadingPlayer && (
-                          <motion.div 
-                            className="absolute inset-0 flex items-center justify-center bg-black"
+                          <motion.div
+                            className="absolute inset-0 flex items-center justify-center bg-black/95 p-6"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                           >
-                            <Loader2 className="h-6 w-6 animate-spin text-white/60" />
+                            {isSignalUnavailable ? (
+                              <div className="flex max-w-sm flex-col items-center text-center">
+                                <Signal className="mb-3 h-7 w-7 text-cyan-200" />
+                                <p className="mb-4 text-xs font-black uppercase tracking-wider text-white">This stream has not returned a signal</p>
+                                <div className="flex flex-wrap justify-center gap-3">
+                                  <BackupStreamLink />
+                                  <Button onClick={handleRefresh} size="sm" variant="outline" className="border-white/30 bg-white/10 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/20 hover:text-white">
+                                    Retry signal
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center gap-3">
+                                <Loader2 className="h-6 w-6 animate-spin text-white/60" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-white/60">Connecting to stream...</span>
+                              </div>
+                            )}
                           </motion.div>
                         )}
                       </>
                     ) : hasActiveSources && selectedSource ? (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
-                        <p className="text-xs font-black tracking-widest text-white/60 uppercase">Awaiting Node Routing Confirmation</p>
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-6">
+                        <div className="flex max-w-sm flex-col items-center text-center">
+                          <Signal className="mb-3 h-7 w-7 text-cyan-200" />
+                          <p className="mb-4 text-xs font-black uppercase tracking-wider text-white">No stream signal is available from this source</p>
+                          <BackupStreamLink />
+                        </div>
                       </div>
                     ) : (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
-                        <div className="text-center p-6">
-                          <Signal className="h-6 w-6 text-white/50 mx-auto mb-2" />
-                          <p className="text-white font-bold text-xs uppercase tracking-wider mb-4">No feeds active for this entry</p>
-                          <Button onClick={handleRefresh} size="sm" className="bg-gradient-to-r from-blue-600 to-blue-500 border border-blue-400/50 text-white text-xs font-bold uppercase tracking-wider hover:from-blue-500 hover:to-blue-400">
-                            Sync Signals
-                          </Button>
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-6">
+                        <div className="flex max-w-sm flex-col items-center text-center">
+                          <Signal className="mb-3 h-7 w-7 text-white/50" />
+                          <p className="mb-4 text-xs font-black uppercase tracking-wider text-white">No feeds are active for this entry</p>
+                          <div className="flex flex-wrap justify-center gap-3">
+                            <Button onClick={handleRefresh} size="sm" className="bg-gradient-to-r from-blue-600 to-blue-500 border border-blue-400/50 text-white text-xs font-bold uppercase tracking-wider hover:from-blue-500 hover:to-blue-400">
+                              Sync Signals
+                            </Button>
+                            <BackupStreamLink />
+                          </div>
                         </div>
                       </div>
                     )}
@@ -462,7 +504,7 @@ const SportMatchPlayer = () => {
           </div>
         </div>
         
-        {userPreferences?.adsEnabled && <Ads />}
+        <Ads />
         <Footer />
       </div>
     </PageTransition>

@@ -10,11 +10,9 @@ import {
   getComedySeries
 } from '@/utils/api';
 import { Media } from '@/utils/types';
-import { useAuth } from '@/hooks';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import ContentRow from '@/components/ContentRow';
-import ContinueWatching from '@/components/ContinueWatching';
 import Footer from '@/components/Footer';
 import Spinner from '@/components/ui/spinner';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
@@ -22,13 +20,9 @@ import Chatbot from '@/components/Chatbot';
 import DiscordButton from '@/components/DiscordButton';
 import Ads from '@/components/Ads';
 import { Helmet } from 'react-helmet';
-import { useUserPreferences } from '@/hooks/user-preferences';
 import WelcomeDialog from '@/components/WelcomeDialog';
 
 const Index = () => {
-  const { userPreferences } = useUserPreferences();
-  const { user } = useAuth();
-
   const [trendingMedia, setTrendingMedia] = useState<Media[]>([]);
   const [popularMovies, setPopularMovies] = useState<Media[]>([]);
   const [popularTVShows, setPopularTVShows] = useState<Media[]>([]);
@@ -136,8 +130,6 @@ const Index = () => {
                 contentVisible ? 'opacity-100' : 'opacity-0'
               }`}
             >
-              {user && <ContinueWatching />}
-
               <ContentRow title="Trending Now" media={trendingMedia} />
               <ContentRow title="Popular Movies" media={popularMovies} />
               <ContentRow title="Popular TV Shows" media={popularTVShows} />
@@ -152,7 +144,7 @@ const Index = () => {
 
         <Footer />
 
-        {userPreferences?.adsEnabled && <Ads />}
+        <Ads />
       </main>
     </>
   );

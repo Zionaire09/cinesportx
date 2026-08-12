@@ -84,7 +84,7 @@ const SportsMatchGrid = ({
           transition={{ duration: 0.4 }}
         >
           <motion.span
-            className="h-2 w-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-400"
+            className="h-2 w-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-300"
             animate={{ scale: [1, 1.3, 1] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           />

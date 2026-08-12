@@ -160,8 +160,8 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
               >
-                <Badge className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-500 hover:to-red-600 text-[9px] font-black tracking-widest px-2 py-0.5 rounded border border-white/40 shadow-[0_0_15px_rgba(239,68,68,0.6)] text-white drop-shadow-lg">
-                  🔴 LIVE
+                <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-500 hover:to-cyan-500 text-[9px] font-black tracking-widest px-2 py-0.5 rounded border border-blue-100/40 shadow-[0_0_15px_rgba(56,189,248,0.55)] text-white drop-shadow-lg">
+                  ◉ LIVE
                 </Badge>
               </motion.div>
             ) : isUpcoming ? (
@@ -212,9 +212,9 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 1, repeat: Infinity }}
                   >
-                    <Radio className="h-3 w-3 text-red-300" />
+                    <Radio className="h-3 w-3 text-cyan-200" />
                   </motion.div>
-                  <span className="text-red-100">Live Now</span>
+                  <span className="text-blue-100">Live Now</span>
                 </>
               ) : (
                 <>

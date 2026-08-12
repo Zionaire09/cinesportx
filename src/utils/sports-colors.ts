@@ -50,25 +50,25 @@ export const sportColors: { [key: string]: SportColor } = {
     gradient: 'linear-gradient(135deg, rgb(59, 130, 246), rgb(79, 70, 229))'
   },
   hockey: { 
-    bg: 'from-red-600 to-pink-500', 
-    border: 'border-red-400', 
-    text: 'text-red-100', 
-    glow: 'rgba(220, 38, 38, 0.3)',
-    gradient: 'linear-gradient(135deg, rgb(220, 38, 38), rgb(236, 72, 153))'
+    bg: 'from-blue-700 to-indigo-500',
+    border: 'border-blue-400',
+    text: 'text-blue-100',
+    glow: 'rgba(59, 130, 246, 0.3)',
+    gradient: 'linear-gradient(135deg, rgb(29, 78, 216), rgb(99, 102, 241))'
   },
   volleyball: { 
-    bg: 'from-purple-600 to-pink-500', 
-    border: 'border-purple-400', 
-    text: 'text-purple-100', 
-    glow: 'rgba(147, 51, 234, 0.3)',
-    gradient: 'linear-gradient(135deg, rgb(147, 51, 234), rgb(236, 72, 153))'
+    bg: 'from-indigo-600 to-cyan-500',
+    border: 'border-indigo-400',
+    text: 'text-indigo-100',
+    glow: 'rgba(99, 102, 241, 0.3)',
+    gradient: 'linear-gradient(135deg, rgb(79, 70, 229), rgb(6, 182, 212))'
   },
   baseball: { 
-    bg: 'from-red-500 to-orange-600', 
-    border: 'border-red-400', 
-    text: 'text-red-100', 
-    glow: 'rgba(239, 68, 68, 0.3)',
-    gradient: 'linear-gradient(135deg, rgb(239, 68, 68), rgb(234, 88, 12))'
+    bg: 'from-sky-500 to-blue-700',
+    border: 'border-sky-400',
+    text: 'text-sky-100',
+    glow: 'rgba(14, 165, 233, 0.3)',
+    gradient: 'linear-gradient(135deg, rgb(14, 165, 233), rgb(29, 78, 216))'
   },
   fighting: { 
     bg: 'from-slate-700 to-slate-900', 

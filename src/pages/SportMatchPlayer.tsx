@@ -311,7 +311,7 @@ const SportMatchPlayer = () => {
                     >
                       <div className="flex items-center gap-2 text-white/80">
                         <motion.span 
-                          className="w-2 h-2 rounded-full bg-gradient-to-r from-red-500 to-red-400"
+                          className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-300"
                           animate={{ scale: [1, 1.3, 1] }}
                           transition={{ duration: 1, repeat: Infinity }}
                         />
@@ -332,13 +332,13 @@ const SportMatchPlayer = () => {
                 {/* Info Center Banner */}
                 {matchInfo && (
                   <motion.div 
-                    className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-2xl p-6 border border-white/20 space-y-4 backdrop-blur-sm"
+                    className="bg-gradient-to-r from-blue-700/25 to-cyan-600/15 rounded-2xl p-6 border border-blue-300/20 space-y-4 backdrop-blur-sm"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                   >
                     <div>
-                      <span className="text-[10px] font-black tracking-widest text-white/90 uppercase bg-gradient-to-r from-purple-500/30 to-pink-500/30 px-2 py-1 rounded border border-white/20 backdrop-blur-sm inline-block">
+                      <span className="text-[10px] font-black tracking-widest text-white/90 uppercase bg-gradient-to-r from-blue-500/35 to-cyan-500/25 px-2 py-1 rounded border border-blue-200/20 backdrop-blur-sm inline-block">
                         {matchInfo.category}
                       </span>
                       <h1 className="text-2xl font-black text-white uppercase tracking-tight mt-3 drop-shadow-lg">{matchInfo.title}</h1>

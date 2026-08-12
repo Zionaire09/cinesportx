@@ -279,12 +279,12 @@ const Sports = () => {
                   <TabsTrigger value="popular" className="rounded-lg gap-2 text-white/70 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all">
                     <Flame className="h-3.5 w-3.5" /> Hot
                   </TabsTrigger>
-                  <TabsTrigger value="live" className="rounded-lg gap-2 text-white/70 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-pink-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all">
+                  <TabsTrigger value="live" className="rounded-lg gap-2 text-white/70 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-cyan-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all">
                     <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1, repeat: Infinity }}>
                       <Radio className="h-3.5 w-3.5" />
                     </motion.div> Live
                   </TabsTrigger>
-                  <TabsTrigger value="all" className="rounded-lg gap-2 text-white/70 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all">
+                  <TabsTrigger value="all" className="rounded-lg gap-2 text-white/70 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-sky-400 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all">
                     <CalendarDays className="h-3.5 w-3.5" /> Cards
                   </TabsTrigger>
                 </TabsList>

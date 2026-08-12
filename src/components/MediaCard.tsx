@@ -38,7 +38,7 @@ const MediaCard = ({
   if (!mediaId) {
     console.error(`Invalid media data: Missing ID`, media);
     return (
-      <div className={cn("text-white/70 text-center p-2 bg-red-500/20 rounded", className)}>
+      <div className={cn("text-white/70 text-center p-2 bg-blue-500/20 rounded", className)}>
         Invalid Media Item
       </div>
     );
@@ -47,7 +47,7 @@ const MediaCard = ({
   if (!media.media_type || !['movie', 'tv'].includes(media.media_type)) {
     console.error(`Invalid media type: ${media.media_type}`, media);
     return (
-      <div className={cn("text-white/70 text-center p-2 bg-red-500/20 rounded", className)}>
+      <div className={cn("text-white/70 text-center p-2 bg-blue-500/20 rounded", className)}>
         Invalid Media Type
       </div>
     );

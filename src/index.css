@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    --background: 0 20% 8%;
-    --foreground: 0 0% 98%;
-    --card: 0 15% 12%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 20% 8%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 20% 8%;
-    --secondary: 0 30% 20%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 15% 25%;
-    --muted-foreground: 0 0% 70%;
-    --accent: 0 85% 45%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 75% 40%;
+    --background: 222 47% 7%;
+    --foreground: 210 40% 98%;
+    --card: 222 42% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 213 94% 68%;
+    --primary-foreground: 222 47% 7%;
+    --secondary: 222 38% 18%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 222 30% 22%;
+    --muted-foreground: 215 25% 72%;
+    --accent: 213 94% 62%;
+    --accent-foreground: 222 47% 7%;
+    --destructive: 0 72% 48%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 20% 20%;
-    --input: 0 15% 15%;
-    --ring: 0 85% 50%;
+    --border: 217 33% 25%;
+    --input: 222 35% 15%;
+    --ring: 199 95% 58%;
     --radius: 0.75rem;
   }
 }
@@ -39,21 +39,21 @@
 
 @layer components {
   .glass {
-    @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-xl;
+    @apply border border-blue-300/15 bg-blue-950/25 shadow-xl backdrop-blur-md;
   }
-  
+
   .details-gradient {
     @apply absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent;
   }
-  
+
   .hero-text-shadow {
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   }
-  
+
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
-  
+
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -70,5 +70,5 @@
 }
 
 .image-skeleton {
-  @apply bg-zinc-800 animate-pulse;
+  @apply animate-pulse bg-slate-800;
 }

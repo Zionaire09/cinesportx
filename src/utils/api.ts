@@ -122,10 +122,10 @@ export const backdropSizes = {
 
 export const videoSources = [
   {
-    key: 'videasy',
-    name: 'Videasy',
-    getMovieUrl: (id: number) => `https://player.videasy.net/movie/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://player.videasy.net/tv/${id}/${season}/${episode}`,
+    key: 'vidfast',
+    name: 'VidFast',
+    getMovieUrl: (id: number) => `https://vidfast.pro/movie/${id}?autoPlay=true`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidfast.pro/tv/${id}/${season}/${episode}?autoPlay=true`,
   },
   {
     key: 'vidlink',
@@ -134,10 +134,16 @@ export const videoSources = [
     getTVUrl: (id: number, season: number, episode: number) => `https://vidlink.pro/tv/${id}/${season}/${episode}?autoplay=true&title=true`,
   },
   {
-    key: 'vidfast',
-    name: 'VidFast',
-    getMovieUrl: (id: number) => `https://vidfast.pro/movie/${id}?autoPlay=true`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vidfast.pro/tv/${id}/${season}/${episode}?autoPlay=true`,
+    key: 'smashystream',
+    name: 'SmashyStream',
+    getMovieUrl: (id: number) => `https://embed.smashystream.com/playere.php?tmdb=${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season}&episode=${episode}`,
+  },
+  {
+    key: 'vidup',
+    name: 'VidUp',
+    getMovieUrl: (id: number) => `https://vidup.to/movie/${id}?autoPlay=true`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidup.to/tv/${id}/${season}/${episode}?autoPlay=true`,
   },
   {
     key: '111movies',
@@ -152,22 +158,16 @@ export const videoSources = [
     getTVUrl: (id: number, season: number, episode: number) => `https://vidsrcme.ru/embed/tv/${id}/${season}/${episode}`,
   },
   {
-    key: 'smashystream',
-    name: 'SmashyStream',
-    getMovieUrl: (id: number) => `https://embed.smashystream.com/playere.php?tmdb=${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season}&episode=${episode}`,
-  },
-  {
     key: 'vidzee',
     name: 'Vidzee',
     getMovieUrl: (id: number) => `https://player.vidzee.wtf/embed/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://player.vidzee.wtf/embed/tv/${id}/${season}/${episode}`,
   },
   {
-    key: 'vidup',
-    name: 'VidUp',
-    getMovieUrl: (id: number) => `https://vidup.to/movie/${id}?autoPlay=true`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vidup.to/tv/${id}/${season}/${episode}?autoPlay=true`,
+    key: 'videasy',
+    name: 'Videasy',
+    getMovieUrl: (id: number) => `https://player.videasy.net/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://player.videasy.net/tv/${id}/${season}/${episode}`,
   },
   {
     key: 'vidnest',
@@ -225,7 +225,7 @@ export const videoSources = [
     name: 'PrimeSrc',
     getMovieUrl: (id: number) => `https://primesrc.me/embed/movie?tmdb=${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://primesrc.me/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`,
-  },
+  }
 ];
 
 // Fetch reviews for a movie or TV show based on media type

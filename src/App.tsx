@@ -36,9 +36,25 @@ const usePageTracking = () => {
   }, [location]);
 };
 
+const useCanonical = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    let canonicalTag = document.querySelector('link[rel="canonical"]');
+    if (!canonicalTag) {
+      canonicalTag = document.createElement('link');
+      canonicalTag.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalTag);
+    }
+    const origin = window.location.origin || window.location.protocol + '//' + window.location.host;
+    canonicalTag.setAttribute('href', `${origin}${location.pathname}`);
+  }, [location]);
+};
+
 const AnimatedRoutes = () => {
   const location = useLocation();
   usePageTracking();
+  useCanonical();
 
   return (
     <AnimatePresence mode="wait">

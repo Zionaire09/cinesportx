@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import Index from "./pages/Index";
 import Movies from "./pages/Movies";
 import TVShows from "./pages/TVShows";
+import Kdrama from "./pages/Kdrama";
 import Trending from "./pages/Trending";
 import MovieDetails from "./pages/MovieDetails";
 import TVDetails from "./pages/TVDetails";
@@ -17,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DMCANotice from "./pages/DMCANotice";
+import TakedownNotice from "./pages/TakedownNotice";
 import ContentRemoval from "./pages/ContentRemoval";
 import Sports from "./pages/Sports";
 import SportMatchPlayer from "./pages/SportMatchPlayer";
@@ -64,17 +66,23 @@ const AnimatedRoutes = () => {
         <Route path="/movie" element={<Movies />} />
         <Route path="/movies" element={<Navigate to="/movie" replace />} />
         <Route path="/tv" element={<TVShows />} />
+        <Route path="/kdrama" element={<Kdrama />} />
         <Route path="/trending" element={<Trending />} />
         <Route path="/sports" element={<Sports />} />
         <Route path="/sports/player/:matchId" element={<SportMatchPlayer />} />
+        <Route path="/movie/1368337" element={<Navigate to="/takedown" replace />} />
+        <Route path="/movie/969681" element={<Navigate to="/takedown" replace />} />
         <Route path="/movie/:id" element={<MovieDetails />} />
         <Route path="/tv/:id" element={<TVDetails />} />
+        <Route path="/player/movie/1368337" element={<Navigate to="/takedown" replace />} />
+        <Route path="/player/movie/969681" element={<Navigate to="/takedown" replace />} />
         <Route path="/player/movie/:id" element={<Player />} />
         <Route path="/player/tv/:id/:season/:episode" element={<Player />} />
         <Route path="/search" element={<Search />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/dmca" element={<DMCANotice />} />
+        <Route path="/takedown" element={<TakedownNotice />} />
         <Route path="/content-removal" element={<ContentRemoval />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

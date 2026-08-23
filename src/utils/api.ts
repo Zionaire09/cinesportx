@@ -24,6 +24,8 @@ interface TMDBVideoResponse {
 }
 
 // Create axios instance for TMDB
+const BLOCKED_MOVIE_IDS = new Set([1368337, 969681]);
+
 const tmdb = axios.create({
   baseURL: 'https://api.themoviedb.org/3',
   params: {
@@ -253,7 +255,7 @@ export const getTrending = async (timeWindow: 'day' | 'week' = 'day', page: numb
         params: { page },
       }
     );
-    return response.data.results.map((item) => ({
+    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
       title: (item as TMDBMovieResult).title,
       name: (item as TMDBTVResult).name,
@@ -273,6 +275,9 @@ export const getTrending = async (timeWindow: 'day' | 'week' = 'day', page: numb
 };
 
 export const getMovieDetails = async (movieId: number): Promise<MovieDetails> => {
+  if (BLOCKED_MOVIE_IDS.has(movieId)) {
+    throw new Error('Movie unavailable due to copyright');
+  }
   try {
     const [detailsResponse, imagesResponse] = await Promise.all([
       tmdb.get<TMDBMovieDetailsResult>(`/movie/${movieId}`),
@@ -405,7 +410,7 @@ export const getTVImages = async (tvId: number): Promise<MovieImagesResponse> =>
 export const getMovieReviews = async (movieId: number): Promise<Review[]> => {
   try {
     const response = await tmdb.get<{ results: any[] }>(`/movie/${movieId}/reviews`);
-    return response.data.results.map((r) => ({
+    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((r) => ({
       id: r.id,
       author: r.author,
       content: r.content,
@@ -424,7 +429,7 @@ export const getMovieReviews = async (movieId: number): Promise<Review[]> => {
 export const getTVReviews = async (tvId: number): Promise<Review[]> => {
   try {
     const response = await tmdb.get<{ results: any[] }>(`/tv/${tvId}/reviews`);
-    return response.data.results.map((r) => ({
+    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((r) => ({
       id: r.id,
       author: r.author,
       content: r.content,
@@ -445,7 +450,7 @@ export const getPopularMovies = async (page: number = 1): Promise<Media[]> => {
     const response = await tmdb.get<{ results: TMDBMovieResult[] }>(`/movie/popular`, {
       params: { page },
     });
-    return response.data.results.map((item) => ({
+    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
       title: item.title,
       name: item.name,
@@ -469,7 +474,7 @@ export const getPopularTVShows = async (page: number = 1): Promise<Media[]> => {
     const response = await tmdb.get<{ results: TMDBTVResult[] }>(`/tv/popular`, {
       params: { page },
     });
-    return response.data.results.map((item) => ({
+    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
       name: item.name,
       title: item.title,
@@ -493,7 +498,7 @@ export const getTopRatedMovies = async (page: number = 1): Promise<Media[]> => {
     const response = await tmdb.get<{ results: TMDBMovieResult[] }>(`/movie/top_rated`, {
       params: { page },
     });
-    return response.data.results.map((item) => ({
+    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
       title: item.title,
       name: item.name,
@@ -517,7 +522,7 @@ export const getTopRatedTVShows = async (page: number = 1): Promise<Media[]> => 
     const response = await tmdb.get<{ results: TMDBTVResult[] }>(`/tv/top_rated`, {
       params: { page },
     });
-    return response.data.results.map((item) => ({
+    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
       name: item.name,
       title: item.title,
@@ -541,7 +546,7 @@ export const getUpcomingMovies = async (page: number = 1): Promise<Media[]> => {
     const response = await tmdb.get<{ results: TMDBMovieResult[] }>(`/movie/upcoming`, {
       params: { page },
     });
-    return response.data.results.map((item) => ({
+    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
       title: item.title,
       name: item.name,
@@ -568,7 +573,7 @@ export const getActionMovies = async (page: number = 1): Promise<Media[]> => {
         with_genres: '28', // Action genre ID
       },
     });
-    return response.data.results.map((item) => ({
+    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
       title: item.title,
       name: item.name,
@@ -587,6 +592,147 @@ export const getActionMovies = async (page: number = 1): Promise<Media[]> => {
   }
 };
 
+export const getKoreanDramas = async (
+  page: number = 1,
+  sortBy: 'popularity.desc' | 'vote_average.desc' = 'popularity.desc'
+): Promise<Media[]> => {
+  try {
+    const response = await tmdb.get<{ results: TMDBTVResult[] }>('/discover/tv', {
+      params: {
+        page,
+        sort_by: sortBy,
+        with_origin_country: 'KR',
+        with_genres: '18',
+      },
+    });
+
+    return response.data.results
+      .filter(item => !BLOCKED_MOVIE_IDS.has(item.id))
+      .map((item) => ({
+        id: item.id,
+        name: item.name,
+        title: item.title,
+        poster_path: item.poster_path || '',
+        backdrop_path: item.backdrop_path || '',
+        overview: item.overview,
+        vote_average: item.vote_average,
+        first_air_date: item.first_air_date,
+        release_date: item.release_date,
+        media_type: 'tv' as const,
+        genre_ids: item.genre_ids || [],
+      }));
+  } catch (error) {
+    console.error('Error fetching Korean dramas:', error);
+    throw error;
+  }
+};
+
+export const getNewKoreanEpisodes = async (page: number = 1): Promise<Media[]> => {
+  try {
+    const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - 90);
+
+    const response = await tmdb.get<{ results: TMDBTVResult[] }>('/discover/tv', {
+      params: {
+        page,
+        sort_by: 'first_air_date.desc',
+        with_origin_country: 'KR',
+        with_genres: '18',
+        'air_date.gte': startDate.toISOString().slice(0, 10),
+        'air_date.lte': today.toISOString().slice(0, 10),
+      },
+    });
+
+    return response.data.results
+      .filter(item => !BLOCKED_MOVIE_IDS.has(item.id))
+      .map((item) => ({
+        id: item.id,
+        name: item.name,
+        title: item.title,
+        poster_path: item.poster_path || '',
+        backdrop_path: item.backdrop_path || '',
+        overview: item.overview,
+        vote_average: item.vote_average,
+        first_air_date: item.first_air_date,
+        release_date: item.release_date,
+        media_type: 'tv' as const,
+        genre_ids: item.genre_ids || [],
+      }));
+  } catch (error) {
+    console.error('Error fetching newly released Korean episodes:', error);
+    throw error;
+  }
+};
+
+export const getTrendingKoreanMovies = async (page: number = 1): Promise<Media[]> => {
+  try {
+    const response = await tmdb.get<{ results: TMDBMovieResult[] }>('/discover/movie', {
+      params: {
+        page,
+        sort_by: 'popularity.desc',
+        with_origin_country: 'KR',
+      },
+    });
+
+    return response.data.results
+      .filter(item => !BLOCKED_MOVIE_IDS.has(item.id))
+      .map((item) => ({
+        id: item.id,
+        title: item.title,
+        name: item.name,
+        poster_path: item.poster_path || '',
+        backdrop_path: item.backdrop_path || '',
+        overview: item.overview,
+        vote_average: item.vote_average,
+        release_date: item.release_date,
+        first_air_date: item.first_air_date,
+        media_type: 'movie' as const,
+        genre_ids: item.genre_ids || [],
+      }));
+  } catch (error) {
+    console.error('Error fetching trending Korean movies:', error);
+    throw error;
+  }
+};
+
+export const getNewKoreanMovies = async (page: number = 1): Promise<Media[]> => {
+  try {
+    const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - 365);
+
+    const response = await tmdb.get<{ results: TMDBMovieResult[] }>('/discover/movie', {
+      params: {
+        page,
+        sort_by: 'primary_release_date.desc',
+        with_origin_country: 'KR',
+        'primary_release_date.gte': startDate.toISOString().slice(0, 10),
+        'primary_release_date.lte': today.toISOString().slice(0, 10),
+      },
+    });
+
+    return response.data.results
+      .filter(item => !BLOCKED_MOVIE_IDS.has(item.id))
+      .map((item) => ({
+        id: item.id,
+        title: item.title,
+        name: item.name,
+        poster_path: item.poster_path || '',
+        backdrop_path: item.backdrop_path || '',
+        overview: item.overview,
+        vote_average: item.vote_average,
+        release_date: item.release_date,
+        first_air_date: item.first_air_date,
+        media_type: 'movie' as const,
+        genre_ids: item.genre_ids || [],
+      }));
+  } catch (error) {
+    console.error('Error fetching new Korean movies:', error);
+    throw error;
+  }
+};
+
 export const getComedySeries = async (page: number = 1): Promise<Media[]> => {
   try {
     const response = await tmdb.get<{ results: TMDBTVResult[] }>(`/discover/tv`, {
@@ -595,7 +741,7 @@ export const getComedySeries = async (page: number = 1): Promise<Media[]> => {
         with_genres: '35', // Comedy genre ID
       },
     });
-    return response.data.results.map((item) => ({
+    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
       name: item.name,
       title: item.title,
@@ -619,7 +765,7 @@ export const getMovieRecommendations = async (movieId: number, page: number = 1)
     const response = await tmdb.get<{ results: TMDBMovieResult[] }>(`/movie/${movieId}/recommendations`, {
       params: { page },
     });
-    return response.data.results.map((item) => ({
+    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
       title: item.title,
       name: item.name,
@@ -643,7 +789,7 @@ export const getTVRecommendations = async (tvId: number, page: number = 1): Prom
     const response = await tmdb.get<{ results: TMDBTVResult[] }>(`/tv/${tvId}/recommendations`, {
       params: { page },
     });
-    return response.data.results.map((item) => ({
+    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
       name: item.name,
       title: item.title,
@@ -670,7 +816,7 @@ export const searchMedia = async (query: string, page: number = 1): Promise<Medi
         params: { query, page },
       }
     );
-    return response.data.results.map((item) => ({
+    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
       title: (item as TMDBMovieResult).title,
       name: (item as TMDBTVResult).name,

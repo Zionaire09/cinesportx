@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
-import { ArrowRight, ExternalLink, Film, Home, Keyboard, Menu, Search, TrendingUp, Tv, Volleyball, X } from 'lucide-react';
+import { ArrowRight, ExternalLink, Film, Home, Keyboard, Languages, Menu, Search, TrendingUp, Tv, Volleyball, X } from 'lucide-react';
 import { searchMedia } from '@/utils/api';
 import { Media } from '@/utils/types';
 
@@ -18,6 +18,7 @@ const navItems: NavItem[] = [
   { title: 'Home', path: '/', icon: <Home className="h-4 w-4" /> },
   { title: 'Movies', path: '/movies', icon: <Film className="h-4 w-4" /> },
   { title: 'TV Shows', path: '/tv', icon: <Tv className="h-4 w-4" /> },
+  { title: 'Kdrama', path: '/kdrama', icon: <Languages className="h-4 w-4" /> },
   { title: 'Trending', path: '/trending', icon: <TrendingUp className="h-4 w-4" /> },
   { title: 'Sports', path: '/sports', icon: <Volleyball className="h-4 w-4" /> },
   { title: 'Anime', path: 'https://animeow.live', icon: <ExternalLink className="h-4 w-4" />, external: true },
@@ -31,8 +32,10 @@ const Navbar = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const suggestionsRef = useRef<HTMLDivElement>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
+  const desktopSearchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSuggestionsRef = useRef<HTMLDivElement>(null);
+  const desktopSuggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const hasSeenHint = localStorage.getItem('hasSeenKeyboardHint');
@@ -49,7 +52,10 @@ const Navbar = () => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey) {
         event.preventDefault();
-        searchInputRef.current?.focus();
+        const activeSearchInput = window.matchMedia('(min-width: 1024px)').matches
+          ? desktopSearchInputRef.current
+          : mobileSearchInputRef.current;
+        activeSearchInput?.focus();
       }
     };
     window.addEventListener('keydown', handleKeyPress);
@@ -58,11 +64,15 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        suggestionsRef.current &&
-        !suggestionsRef.current.contains(event.target as Node) &&
-        !searchInputRef.current?.contains(event.target as Node)
-      ) {
+      const target = event.target as Node;
+      const clickedInsideSearch = [
+        mobileSearchInputRef.current,
+        desktopSearchInputRef.current,
+        mobileSuggestionsRef.current,
+        desktopSuggestionsRef.current,
+      ].some((element) => element?.contains(target));
+
+      if (!clickedInsideSearch) {
         setShowSuggestions(false);
       }
     };
@@ -115,12 +125,16 @@ const Navbar = () => {
       : 'https://via.placeholder.com/92x138/1a1a1a/666666?text=No+Image'
   );
 
-  const SearchSuggestions = () => {
+  const SearchSuggestions = ({
+    containerRef,
+  }: {
+    containerRef: React.RefObject<HTMLDivElement | null>;
+  }) => {
     if (!showSuggestions || searchSuggestions.length === 0) return null;
 
     return (
       <div
-        ref={suggestionsRef}
+        ref={containerRef}
         className="absolute top-full right-0 left-0 mt-2 overflow-hidden rounded-xl border border-white/10 bg-black/95 p-2 shadow-2xl backdrop-blur-xl z-50"
       >
         <div className="max-h-96 overflow-y-auto">
@@ -230,11 +244,11 @@ const Navbar = () => {
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
-                  ref={searchInputRef}
+                  ref={mobileSearchInputRef}
                 />
               </div>
             </form>
-            <SearchSuggestions />
+            <SearchSuggestions containerRef={mobileSuggestionsRef} />
           </div>
 
           <div className="relative hidden shrink-0 lg:flex lg:justify-self-end">
@@ -248,9 +262,9 @@ const Navbar = () => {
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
-                  ref={searchInputRef}
+                  ref={desktopSearchInputRef}
                 />
-                <SearchSuggestions />
+                <SearchSuggestions containerRef={desktopSuggestionsRef} />
                 {showKeyboardHint && (
                   <button
                     type="button"

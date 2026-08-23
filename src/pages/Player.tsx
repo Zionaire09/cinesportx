@@ -422,8 +422,16 @@ const Player = () => {
         setEmbedUrl('');
       }
 
+      if (id === '1368337' || id === '969681') {
+        navigate('/takedown', { replace: true });
+        return;
+      }
       try {
         const mediaId = parseInt(id, 10);
+        if (mediaId === 1368337 || mediaId === 969681) {
+          navigate('/takedown', { replace: true });
+          return;
+        }
         const isTV = season !== undefined || episode !== undefined;
         const detectedMediaType = isTV ? 'tv' : 'movie';
         

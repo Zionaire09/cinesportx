@@ -34,7 +34,15 @@ const MovieDetailsPage = () => {
         return;
       }
 
+      if (id === '1368337' || id === '969681') {
+        navigate('/takedown', { replace: true });
+        return;
+      }
       const movieId = parseInt(id, 10);
+      if (movieId === 1368337 || movieId === 969681) {
+        navigate('/takedown', { replace: true });
+        return;
+      }
       if (isNaN(movieId)) {
         setError("Invalid movie ID");
         setIsLoading(false);

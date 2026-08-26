@@ -75,7 +75,6 @@ interface StreamProbeResult {
   reason?: string;
 }
 
-const SERVER_PROBE_TIMEOUT_MS = 5000;
 const PLAYER_CONFIRMATION_TIMEOUT_MS = 12_000;
 
 
@@ -346,25 +345,13 @@ const Player = () => {
         };
       }
     } catch {
-      // Local development and legacy deployments may not yet expose the Worker endpoint.
+      // The endpoint failure is handled below as an unverified server.
     }
 
-    const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), SERVER_PROBE_TIMEOUT_MS);
-
-    try {
-      await fetch(url, {
-        method: 'GET',
-        mode: 'no-cors',
-        cache: 'no-store',
-        signal: controller.signal,
-      });
-      return { available: true, reason: 'The stream host responded, but availability could not be fully verified.' };
-    } catch {
-      return { available: false, reason: 'The stream host could not be reached.' };
-    } finally {
-      window.clearTimeout(timeoutId);
-    }
+    return {
+      available: false,
+      reason: 'The stream server could not be positively verified.',
+    };
   }, []);
 
   useEffect(() => {

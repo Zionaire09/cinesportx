@@ -39,8 +39,15 @@ const UNAVAILABLE_RESPONSE_PATTERNS = [
   /\bnot\s+found\b/i,
 ];
 
+const PLAYABLE_EMBED_PATTERNS = [
+  /<iframe\b/i,
+  /<video\b/i,
+  /\b(?:jwplayer|videojs|hls\.js|shaka\.Player)\b/i,
+  /\b(?:\.m3u8|\.mpd)\b/i,
+];
+
 const MAX_REDIRECTS = 3;
-const PROBE_TIMEOUT_MS = 8_000;
+const PROBE_TIMEOUT_MS = 5_000;
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
   status,
@@ -52,20 +59,48 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 
 const isAllowedStreamUrl = (url: URL) => url.protocol === 'https:' && ALLOWED_STREAM_HOSTS.has(url.hostname);
 
-const responseIndicatesUnavailableContent = async (response: Response) => {
-  if (response.status === 404 || response.status === 410) return true;
-  if (!response.ok) return false;
+const evaluateEmbedResponse = async (response: Response) => {
+  if (!response.ok) {
+    return {
+      available: false,
+      reason: `The stream server returned HTTP ${response.status}.`,
+    };
+  }
 
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/html') && !contentType.includes('text/plain')) {
-    return false;
+    return {
+      available: false,
+      reason: 'The stream server did not return a verifiable player document.',
+    };
   }
 
   try {
     const responseText = (await response.text()).slice(0, 100_000);
-    return UNAVAILABLE_RESPONSE_PATTERNS.some((pattern) => pattern.test(responseText));
+
+    if (UNAVAILABLE_RESPONSE_PATTERNS.some((pattern) => pattern.test(responseText))) {
+      return {
+        available: false,
+        reason: 'The stream server reported unavailable content.',
+      };
+    }
+
+    if (PLAYABLE_EMBED_PATTERNS.some((pattern) => pattern.test(responseText))) {
+      return {
+        available: true,
+        reason: 'The stream server returned a recognizable embedded player.',
+      };
+    }
+
+    return {
+      available: false,
+      reason: 'The stream server did not return a recognizable embedded player.',
+    };
   } catch {
-    return false;
+    return {
+      available: false,
+      reason: 'The stream server response could not be verified.',
+    };
   }
 };
 
@@ -99,11 +134,7 @@ const probeEmbed = async (initialUrl: URL) => {
       continue;
     }
 
-    if (await responseIndicatesUnavailableContent(response)) {
-      return { available: false, reason: `The stream server reported ${response.status || 'unavailable'} content.` };
-    }
-
-    return { available: true, reason: 'The stream server responded with playable embed content.' };
+    return evaluateEmbedResponse(response);
   }
 
   return { available: false, reason: 'The stream server redirected too many times.' };

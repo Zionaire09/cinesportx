@@ -239,6 +239,24 @@ export const videoSources = [
     name: '19 Prime',
     getMovieUrl: (id: number) => `https://primesrc.me/embed/movie?tmdb=${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://primesrc.me/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`,
+  },
+  {
+    key: 'streamxtv',
+    name: '20 XTV',
+    getMovieUrl: (id: number) => `https://embed.streamxtv.tech/embed/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://embed.streamxtv.tech/embed/${id}/${season}/${episode}`,
+  },
+  {
+    key: 'vidcore',
+    name: '21 Core',
+    getMovieUrl: (id: number) => `https://vidcore.net/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidcore.net/tv/${id}/${season}/${episode}`,
+  },
+  {
+    key: 'vidlux',
+    name: '22 Lux',
+    getMovieUrl: (id: number) => `https://vidlux.xyz/embed/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidlux.xyz/embed/tv/${id}/${season}/${episode}`,
   }
 ];
 

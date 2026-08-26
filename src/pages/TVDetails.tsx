@@ -20,6 +20,7 @@ const TVDetailsPage = () => {
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [selectedSeason, setSelectedSeason] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingLatestEpisode, setIsLoadingLatestEpisode] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [backdropLoaded, setBackdropLoaded] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
@@ -107,13 +108,44 @@ const TVDetailsPage = () => {
     fetchTrailer();
   }, [tvShow?.id]);
   
-  const handlePlayEpisode = (seasonNumber: number, episodeNumber: number) => {
+    const handlePlayEpisode = (seasonNumber: number, episodeNumber: number) => {
     if (tvShow) {
       navigate(`/player/tv/${tvShow.id}/${seasonNumber}/${episodeNumber}`);
     }
   };
 
-  
+  const handlePlayLatestEpisode = async () => {
+    if (!tvShow || isLoadingLatestEpisode) return;
+
+    setIsLoadingLatestEpisode(true);
+
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const seasonsToCheck = tvShow.seasons
+        .filter((season) => season.season_number > 0)
+        .sort((a, b) => b.season_number - a.season_number);
+
+      for (const season of seasonsToCheck) {
+        const seasonEpisodes = await getSeasonDetails(tvShow.id, season.season_number);
+        const airedEpisodes = seasonEpisodes
+          .filter((episode) => episode.air_date && episode.air_date <= today)
+          .sort((a, b) => b.episode_number - a.episode_number);
+
+        if (airedEpisodes.length > 0) {
+          const latestEpisode = airedEpisodes[0];
+          navigate(`/player/tv/${tvShow.id}/${season.season_number}/${latestEpisode.episode_number}`);
+          return;
+        }
+      }
+
+      console.error('No aired episodes were found for the selected TV show.');
+    } catch (error) {
+      console.error('Error finding the latest episode:', error);
+    } finally {
+      setIsLoadingLatestEpisode(false);
+    }
+  };
+
   const formatSeasonEpisodeCount = (count: number) => {
     return `${count} ${count === 1 ? 'Episode' : 'Episodes'}`;
   };
@@ -307,13 +339,14 @@ const TVDetailsPage = () => {
               <p className="text-white/80 mb-6">{tvShow.overview}</p>
               
               <div className="flex flex-wrap gap-3">
-                {episodes.length > 0 && (
-                  <Button 
-                    onClick={() => handlePlayEpisode(selectedSeason, 1)}
+                {tvShow.seasons.some((season) => season.season_number > 0) && (
+                  <Button
+                    onClick={handlePlayLatestEpisode}
+                    disabled={isLoadingLatestEpisode}
                     className="bg-accent hover:bg-accent/80 text-white flex items-center"
                   >
                     <Play className="h-4 w-4 mr-2" />
-                    Play Latest Episode
+                    {isLoadingLatestEpisode ? 'Finding Latest Episode...' : 'Play Latest Episode'}
                   </Button>
                 )}
                 <Button 

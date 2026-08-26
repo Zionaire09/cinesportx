@@ -218,12 +218,15 @@ EpisodeCard.displayName = 'EpisodeCard';
 
 
 
+const DEFAULT_STREAM_SOURCE = 'vidfast';
+
+const getStreamPreferenceKey = (mediaId: string, isTV: boolean) =>
+  `selectedVideoSource:${isTV ? 'tv' : 'movie'}:${mediaId}`;
+
 const Player = () => {
   const { id, season, episode } = useParams<{ id: string; season?: string; episode?: string }>();
   const [title, setTitle] = useState<string>('');
-  const [selectedSource, setSelectedSource] = useState<string>(
-    localStorage.getItem('selectedVideoSource') || videoSources[0].key
-  );
+  const [selectedSource, setSelectedSource] = useState<string>(DEFAULT_STREAM_SOURCE);
   const [embedUrl, setEmbedUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [mediaType, setMediaType] = useState<'movie' | 'tv'>('movie');
@@ -316,7 +319,17 @@ const Player = () => {
     
     const fetchMediaDetails = async () => {
       if (!id || !isMounted) return;
-      
+
+      const isTVRoute = season !== undefined || episode !== undefined;
+      const savedSource = localStorage.getItem(getStreamPreferenceKey(id, isTVRoute));
+      const preferredSource = videoSources.some((source) => source.key === savedSource)
+        ? savedSource!
+        : DEFAULT_STREAM_SOURCE;
+
+      setSelectedSource(preferredSource);
+      setEmbedUrl('');
+      setHasInitialized(false);
+
       if (!mediaDetails || parseInt(id, 10) !== mediaDetails.id) {
         setIsLoading(true);
         setMediaDetails(null);
@@ -405,7 +418,9 @@ const Player = () => {
       return;
     }
 
-    const activeSource = videoSources.find((source) => source.key === selectedSource) || videoSources[0];
+    const activeSource = videoSources.find((source) => source.key === selectedSource)
+      || videoSources.find((source) => source.key === DEFAULT_STREAM_SOURCE)
+      || videoSources[0];
     const sourceUrl = getEmbedUrlForSource(
       activeSource.key,
       mediaId,
@@ -418,7 +433,6 @@ const Player = () => {
 
     if (activeSource.key !== selectedSource) {
       setSelectedSource(activeSource.key);
-      localStorage.setItem('selectedVideoSource', activeSource.key);
     }
 
     setEmbedUrl(sourceUrl);
@@ -470,8 +484,8 @@ const Player = () => {
       return;
     }
 
+    localStorage.setItem(getStreamPreferenceKey(id, mediaType === 'tv'), sourceKey);
     setSelectedSource(sourceKey);
-    localStorage.setItem('selectedVideoSource', sourceKey);
     setEmbedUrl(sourceUrl);
     memoizedToast({
       title: 'Stream server changed',

@@ -1167,84 +1167,116 @@ const Player = () => {
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.07] via-white/[0.03] to-transparent p-4 backdrop-blur-md shadow-lg shadow-black/10">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <Server className="h-4 w-4 text-accent" />
-                        <h2 className="text-sm font-semibold text-white">Stream server</h2>
-                        {isScanningSources && (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-accent/20 bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent">
-                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-                            Scanning
+                <section className="relative overflow-hidden rounded-2xl border border-cyan-300/30 bg-gradient-to-br from-cyan-500/20 via-blue-600/15 to-indigo-950/50 p-5 shadow-2xl shadow-cyan-950/20 backdrop-blur-xl">
+                  <div className="pointer-events-none absolute -right-14 -top-20 h-48 w-48 rounded-full bg-cyan-300/20 blur-3xl" />
+                  <div className="pointer-events-none absolute -bottom-24 left-1/3 h-44 w-44 rounded-full bg-blue-500/20 blur-3xl" />
+
+                  <div className="relative">
+                    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                      <div className="max-w-2xl">
+                        <div className="mb-2 flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-200/30 bg-cyan-200/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-100">
+                            <Server className="h-3.5 w-3.5" />
+                            Stream controls
                           </span>
-                        )}
+                          {isScanningSources && (
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[10px] font-medium text-white/90">
+                              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-200" />
+                              Checking servers
+                            </span>
+                          )}
+                        </div>
+                        <h2 className="text-lg font-semibold tracking-tight text-white">Choose your stream server</h2>
+                        <p className="mt-1.5 text-sm leading-relaxed text-cyan-50/75">
+                          This is a selectable dropdown. Use it to switch stream servers at any time; the player automatically starts with the first responsive server in priority order.
+                        </p>
                       </div>
-                      <p className="mt-1 text-xs text-white/55">
-                        {isScanningSources
-                          ? 'Checking servers in priority order and selecting the first responsive stream.'
-                          : selectedSourceDetails
-                            ? `${selectedSourceDetails.name} is selected. All servers remain available from the menu.`
-                            : 'Choose a stream server from the menu.'}
-                      </p>
+
+                      <div className="w-full md:w-1/3 md:min-w-[280px] lg:max-w-md">
+                        <div className="mb-2 flex items-center justify-between px-1">
+                          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-100/80">Select a stream server</span>
+                          <span className={cn(
+                            'text-[10px] font-medium',
+                            sourceAvailability[selectedSource] === 'available'
+                              ? 'text-emerald-200'
+                              : sourceAvailability[selectedSource] === 'unavailable'
+                                ? 'text-amber-200'
+                                : 'text-cyan-100'
+                          )}>
+                            {sourceAvailability[selectedSource] === 'available'
+                              ? 'Ready to play'
+                              : sourceAvailability[selectedSource] === 'unavailable'
+                                ? 'Manual selection'
+                                : 'Checking'}
+                          </span>
+                        </div>
+
+                        <Select value={selectedSource} onValueChange={handleSourceChange}>
+                          <SelectTrigger className="h-14 w-full border border-cyan-200/50 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 px-4 text-white shadow-lg shadow-cyan-950/40 transition-all duration-300 hover:scale-[1.01] hover:border-white/80 hover:from-cyan-400 hover:via-sky-500 hover:to-blue-500 focus:ring-cyan-200/70">
+                            <div className="flex min-w-0 items-center gap-3">
+                              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/25">
+                                <Wifi className={cn(
+                                  'h-4 w-4',
+                                  sourceAvailability[selectedSource] === 'available'
+                                    ? 'text-emerald-100'
+                                    : sourceAvailability[selectedSource] === 'unavailable'
+                                      ? 'text-amber-100'
+                                      : 'text-white'
+                                )} />
+                              </span>
+                              <div className="min-w-0 text-left">
+                                <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-white/70">Stream server dropdown</span>
+                                <SelectValue placeholder="Select a stream server" />
+                              </div>
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent className="border border-cyan-300/30 bg-slate-950/95 text-white shadow-2xl shadow-cyan-950/40 backdrop-blur-xl">
+                            {videoSources.map((source) => {
+                              const availability = sourceAvailability[source.key] || 'checking';
+                              const statusLabel = availability === 'available'
+                                ? 'Available'
+                                : availability === 'unavailable'
+                                  ? 'Select to try'
+                                  : 'Checking';
+
+                              return (
+                                <SelectItem
+                                  key={source.key}
+                                  value={source.key}
+                                  className="cursor-pointer py-3.5 focus:bg-cyan-400/15 hover:bg-cyan-400/10"
+                                >
+                                  <div className="flex w-full min-w-[250px] items-center justify-between gap-6">
+                                    <span className="font-medium">{source.name}</span>
+                                    <span className={cn(
+                                      'rounded-full border px-2 py-0.5 text-[10px] font-medium',
+                                      availability === 'available'
+                                        ? 'border-emerald-300/20 bg-emerald-400/10 text-emerald-300'
+                                        : availability === 'unavailable'
+                                          ? 'border-white/10 bg-white/5 text-white/45'
+                                          : 'border-cyan-300/20 bg-cyan-400/10 text-cyan-200'
+                                    )}>
+                                      {statusLabel}
+                                    </span>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
-                    <Select value={selectedSource} onValueChange={handleSourceChange}>
-                      <SelectTrigger className="h-11 w-full border-white/10 bg-black/30 text-white transition-colors hover:border-white/20 sm:w-[260px]">
-                        <div className="flex min-w-0 items-center gap-2">
-                          <Wifi className={cn(
-                            'h-4 w-4 flex-shrink-0',
-                            sourceAvailability[selectedSource] === 'available'
-                              ? 'text-emerald-400'
-                              : sourceAvailability[selectedSource] === 'unavailable'
-                                ? 'text-amber-400'
-                                : 'text-accent'
-                          )} />
-                          <SelectValue placeholder="Select a stream server" />
-                        </div>
-                      </SelectTrigger>
-                      <SelectContent className="border-white/10 bg-black/95 text-white backdrop-blur-lg">
-                        {videoSources.map((source) => {
-                          const availability = sourceAvailability[source.key] || 'checking';
-                          const statusLabel = availability === 'available'
-                            ? 'Available'
-                            : availability === 'unavailable'
-                              ? 'Select to try'
-                              : 'Checking';
-
-                          return (
-                            <SelectItem
-                              key={source.key}
-                              value={source.key}
-                              className="cursor-pointer py-3 focus:bg-white/10 hover:bg-white/10"
-                            >
-                              <div className="flex w-full min-w-[210px] items-center justify-between gap-5">
-                                <span className="font-medium">{source.name}</span>
-                                <span className={cn(
-                                  'text-[10px]',
-                                  availability === 'available'
-                                    ? 'text-emerald-400'
-                                    : availability === 'unavailable'
-                                      ? 'text-white/40'
-                                      : 'text-accent'
-                                )}>
-                                  {statusLabel}
-                                </span>
-                              </div>
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
+                    <div className="mt-5 grid gap-3 border-t border-white/10 pt-4 md:grid-cols-[auto_minmax(0,1fr)] md:items-start">
+                      <div className="inline-flex w-fit items-center gap-2 rounded-full border border-violet-300/25 bg-violet-400/10 px-3 py-1.5 text-xs font-semibold text-violet-100">
+                        <AlertCircle className="h-4 w-4 text-violet-200" />
+                        Playback tip
+                      </div>
+                      <p className="pt-1 text-sm leading-relaxed text-white/75">
+                        If video quality is poor, subtitles are unavailable, or the audio is in a different language, select another stream server from the dropdown above.
+                      </p>
+                    </div>
                   </div>
-
-                  <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2.5">
-                    <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-400" />
-                    <p className="text-xs leading-relaxed text-amber-100/80">
-                      If video quality is poor or subtitles are not working, try another stream server from the dropdown.
-                    </p>
-                  </div>
-                </div>
+                </section>
               </div>
             </div>
           </div>

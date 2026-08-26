@@ -124,16 +124,16 @@ export const backdropSizes = {
 
 export const videoSources = [
   {
-    key: 'streamxtv',
-    name: '01 Armageddon',
-    getMovieUrl: (id: number) => `https://embed.streamxtv.tech/embed/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://embed.streamxtv.tech/embed/${id}/${season}/${episode}`,
-  },
-  {
     key: 'vidlux',
-    name: '02 Supernova',
+    name: '01 Armageddon',
     getMovieUrl: (id: number) => `https://vidlux.xyz/embed/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidlux.xyz/embed/tv/${id}/${season}/${episode}`,
+  },
+  {
+    key: 'streamxtv',
+    name: '02 Supernova',
+    getMovieUrl: (id: number) => `https://embed.streamxtv.tech/embed/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://embed.streamxtv.tech/embed/${id}/${season}/${episode}`,
   },
   {
     key: 'vidsrc-mov',

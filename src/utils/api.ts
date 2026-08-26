@@ -160,6 +160,18 @@ export const videoSources = [
     getTVUrl: (id: number, season: number, episode: number) => `https://vidsrcme.ru/embed/tv/${id}/${season}/${episode}`,
   },
   {
+    key: 'vidsrc-mov',
+    name: 'VidSrc.mov',
+    getMovieUrl: (id: number) => `https://vidsrc.mov/embed/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
+  },
+  {
+    key: 'vidsrc-fyi',
+    name: 'VidSrc.fyi',
+    getMovieUrl: (id: number) => `https://vidsrc.fyi/embed/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidsrc.fyi/embed/tv/${id}/${season}/${episode}`,
+  },
+  {
     key: 'vidzee',
     name: 'Vidzee',
     getMovieUrl: (id: number) => `https://player.vidzee.wtf/embed/movie/${id}`,

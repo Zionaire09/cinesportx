@@ -60,7 +60,8 @@ const SOURCE_ORIGINS: Record<string, string[]> = {
     'https://vidfast.me',
     'https://vidfast.net',
     'https://vidfast.pm',
-    'https://vidfast.xyz'
+    'https://vidfast.xyz',
+    'https://vidfast.vc'
   ],
   'videasy': ['https://player.videasy.net'],
   'vidnest': ['https://vidnest.fun'],
@@ -69,7 +70,13 @@ const SOURCE_ORIGINS: Record<string, string[]> = {
 
 type SourceAvailability = 'checking' | 'available' | 'unavailable';
 
+interface StreamProbeResult {
+  available: boolean;
+  reason?: string;
+}
+
 const SERVER_PROBE_TIMEOUT_MS = 5000;
+const PLAYER_CONFIRMATION_TIMEOUT_MS = 12_000;
 
 
 
@@ -230,6 +237,9 @@ const Player = () => {
   const [embedUrl, setEmbedUrl] = useState<string>('');
   const [sourceAvailability, setSourceAvailability] = useState<Record<string, SourceAvailability>>({});
   const [isScanningSources, setIsScanningSources] = useState(false);
+  const [isSelectingStream, setIsSelectingStream] = useState(false);
+  const [activeProbeSource, setActiveProbeSource] = useState<string | null>(null);
+  const [fallbackAttempt, setFallbackAttempt] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [mediaType, setMediaType] = useState<'movie' | 'tv'>('movie');
   const [mediaDetails, setMediaDetails] = useState<MovieDetails | TVDetails | null>(null);
@@ -256,6 +266,9 @@ const Player = () => {
   const lastCheckTimeRef = useRef<number>(0);
     const animationFrameRef = useRef<number>();
   const hasManualSourceSelectionRef = useRef(false);
+  const failedSourceKeysRef = useRef<Set<string>>(new Set());
+  const lastStreamContentKeyRef = useRef<string | null>(null);
+  const confirmedSourceKeyRef = useRef<string | null>(null);
 
   const memoizedNavigate = useCallback(navigate, [navigate]);
   const memoizedToast = useCallback(toast, [toast]);
@@ -317,7 +330,25 @@ const Player = () => {
       : '';
   }, []);
 
-  const probeSource = useCallback(async (url: string) => {
+  const probeSource = useCallback(async (url: string): Promise<StreamProbeResult> => {
+    try {
+      const healthResponse = await fetch('/api/stream-health', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+
+      if (healthResponse.headers.get('content-type')?.includes('application/json')) {
+        const result = await healthResponse.json() as StreamProbeResult;
+        return {
+          available: result.available === true,
+          reason: result.reason,
+        };
+      }
+    } catch {
+      // Local development and legacy deployments may not yet expose the Worker endpoint.
+    }
+
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), SERVER_PROBE_TIMEOUT_MS);
 
@@ -328,9 +359,9 @@ const Player = () => {
         cache: 'no-store',
         signal: controller.signal,
       });
-      return true;
+      return { available: true, reason: 'The stream host responded, but availability could not be fully verified.' };
     } catch {
-      return false;
+      return { available: false, reason: 'The stream host could not be reached.' };
     } finally {
       window.clearTimeout(timeoutId);
     }
@@ -430,14 +461,25 @@ const Player = () => {
       return;
     }
 
+    const streamContentKey = `${id}:${season || 'movie'}:${episode || 'movie'}`;
+    if (lastStreamContentKeyRef.current !== streamContentKey) {
+      failedSourceKeysRef.current.clear();
+      lastStreamContentKeyRef.current = streamContentKey;
+    }
+
     let isCancelled = false;
     const initialAvailability = Object.fromEntries(
-      videoSources.map((source) => [source.key, 'checking' as SourceAvailability])
+      videoSources.map((source) => [
+        source.key,
+        failedSourceKeysRef.current.has(source.key) ? 'unavailable' : 'checking' as SourceAvailability,
+      ])
     );
 
     hasManualSourceSelectionRef.current = false;
     setSourceAvailability(initialAvailability);
     setIsScanningSources(true);
+    setIsSelectingStream(true);
+    setActiveProbeSource(null);
     setEmbedUrl('');
 
     const scanSources = async () => {
@@ -445,6 +487,7 @@ const Player = () => {
 
       for (const source of videoSources) {
         if (isCancelled) return;
+        if (failedSourceKeysRef.current.has(source.key)) continue;
 
         const sourceUrl = getEmbedUrlForSource(
           source.key,
@@ -454,28 +497,35 @@ const Player = () => {
           mediaType === 'tv' ? episodeNum : undefined
         );
 
-        const isAvailable = sourceUrl ? await probeSource(sourceUrl) : false;
+        setActiveProbeSource(source.name);
+        const probeResult = sourceUrl
+          ? await probeSource(sourceUrl)
+          : { available: false, reason: 'A stream URL could not be created.' };
         if (isCancelled) return;
 
         setSourceAvailability((current) => ({
           ...current,
-          [source.key]: isAvailable ? 'available' : 'unavailable',
+          [source.key]: probeResult.available ? 'available' : 'unavailable',
         }));
 
-        if (isAvailable && !firstAvailableSourceFound) {
+        if (probeResult.available && !firstAvailableSourceFound) {
           firstAvailableSourceFound = true;
 
           if (!hasManualSourceSelectionRef.current) {
+            confirmedSourceKeyRef.current = null;
             setSelectedSource(source.key);
             localStorage.setItem('selectedVideoSource', source.key);
             setEmbedUrl(sourceUrl);
+            setIsSelectingStream(false);
           }
         }
       }
 
       if (!isCancelled) {
         setIsScanningSources(false);
+        setActiveProbeSource(null);
         if (!firstAvailableSourceFound) {
+          setIsSelectingStream(false);
           memoizedToast({
             title: 'No responsive servers',
             description: 'We could not connect to a stream server. Please try again later.',
@@ -490,7 +540,25 @@ const Player = () => {
     return () => {
       isCancelled = true;
     };
-  }, [id, season, episode, hasInitialized, mediaDetails, mediaType, getEmbedUrlForSource, probeSource, memoizedToast]);
+  }, [id, season, episode, hasInitialized, mediaDetails, mediaType, fallbackAttempt, getEmbedUrlForSource, probeSource, memoizedToast]);
+
+  const handleIframeLoadError = useCallback(() => {
+    const sourceName = videoSources.find((source) => source.key === selectedSource)?.name || 'the current server';
+    failedSourceKeysRef.current.add(selectedSource);
+    setSourceAvailability((current) => ({ ...current, [selectedSource]: 'unavailable' }));
+    confirmedSourceKeyRef.current = null;
+    setEmbedUrl('');
+    setIsSelectingStream(true);
+    setActiveProbeSource(null);
+    setFallbackAttempt((attempt) => attempt + 1);
+
+    memoizedToast({
+      title: 'Stream server failed',
+      description: `${sourceName} could not load this title. Trying the next stream server.`,
+      variant: 'destructive',
+      duration: 4000,
+    });
+  }, [selectedSource, memoizedToast]);
 
   const handleAutoNextToggle = useCallback((enabled: boolean) => {
     setAutoNextEnabled(enabled);
@@ -539,6 +607,9 @@ const Player = () => {
     }
 
     hasManualSourceSelectionRef.current = true;
+    setIsSelectingStream(false);
+    setActiveProbeSource(null);
+    confirmedSourceKeyRef.current = null;
     setSelectedSource(sourceKey);
     localStorage.setItem('selectedVideoSource', sourceKey);
     setEmbedUrl(sourceUrl);
@@ -773,6 +844,8 @@ const Player = () => {
       const origins = SOURCE_ORIGINS[selectedSource];
       if (!origins || !origins.includes(event.origin)) return;
 
+      confirmedSourceKeyRef.current = selectedSource;
+
       if (event.data?.type === "MEDIA_DATA") {
         const mediaData = event.data.data;
         
@@ -829,6 +902,26 @@ const Player = () => {
       window.removeEventListener("message", throttledHandler);
     };
   }, [mediaType, episodes, id, season, episode, goToNextEpisode, selectedSource, autoNextEnabled]);
+
+  useEffect(() => {
+    if (
+      !embedUrl ||
+      isLoading ||
+      isSelectingStream ||
+      hasManualSourceSelectionRef.current ||
+      !SOURCE_ORIGINS[selectedSource]
+    ) {
+      return;
+    }
+
+    const confirmationTimer = window.setTimeout(() => {
+      if (confirmedSourceKeyRef.current !== selectedSource) {
+        handleIframeLoadError();
+      }
+    }, PLAYER_CONFIRMATION_TIMEOUT_MS);
+
+    return () => window.clearTimeout(confirmationTimer);
+  }, [embedUrl, isLoading, isSelectingStream, selectedSource, handleIframeLoadError]);
 
     // Optimized video end detection using requestAnimationFrame
   useEffect(() => {
@@ -1045,6 +1138,16 @@ const Player = () => {
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                   <div className="w-12 h-12 border-3 border-accent/30 border-t-accent rounded-full animate-spin" />
                 </div>
+              ) : isSelectingStream ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-blue-950/70 to-cyan-950/50 px-6 text-center">
+                  <div className="mb-5 h-12 w-12 rounded-full border-2 border-cyan-200/25 border-t-cyan-200 animate-spin" />
+                  <p className="text-lg font-semibold text-white">Finding a working stream server</p>
+                  <p className="mt-2 max-w-md text-sm leading-relaxed text-cyan-100/75">
+                    {activeProbeSource
+                      ? `Checking ${activeProbeSource}. Unavailable servers are skipped automatically.`
+                      : 'Checking stream servers in priority order. Please wait while we switch to the next working option.'}
+                  </p>
+                </div>
               ) : embedUrl ? (
                 <iframe
                   ref={iframeRef}
@@ -1055,6 +1158,7 @@ const Player = () => {
                   referrerPolicy="no-referrer"
                   allow="autoplay; encrypted-media; fullscreen"
                   loading="lazy"
+                  onError={handleIframeLoadError}
                 />
               ) : (
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center">

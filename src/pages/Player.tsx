@@ -1312,17 +1312,24 @@ const Player = () => {
                                 <SelectItem
                                   key={source.key}
                                   value={source.key}
-                                  className="cursor-pointer py-3.5 focus:bg-cyan-400/15 hover:bg-cyan-400/10"
+                                  className="group cursor-pointer bg-transparent p-1.5 pl-8 focus:bg-transparent data-[highlighted]:bg-transparent"
                                 >
-                                  <div className="flex w-full min-w-[250px] items-center justify-between gap-6">
-                                    <span className="font-medium">{source.name}</span>
+                                  <div className={cn(
+                                    'flex w-full min-w-[250px] items-center justify-between gap-5 rounded-lg border px-3 py-2.5 transition-all duration-150 group-data-[highlighted]:border-cyan-200/70 group-data-[highlighted]:bg-cyan-300/10',
+                                    availability === 'available'
+                                      ? 'border-emerald-300/20 bg-emerald-400/[0.06]'
+                                      : availability === 'unavailable'
+                                        ? 'border-rose-300/20 bg-rose-400/[0.06]'
+                                        : 'border-cyan-300/20 bg-cyan-400/[0.06]'
+                                  )}>
+                                    <span className="font-medium text-white">{source.name}</span>
                                     <span className={cn(
-                                      'rounded-full border px-2 py-0.5 text-[10px] font-medium',
+                                      'inline-flex flex-shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] font-medium',
                                       availability === 'available'
-                                        ? 'border-emerald-300/20 bg-emerald-400/10 text-emerald-300'
+                                        ? 'border-emerald-300/25 bg-emerald-400/15 text-emerald-200'
                                         : availability === 'unavailable'
-                                          ? 'border-rose-300/20 bg-rose-400/10 text-rose-200'
-                                          : 'border-cyan-300/20 bg-cyan-400/10 text-cyan-200'
+                                          ? 'border-rose-300/25 bg-rose-400/15 text-rose-100'
+                                          : 'border-cyan-300/25 bg-cyan-400/15 text-cyan-100'
                                     )}>
                                       {statusLabel}
                                     </span>

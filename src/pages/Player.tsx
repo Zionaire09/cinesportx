@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, memo, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMovieDetails, getTVDetails, videoSources, getSeasonDetails } from '@/utils/api';
-import { MovieDetails, TVDetails, VideoSource, Episode, Media } from '@/utils/types';
+import { MovieDetails, TVDetails, Episode } from '@/utils/types';
 import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { 
@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Film, Tv, Check, SkipBack, SkipForward, Calendar, Star, Play, ExternalLink, Maximize2, Minimize2, ChevronRight, ChevronLeft, Shuffle } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Calendar, Check, ChevronLeft, ChevronRight, ExternalLink, Film, Maximize2, Minimize2, Play, Server, Shuffle, SkipBack, SkipForward, Star, Tv, Wifi } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { format } from 'date-fns';
@@ -44,8 +44,7 @@ const backdropSizes = {
   original: 'https://image.tmdb.org/t/p/original',
 };
 
-// Video sources that should not be sandboxed
-const NO_SANDBOX_SOURCES = ['riveembed', 'smashystream', '111movies', 'spanish', '2embed', 'moviesapi', 'autoembed', 'multiembed', 'vidsrc-me', 'primesrc', 'warezcdn', 'superflix'];
+
 
 // Define types for video source origins
 const SOURCE_ORIGINS: Record<string, string[]> = {
@@ -68,12 +67,11 @@ const SOURCE_ORIGINS: Record<string, string[]> = {
   'vidup': ['https://vidup.to']
 };
 
-// Create a wrapper type for source display
-interface SourceDisplay {
-  key: string;
-  name: string;
-  sandbox?: string;
-}
+type SourceAvailability = 'checking' | 'available' | 'unavailable';
+
+const SERVER_PROBE_TIMEOUT_MS = 5000;
+
+
 
 // Memoized Episode Card Component
 const EpisodeCard = memo(({ 
@@ -221,57 +219,7 @@ const EpisodeCard = memo(({
 
 EpisodeCard.displayName = 'EpisodeCard';
 
-// Memoized Source Button Component - using SourceDisplay instead of VideoSource
-const SourceButton = memo(({ 
-  source, 
-  isSelected, 
-  onClick 
-}: { 
-  source: SourceDisplay; 
-  isSelected: boolean; 
-  onClick: () => void;
-}) => {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "relative group p-4 rounded-lg border transition-all duration-200",
-        "bg-gradient-to-br backdrop-blur-sm",
-        isSelected
-          ? "from-accent/20 to-accent/10 border-accent"
-          : "from-white/5 to-transparent border-white/10 hover:border-white/20",
-        !SOURCE_ORIGINS[source.key] && "opacity-70"
-      )}
-    >
-      <div className="space-y-2 text-left">
-        <div className="flex items-center justify-between">
-          <span className={cn(
-            "text-sm font-medium transition-colors",
-            isSelected ? "text-accent" : "text-white group-hover:text-white/90"
-          )}>
-            {source.name}
-          </span>
-          {isSelected && (
-            <div className="h-2 w-2 rounded-full bg-accent" />
-          )}
-        </div>
-        <div className="flex items-center gap-1.5">
-          {isSelected ? (
-            <div className="text-xs text-accent flex items-center gap-1">
-              <Check className="h-3 w-3" />
-              Active
-            </div>
-          ) : (
-            <span className="text-xs text-white/40">Click to switch</span>
-          )}
-        </div>
-      </div>
-    </button>
-  );
-}
-                         );
 
-SourceButton.displayName = 'SourceButton';
 
 const Player = () => {
   const { id, season, episode } = useParams<{ id: string; season?: string; episode?: string }>();
@@ -280,6 +228,8 @@ const Player = () => {
     localStorage.getItem('selectedVideoSource') || videoSources[0].key
   );
   const [embedUrl, setEmbedUrl] = useState<string>('');
+  const [sourceAvailability, setSourceAvailability] = useState<Record<string, SourceAvailability>>({});
+  const [isScanningSources, setIsScanningSources] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [mediaType, setMediaType] = useState<'movie' | 'tv'>('movie');
   const [mediaDetails, setMediaDetails] = useState<MovieDetails | TVDetails | null>(null);
@@ -304,7 +254,8 @@ const Player = () => {
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const lastCheckTimeRef = useRef<number>(0);
-  const animationFrameRef = useRef<number>();
+    const animationFrameRef = useRef<number>();
+  const hasManualSourceSelectionRef = useRef(false);
 
   const memoizedNavigate = useCallback(navigate, [navigate]);
   const memoizedToast = useCallback(toast, [toast]);
@@ -318,14 +269,12 @@ const Player = () => {
     }));
   }, []);
 
-  // Convert videoSources to SourceDisplay array for display
-  const sourceDisplays: SourceDisplay[] = useMemo(() => {
-    return videoSources.map(source => ({
-      key: source.key,
-      name: source.name,
-      sandbox: (source as any).sandbox
-    }));
-  }, []);
+    const selectedSourceDetails = useMemo(
+    () => videoSources.find((source) => source.key === selectedSource),
+    [selectedSource]
+  );
+
+
 
   // Optimized load more episodes for mobile
   useEffect(() => {
@@ -354,60 +303,45 @@ const Player = () => {
         observerRef.current.disconnect();
       }
     };
-  }, [isMobile, episodes.length, visibleEpisodesCount, isLoadingMore]);
+    }, [isMobile, episodes.length, visibleEpisodesCount, isLoadingMore]);
 
-  useEffect(() => {
-    const storedSource = localStorage.getItem('selectedVideoSource');
-    if (storedSource && videoSources.some((source) => source.key === storedSource)) {
-      setSelectedSource(storedSource);
-    } else {
-      setSelectedSource(videoSources[0].key);
-      localStorage.setItem('selectedVideoSource', videoSources[0].key);
+  const getEmbedUrlForSource = useCallback((
+    sourceKey: string,
+    mediaId: number,
+    sourceMediaType: 'movie' | 'tv',
+    seasonNum?: number,
+    episodeNum?: number
+  ) => {
+    const source = videoSources.find((item) => item.key === sourceKey);
+    if (!source) return '';
+
+    if (sourceMediaType === 'movie') {
+      return source.getMovieUrl(mediaId);
     }
+
+    return seasonNum && episodeNum
+      ? source.getTVUrl(mediaId, seasonNum, episodeNum)
+      : '';
   }, []);
 
-  const updateEmbedUrl = useCallback(async (mediaId: number, seasonNum?: number, episodeNum?: number) => {
-    const source = videoSources.find(src => src.key === selectedSource);
-    if (!source) {
-      console.error(`No source found for key: ${selectedSource}`);
-      return;
-    }
-    
-    let url: string | undefined;
+  const probeSource = useCallback(async (url: string) => {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), SERVER_PROBE_TIMEOUT_MS);
 
-    if (mediaType === 'movie') {
-      url = source.getMovieUrl(mediaId);
-    } else if (mediaType === 'tv' && seasonNum && episodeNum) {
-      url = source.getTVUrl(mediaId, seasonNum, episodeNum);
+    try {
+      await fetch(url, {
+        method: 'GET',
+        mode: 'no-cors',
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+      return true;
+    } catch {
+      return false;
+    } finally {
+      window.clearTimeout(timeoutId);
     }
-
-    if (url) {
-      setEmbedUrl(url);
-    } else {
-      const nextSource = videoSources.find(src => src.key !== selectedSource);
-      if (nextSource) {
-        setSelectedSource(nextSource.key);
-        localStorage.setItem('selectedVideoSource', nextSource.key);
-        memoizedToast({
-          title: "Source Error",
-          description: `Failed to load video source: ${source.name}. Switching to ${nextSource.name}.`,
-          variant: "destructive"
-        });
-        if (mediaType === 'movie') {
-          setEmbedUrl(nextSource.getMovieUrl(mediaId));
-        } else if (mediaType === 'tv' && seasonNum && episodeNum) {
-          setEmbedUrl(nextSource.getTVUrl(mediaId, seasonNum, episodeNum));
-        }
-      } else {
-        memoizedToast({
-          title: "No Available Sources",
-          description: "All video sources failed to load. Please try again later.",
-          variant: "destructive"
-        });
-        setEmbedUrl('');
-      }
-    }
-  }, [selectedSource, mediaType, memoizedToast]);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -494,17 +428,76 @@ const Player = () => {
 
   useEffect(() => {
     if (!id || !hasInitialized || !mediaDetails) return;
-    
+
     const mediaId = parseInt(id, 10);
     const seasonNum = season ? parseInt(season, 10) : 1;
     const episodeNum = episode ? parseInt(episode, 10) : 1;
 
-    if (mediaType === 'movie') {
-      updateEmbedUrl(mediaId);
-    } else if (mediaType === 'tv' && !isNaN(seasonNum) && !isNaN(episodeNum)) {
-      updateEmbedUrl(mediaId, seasonNum, episodeNum);
+    if (Number.isNaN(mediaId) || (mediaType === 'tv' && (Number.isNaN(seasonNum) || Number.isNaN(episodeNum)))) {
+      return;
     }
-  }, [id, season, episode, hasInitialized, mediaDetails, updateEmbedUrl, mediaType]);
+
+    let isCancelled = false;
+    const initialAvailability = Object.fromEntries(
+      videoSources.map((source) => [source.key, 'checking' as SourceAvailability])
+    );
+
+    hasManualSourceSelectionRef.current = false;
+    setSourceAvailability(initialAvailability);
+    setIsScanningSources(true);
+    setEmbedUrl('');
+
+    const scanSources = async () => {
+      let firstAvailableSourceFound = false;
+
+      for (const source of videoSources) {
+        if (isCancelled) return;
+
+        const sourceUrl = getEmbedUrlForSource(
+          source.key,
+          mediaId,
+          mediaType,
+          mediaType === 'tv' ? seasonNum : undefined,
+          mediaType === 'tv' ? episodeNum : undefined
+        );
+
+        const isAvailable = sourceUrl ? await probeSource(sourceUrl) : false;
+        if (isCancelled) return;
+
+        setSourceAvailability((current) => ({
+          ...current,
+          [source.key]: isAvailable ? 'available' : 'unavailable',
+        }));
+
+        if (isAvailable && !firstAvailableSourceFound) {
+          firstAvailableSourceFound = true;
+
+          if (!hasManualSourceSelectionRef.current) {
+            setSelectedSource(source.key);
+            localStorage.setItem('selectedVideoSource', source.key);
+            setEmbedUrl(sourceUrl);
+          }
+        }
+      }
+
+      if (!isCancelled) {
+        setIsScanningSources(false);
+        if (!firstAvailableSourceFound) {
+          memoizedToast({
+            title: 'No responsive servers',
+            description: 'We could not connect to a stream server. Please try again later.',
+            variant: 'destructive',
+          });
+        }
+      }
+    };
+
+    scanSources();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [id, season, episode, hasInitialized, mediaDetails, mediaType, getEmbedUrlForSource, probeSource, memoizedToast]);
 
   const handleAutoNextToggle = useCallback((enabled: boolean) => {
     setAutoNextEnabled(enabled);
@@ -519,32 +512,49 @@ const Player = () => {
     });
   }, [memoizedToast]);
 
-  const handleSourceChange = useCallback(async (sourceKey: string) => {
-    if (!videoSources.some(src => src.key === sourceKey)) {
+  const handleSourceChange = useCallback((sourceKey: string) => {
+    const source = videoSources.find((item) => item.key === sourceKey);
+    if (!source) {
       memoizedToast({
-        title: "Invalid Source",
-        description: `The selected source is not valid.`,
-        variant: "destructive"
+        title: 'Invalid server',
+        description: 'The selected stream server is not available.',
+        variant: 'destructive',
       });
       return;
     }
 
+    if (!id || !mediaDetails) return;
+
+    const mediaId = parseInt(id, 10);
+    const seasonNum = season ? parseInt(season, 10) : 1;
+    const episodeNum = episode ? parseInt(episode, 10) : 1;
+    const sourceUrl = getEmbedUrlForSource(
+      sourceKey,
+      mediaId,
+      mediaType,
+      mediaType === 'tv' ? seasonNum : undefined,
+      mediaType === 'tv' ? episodeNum : undefined
+    );
+
+    if (!sourceUrl) {
+      memoizedToast({
+        title: 'Server unavailable',
+        description: `A stream URL could not be created for ${source.name}.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    hasManualSourceSelectionRef.current = true;
     setSelectedSource(sourceKey);
     localStorage.setItem('selectedVideoSource', sourceKey);
-    const sourceName = videoSources.find(s => s.key === sourceKey)?.name || 'new source';
+    setEmbedUrl(sourceUrl);
     memoizedToast({
-      title: "Source Changed",
-      description: `Switched to ${sourceName}`,
+      title: 'Stream server changed',
+      description: `Switched to ${source.name}.`,
       duration: 3000,
     });
-
-    if (id && mediaDetails) {
-      const mediaId = parseInt(id, 10);
-      const seasonNum = season ? parseInt(season, 10) : 1;
-      const episodeNum = episode ? parseInt(episode, 10) : 1;
-      updateEmbedUrl(mediaId, mediaType === 'tv' ? seasonNum : undefined, mediaType === 'tv' ? episodeNum : undefined);
-    }
-  }, [memoizedToast, id, mediaDetails, mediaType, season, episode, updateEmbedUrl]);
+  }, [memoizedToast, id, mediaDetails, mediaType, season, episode, getEmbedUrlForSource]);
 
   const goToDetails = useCallback(() => {
     if (id) {
@@ -865,19 +875,7 @@ const Player = () => {
     return isMobile ? episodes.slice(0, visibleEpisodesCount) : episodes;
   }, [episodes, isMobile, visibleEpisodesCount]);
 
-  const hasMoreEpisodes = isMobile && visibleEpisodesCount < episodes.length;
-
-  // Memoized source buttons using sourceDisplays
-  const sourceButtons = useMemo(() => {
-    return sourceDisplays.map((source) => (
-      <SourceButton
-        key={source.key}
-        source={source}
-        isSelected={selectedSource === source.key}
-        onClick={() => handleSourceChange(source.key)}
-      />
-    ));
-  }, [sourceDisplays, selectedSource, handleSourceChange]);
+    const hasMoreEpisodes = isMobile && visibleEpisodesCount < episodes.length;
 
   // Render mobile episode menu button
   const renderMobileEpisodeButton = useCallback(() => {
@@ -1064,6 +1062,12 @@ const Player = () => {
                   referrerPolicy="no-referrer"
                   allow="autoplay; encrypted-media; fullscreen"
                   loading="lazy"
+                  onLoad={() => {
+                    setSourceAvailability((current) => {
+                      if (current[selectedSource] === 'available') return current;
+                      return { ...current, [selectedSource]: 'available' };
+                    });
+                  }}
                 />
               ) : (
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
@@ -1163,8 +1167,83 @@ const Player = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                  {sourceButtons}
+                <div className="rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.07] via-white/[0.03] to-transparent p-4 backdrop-blur-md shadow-lg shadow-black/10">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <Server className="h-4 w-4 text-accent" />
+                        <h2 className="text-sm font-semibold text-white">Stream server</h2>
+                        {isScanningSources && (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-accent/20 bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent">
+                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+                            Scanning
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1 text-xs text-white/55">
+                        {isScanningSources
+                          ? 'Checking servers in priority order and selecting the first responsive stream.'
+                          : selectedSourceDetails
+                            ? `${selectedSourceDetails.name} is selected. All servers remain available from the menu.`
+                            : 'Choose a stream server from the menu.'}
+                      </p>
+                    </div>
+
+                    <Select value={selectedSource} onValueChange={handleSourceChange}>
+                      <SelectTrigger className="h-11 w-full border-white/10 bg-black/30 text-white transition-colors hover:border-white/20 sm:w-[260px]">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <Wifi className={cn(
+                            'h-4 w-4 flex-shrink-0',
+                            sourceAvailability[selectedSource] === 'available'
+                              ? 'text-emerald-400'
+                              : sourceAvailability[selectedSource] === 'unavailable'
+                                ? 'text-amber-400'
+                                : 'text-accent'
+                          )} />
+                          <SelectValue placeholder="Select a stream server" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent className="border-white/10 bg-black/95 text-white backdrop-blur-lg">
+                        {videoSources.map((source) => {
+                          const availability = sourceAvailability[source.key] || 'checking';
+                          const statusLabel = availability === 'available'
+                            ? 'Available'
+                            : availability === 'unavailable'
+                              ? 'Select to try'
+                              : 'Checking';
+
+                          return (
+                            <SelectItem
+                              key={source.key}
+                              value={source.key}
+                              className="cursor-pointer py-3 focus:bg-white/10 hover:bg-white/10"
+                            >
+                              <div className="flex w-full min-w-[210px] items-center justify-between gap-5">
+                                <span className="font-medium">{source.name}</span>
+                                <span className={cn(
+                                  'text-[10px]',
+                                  availability === 'available'
+                                    ? 'text-emerald-400'
+                                    : availability === 'unavailable'
+                                      ? 'text-white/40'
+                                      : 'text-accent'
+                                )}>
+                                  {statusLabel}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2.5">
+                    <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-400" />
+                    <p className="text-xs leading-relaxed text-amber-100/80">
+                      If video quality is poor or subtitles are not working, try another stream server from the dropdown.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

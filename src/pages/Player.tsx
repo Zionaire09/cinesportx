@@ -67,8 +67,6 @@ const SOURCE_ORIGINS: Record<string, string[]> = {
   'vidup': ['https://vidup.to']
 };
 
-type SourceAvailability = 'checking' | 'available' | 'unavailable';
-
 const SERVER_PROBE_TIMEOUT_MS = 5000;
 
 
@@ -228,7 +226,6 @@ const Player = () => {
     localStorage.getItem('selectedVideoSource') || videoSources[0].key
   );
   const [embedUrl, setEmbedUrl] = useState<string>('');
-  const [sourceAvailability, setSourceAvailability] = useState<Record<string, SourceAvailability>>({});
   const [isScanningSources, setIsScanningSources] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [mediaType, setMediaType] = useState<'movie' | 'tv'>('movie');
@@ -267,14 +264,7 @@ const Player = () => {
       ...prev,
       [episodeId]: !prev[episodeId]
     }));
-  }, []);
-
-    const selectedSourceDetails = useMemo(
-    () => videoSources.find((source) => source.key === selectedSource),
-    [selectedSource]
-  );
-
-
+    }, []);
 
   // Optimized load more episodes for mobile
   useEffect(() => {
@@ -438,12 +428,7 @@ const Player = () => {
     }
 
     let isCancelled = false;
-    const initialAvailability = Object.fromEntries(
-      videoSources.map((source) => [source.key, 'checking' as SourceAvailability])
-    );
-
     hasManualSourceSelectionRef.current = false;
-    setSourceAvailability(initialAvailability);
     setIsScanningSources(true);
     setEmbedUrl('');
 
@@ -463,11 +448,6 @@ const Player = () => {
 
         const isAvailable = sourceUrl ? await probeSource(sourceUrl) : false;
         if (isCancelled) return;
-
-        setSourceAvailability((current) => ({
-          ...current,
-          [source.key]: isAvailable ? 'available' : 'unavailable',
-        }));
 
         if (isAvailable && !firstAvailableSourceFound) {
           firstAvailableSourceFound = true;
@@ -1062,12 +1042,6 @@ const Player = () => {
                   referrerPolicy="no-referrer"
                   allow="autoplay; encrypted-media; fullscreen"
                   loading="lazy"
-                  onLoad={() => {
-                    setSourceAvailability((current) => {
-                      if (current[selectedSource] === 'available') return current;
-                      return { ...current, [selectedSource]: 'available' };
-                    });
-                  }}
                 />
               ) : (
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
@@ -1193,74 +1167,31 @@ const Player = () => {
                       </div>
 
                       <div className="w-full md:w-1/3 md:min-w-[280px] lg:max-w-md">
-                        <div className="mb-2 flex items-center justify-between px-1">
+                        <div className="mb-2 px-1">
                           <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-100/80">Select a stream server</span>
-                          <span className={cn(
-                            'text-[10px] font-medium',
-                            sourceAvailability[selectedSource] === 'available'
-                              ? 'text-emerald-200'
-                              : sourceAvailability[selectedSource] === 'unavailable'
-                                ? 'text-amber-200'
-                                : 'text-cyan-100'
-                          )}>
-                            {sourceAvailability[selectedSource] === 'available'
-                              ? 'Ready to play'
-                              : sourceAvailability[selectedSource] === 'unavailable'
-                                ? 'Manual selection'
-                                : 'Checking'}
-                          </span>
                         </div>
 
                         <Select value={selectedSource} onValueChange={handleSourceChange}>
                           <SelectTrigger className="h-14 w-full border border-cyan-200/50 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 px-4 text-white shadow-lg shadow-cyan-950/40 transition-all duration-300 hover:scale-[1.01] hover:border-white/80 hover:from-cyan-400 hover:via-sky-500 hover:to-blue-500 focus:ring-cyan-200/70">
                             <div className="flex min-w-0 items-center gap-3">
                               <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/25">
-                                <Wifi className={cn(
-                                  'h-4 w-4',
-                                  sourceAvailability[selectedSource] === 'available'
-                                    ? 'text-emerald-100'
-                                    : sourceAvailability[selectedSource] === 'unavailable'
-                                      ? 'text-amber-100'
-                                      : 'text-white'
-                                )} />
+                                <Wifi className="h-4 w-4 text-white" />
                               </span>
                               <div className="min-w-0 text-left">
-                                <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-white/70">Stream server dropdown</span>
                                 <SelectValue placeholder="Select a stream server" />
                               </div>
                             </div>
                           </SelectTrigger>
                           <SelectContent className="border border-cyan-300/30 bg-slate-950/95 text-white shadow-2xl shadow-cyan-950/40 backdrop-blur-xl">
-                            {videoSources.map((source) => {
-                              const availability = sourceAvailability[source.key] || 'checking';
-                              const statusLabel = availability === 'available'
-                                ? 'Available'
-                                : availability === 'unavailable'
-                                  ? 'Select to try'
-                                  : 'Checking';
-
-                              return (
-                                <SelectItem
-                                  key={source.key}
-                                  value={source.key}
-                                  className="cursor-pointer py-3.5 focus:bg-cyan-400/15 hover:bg-cyan-400/10"
-                                >
-                                  <div className="flex w-full min-w-[250px] items-center justify-between gap-6">
-                                    <span className="font-medium">{source.name}</span>
-                                    <span className={cn(
-                                      'rounded-full border px-2 py-0.5 text-[10px] font-medium',
-                                      availability === 'available'
-                                        ? 'border-emerald-300/20 bg-emerald-400/10 text-emerald-300'
-                                        : availability === 'unavailable'
-                                          ? 'border-white/10 bg-white/5 text-white/45'
-                                          : 'border-cyan-300/20 bg-cyan-400/10 text-cyan-200'
-                                    )}>
-                                      {statusLabel}
-                                    </span>
-                                  </div>
-                                </SelectItem>
-                              );
-                            })}
+                            {videoSources.map((source) => (
+                              <SelectItem
+                                key={source.key}
+                                value={source.key}
+                                className="cursor-pointer py-3.5 focus:bg-cyan-400/15 hover:bg-cyan-400/10"
+                              >
+                                <span className="min-w-[250px] font-medium">{source.name}</span>
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>

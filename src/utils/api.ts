@@ -172,6 +172,12 @@ export const videoSources = [
     getTVUrl: (id: number, season: number, episode: number) => `https://vidsrc.fyi/embed/tv/${id}/${season}/${episode}`,
   },
   {
+    key: 'peachify',
+    name: 'Peachify',
+    getMovieUrl: (id: number) => `https://peachify.pro/embed/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://peachify.pro/embed/tv/${id}/${season}/${episode}`,
+  },
+  {
     key: 'vidzee',
     name: 'Vidzee',
     getMovieUrl: (id: number) => `https://player.vidzee.wtf/embed/movie/${id}`,

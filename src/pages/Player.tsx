@@ -67,6 +67,8 @@ const SOURCE_ORIGINS: Record<string, string[]> = {
   'vidup': ['https://vidup.to']
 };
 
+type SourceAvailability = 'checking' | 'available' | 'unavailable';
+
 const SERVER_PROBE_TIMEOUT_MS = 5000;
 
 
@@ -226,6 +228,7 @@ const Player = () => {
     localStorage.getItem('selectedVideoSource') || videoSources[0].key
   );
   const [embedUrl, setEmbedUrl] = useState<string>('');
+  const [sourceAvailability, setSourceAvailability] = useState<Record<string, SourceAvailability>>({});
   const [isScanningSources, setIsScanningSources] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [mediaType, setMediaType] = useState<'movie' | 'tv'>('movie');
@@ -428,7 +431,12 @@ const Player = () => {
     }
 
     let isCancelled = false;
+    const initialAvailability = Object.fromEntries(
+      videoSources.map((source) => [source.key, 'checking' as SourceAvailability])
+    );
+
     hasManualSourceSelectionRef.current = false;
+    setSourceAvailability(initialAvailability);
     setIsScanningSources(true);
     setEmbedUrl('');
 
@@ -448,6 +456,11 @@ const Player = () => {
 
         const isAvailable = sourceUrl ? await probeSource(sourceUrl) : false;
         if (isCancelled) return;
+
+        setSourceAvailability((current) => ({
+          ...current,
+          [source.key]: isAvailable ? 'available' : 'unavailable',
+        }));
 
         if (isAvailable && !firstAvailableSourceFound) {
           firstAvailableSourceFound = true;
@@ -1183,15 +1196,36 @@ const Player = () => {
                             </div>
                           </SelectTrigger>
                           <SelectContent className="border border-cyan-300/30 bg-slate-950/95 text-white shadow-2xl shadow-cyan-950/40 backdrop-blur-xl">
-                            {videoSources.map((source) => (
-                              <SelectItem
-                                key={source.key}
-                                value={source.key}
-                                className="cursor-pointer py-3.5 focus:bg-cyan-400/15 hover:bg-cyan-400/10"
-                              >
-                                <span className="min-w-[250px] font-medium">{source.name}</span>
-                              </SelectItem>
-                            ))}
+                            {videoSources.map((source) => {
+                              const availability = sourceAvailability[source.key] || 'checking';
+                              const statusLabel = availability === 'available'
+                                ? 'Available'
+                                : availability === 'unavailable'
+                                  ? 'Not available'
+                                  : 'Checking';
+
+                              return (
+                                <SelectItem
+                                  key={source.key}
+                                  value={source.key}
+                                  className="cursor-pointer py-3.5 focus:bg-cyan-400/15 hover:bg-cyan-400/10"
+                                >
+                                  <div className="flex w-full min-w-[250px] items-center justify-between gap-6">
+                                    <span className="font-medium">{source.name}</span>
+                                    <span className={cn(
+                                      'rounded-full border px-2 py-0.5 text-[10px] font-medium',
+                                      availability === 'available'
+                                        ? 'border-emerald-300/20 bg-emerald-400/10 text-emerald-300'
+                                        : availability === 'unavailable'
+                                          ? 'border-rose-300/20 bg-rose-400/10 text-rose-200'
+                                          : 'border-cyan-300/20 bg-cyan-400/10 text-cyan-200'
+                                    )}>
+                                      {statusLabel}
+                                    </span>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                       </div>

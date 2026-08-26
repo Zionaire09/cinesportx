@@ -124,6 +124,18 @@ export const backdropSizes = {
 
 export const videoSources = [
   {
+    key: 'vidsrc-mov',
+    name: 'VidSrc.mov',
+    getMovieUrl: (id: number) => `https://vidsrc.mov/embed/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
+  },
+  {
+    key: 'peachify',
+    name: 'Peachify',
+    getMovieUrl: (id: number) => `https://peachify.pro/embed/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://peachify.pro/embed/tv/${id}/${season}/${episode}`,
+  },
+  {
     key: 'vidfast',
     name: 'VidFast',
     getMovieUrl: (id: number) => `https://vidfast.pro/movie/${id}?autoPlay=true`,
@@ -158,24 +170,6 @@ export const videoSources = [
     name: 'VidSrc.me',
     getMovieUrl: (id: number) => `https://vidsrcme.ru/embed/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidsrcme.ru/embed/tv/${id}/${season}/${episode}`,
-  },
-  {
-    key: 'vidsrc-mov',
-    name: 'VidSrc.mov',
-    getMovieUrl: (id: number) => `https://vidsrc.mov/embed/movie/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
-  },
-  {
-    key: 'vidsrc-fyi',
-    name: 'VidSrc.fyi',
-    getMovieUrl: (id: number) => `https://vidsrc.fyi/embed/movie/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vidsrc.fyi/embed/tv/${id}/${season}/${episode}`,
-  },
-  {
-    key: 'peachify',
-    name: 'Peachify',
-    getMovieUrl: (id: number) => `https://peachify.pro/embed/movie/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://peachify.pro/embed/tv/${id}/${season}/${episode}`,
   },
   {
     key: 'vidzee',

@@ -218,7 +218,7 @@ EpisodeCard.displayName = 'EpisodeCard';
 
 
 
-const DEFAULT_STREAM_SOURCE = 'vidfast';
+const DEFAULT_STREAM_SOURCE = 'vidsrc-mov';
 
 const getStreamPreferenceKey = (mediaId: string, isTV: boolean) =>
   `selectedVideoSource:${isTV ? 'tv' : 'movie'}:${mediaId}`;

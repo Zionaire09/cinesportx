@@ -125,19 +125,19 @@ export const backdropSizes = {
 export const videoSources = [
   {
     key: 'streamxtv',
-    name: '01 XTV',
+    name: '01 Armageddon',
     getMovieUrl: (id: number) => `https://embed.streamxtv.tech/embed/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://embed.streamxtv.tech/embed/${id}/${season}/${episode}`,
   },
   {
     key: 'vidlux',
-    name: '02 Lux',
+    name: '02 Supernova',
     getMovieUrl: (id: number) => `https://vidlux.xyz/embed/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidlux.xyz/embed/tv/${id}/${season}/${episode}`,
   },
   {
     key: 'vidsrc-mov',
-    name: '03 Atlas',
+    name: '03 Pring2',
     getMovieUrl: (id: number) => `https://vidsrc.mov/embed/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
   },
@@ -149,13 +149,13 @@ export const videoSources = [
   },
   {
     key: 'vidfast',
-    name: '05 Nova',
+    name: '05 Rabbi',
     getMovieUrl: (id: number) => `https://vidfast.pro/movie/${id}?autoPlay=true`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidfast.pro/tv/${id}/${season}/${episode}?autoPlay=true`,
   },
   {
     key: 'vidcore',
-    name: '06 Core',
+    name: '06 Atlas',
     getMovieUrl: (id: number) => `https://vidcore.net/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidcore.net/tv/${id}/${season}/${episode}`,
   },

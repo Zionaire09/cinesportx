@@ -124,34 +124,34 @@ export const backdropSizes = {
 
 export const videoSources = [
   {
-    key: 'streamxtv',
-    name: '01 Armageddon',
-    getMovieUrl: (id: number) => `https://embed.streamxtv.tech/embed/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://embed.streamxtv.tech/embed/${id}/${season}/${episode}`,
-  },
-  {
     key: 'vidlux',
-    name: '02 Supernova',
+    name: '01 Armageddon',
     getMovieUrl: (id: number) => `https://vidlux.xyz/embed/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidlux.xyz/embed/tv/${id}/${season}/${episode}`,
   },
   {
     key: 'vidsrc-mov',
-    name: '03 Pring2',
+    name: '02 Supernova',
     getMovieUrl: (id: number) => `https://vidsrc.mov/embed/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
   },
   {
     key: 'peachify',
-    name: '04 Ember',
+    name: '03 Pring2',
     getMovieUrl: (id: number) => `https://peachify.pro/embed/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://peachify.pro/embed/tv/${id}/${season}/${episode}`,
   },
   {
     key: 'vidfast',
-    name: '05 Rabbi',
+    name: '04 Ember',
     getMovieUrl: (id: number) => `https://vidfast.pro/movie/${id}?autoPlay=true`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidfast.pro/tv/${id}/${season}/${episode}?autoPlay=true`,
+  },
+  {
+    key: 'streamxtv',
+    name: '05 Rabbi',
+    getMovieUrl: (id: number) => `https://embed.streamxtv.tech/embed/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://embed.streamxtv.tech/embed/${id}/${season}/${episode}`,
   },
   {
     key: 'vidcore',

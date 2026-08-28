@@ -14,7 +14,6 @@ import { MediaGridSkeleton } from '@/components/MediaSkeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Ads from '@/components/Ads';
 
-const ITEMS_PER_PAGE = 20;
 
 const TVShows = () => {
   const { toast } = useToast();
@@ -83,7 +82,7 @@ const TVShows = () => {
   }, [topRatedTVQuery.data]);
 
   useEffect(() => {
-    if (popularTVQuery.data?.length === ITEMS_PER_PAGE) {
+    if (popularTVQuery.data?.length > 0) {
       queryClient.prefetchQuery({
         queryKey: ['popularTV', popularPage + 1],
         queryFn: () => getPopularTVShows(popularPage + 1),
@@ -92,7 +91,7 @@ const TVShows = () => {
   }, [popularPage, queryClient, popularTVQuery.data]);
 
   useEffect(() => {
-    if (topRatedTVQuery.data?.length === ITEMS_PER_PAGE) {
+    if (topRatedTVQuery.data?.length > 0) {
       queryClient.prefetchQuery({
         queryKey: ['topRatedTV', topRatedPage + 1],
         queryFn: () => getTopRatedTVShows(topRatedPage + 1),
@@ -131,8 +130,25 @@ const TVShows = () => {
   const handleShowMorePopular = () => setPopularPage(prev => prev + 1);
   const handleShowMoreTopRated = () => setTopRatedPage(prev => prev + 1);
   const toggleViewMode = () => setViewMode(prev => prev === 'grid' ? 'list' : 'grid');
-  const hasMorePopular = popularTVQuery.data?.length === ITEMS_PER_PAGE;
-  const hasMoreTopRated = topRatedTVQuery.data?.length === ITEMS_PER_PAGE;
+  const hasMorePopular = popularTVQuery.data?.length > 0;
+  const hasMoreTopRated = topRatedTVQuery.data?.length > 0;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const nearBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 700;
+      if (!nearBottom) return;
+
+      if (activeTab === 'popular' && hasMorePopular && !popularTVQuery.isFetching) {
+        setPopularPage(prev => prev + 1);
+      } else if (activeTab === 'top_rated' && hasMoreTopRated && !topRatedTVQuery.isFetching) {
+        setTopRatedPage(prev => prev + 1);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [activeTab, hasMorePopular, hasMoreTopRated, popularTVQuery.isFetching, topRatedTVQuery.isFetching]);
 
   return (
     <PageTransition>

@@ -15,7 +15,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Ads from '@/components/Ads';
 
 
-const ITEMS_PER_PAGE = 20;
 
 const Movies = () => {
   const { toast } = useToast();
@@ -77,7 +76,7 @@ const Movies = () => {
   }, [topRatedMoviesQuery.data]);
 
   useEffect(() => {
-    if (popularMoviesQuery.data?.length === ITEMS_PER_PAGE) {
+    if (popularMoviesQuery.data?.length > 0) {
       queryClient.prefetchQuery({
         queryKey: ['popularMovies', popularPage + 1],
         queryFn: () => getPopularMovies(popularPage + 1),
@@ -86,7 +85,7 @@ const Movies = () => {
   }, [popularPage, queryClient, popularMoviesQuery.data]);
 
   useEffect(() => {
-    if (topRatedMoviesQuery.data?.length === ITEMS_PER_PAGE) {
+    if (topRatedMoviesQuery.data?.length > 0) {
       queryClient.prefetchQuery({
         queryKey: ['topRatedMovies', topRatedPage + 1],
         queryFn: () => getTopRatedMovies(topRatedPage + 1),
@@ -95,19 +94,36 @@ const Movies = () => {
   }, [topRatedPage, queryClient, topRatedMoviesQuery.data]);
 
   const handleShowMorePopular = () => {
-    if (!popularMoviesQuery.isFetching && popularMoviesQuery.data?.length === ITEMS_PER_PAGE) {
+    if (!popularMoviesQuery.isFetching && hasMorePopular) {
       setPopularPage(prev => prev + 1);
     }
   };
 
   const handleShowMoreTopRated = () => {
-    if (!topRatedMoviesQuery.isFetching && topRatedMoviesQuery.data?.length === ITEMS_PER_PAGE) {
+    if (!topRatedMoviesQuery.isFetching && hasMoreTopRated) {
       setTopRatedPage(prev => prev + 1);
     }
   };
 
-  const hasMorePopular = popularMoviesQuery.data?.length === ITEMS_PER_PAGE;
-  const hasMoreTopRated = topRatedMoviesQuery.data?.length === ITEMS_PER_PAGE;
+  const hasMorePopular = popularMoviesQuery.data?.length > 0;
+  const hasMoreTopRated = topRatedMoviesQuery.data?.length > 0;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const nearBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 700;
+      if (!nearBottom) return;
+
+      if (activeTab === 'popular' && hasMorePopular && !popularMoviesQuery.isFetching) {
+        setPopularPage(prev => prev + 1);
+      } else if (activeTab === 'top_rated' && hasMoreTopRated && !topRatedMoviesQuery.isFetching) {
+        setTopRatedPage(prev => prev + 1);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [activeTab, hasMorePopular, hasMoreTopRated, popularMoviesQuery.isFetching, topRatedMoviesQuery.isFetching]);
 
   const filteredPopularMovies = allPopularMovies
     .filter(movie => genreFilter === 'all' || movie.genre_ids?.includes(parseInt(genreFilter)))

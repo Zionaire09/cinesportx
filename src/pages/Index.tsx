@@ -116,7 +116,7 @@ const Index = () => {
           </div>
         ) : (
           <>
-             <div className="pt-16">
+             <div className="pt-24">
                  {trendingMedia.length > 0 && (
                    <Hero
                      media={trendingMedia.slice(0, 5)}

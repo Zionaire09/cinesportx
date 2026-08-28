@@ -23,6 +23,10 @@ type MoviesPageState = {
   viewMode?: 'grid' | 'list';
   sortBy?: 'default' | 'title' | 'release_date' | 'rating';
   genreFilter?: string;
+  popularPage?: number;
+  topRatedPage?: number;
+  allPopularMovies?: Media[];
+  allTopRatedMovies?: Media[];
 };
 
 const readMoviesPageState = (): MoviesPageState => {
@@ -38,16 +42,16 @@ const Movies = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'popular' | 'top_rated'>(() => readMoviesPageState().activeTab ?? 'popular');
-  const [popularPage, setPopularPage] = useState(1);
-  const [topRatedPage, setTopRatedPage] = useState(1);
+  const [popularPage, setPopularPage] = useState(() => readMoviesPageState().popularPage ?? 1);
+  const [topRatedPage, setTopRatedPage] = useState(() => readMoviesPageState().topRatedPage ?? 1);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => readMoviesPageState().viewMode ?? 'grid');
-  const [allPopularMovies, setAllPopularMovies] = useState<Media[]>([]);
-  const [allTopRatedMovies, setAllTopRatedMovies] = useState<Media[]>([]);
+  const [allPopularMovies, setAllPopularMovies] = useState<Media[]>(() => readMoviesPageState().allPopularMovies ?? []);
+  const [allTopRatedMovies, setAllTopRatedMovies] = useState<Media[]>(() => readMoviesPageState().allTopRatedMovies ?? []);
   const [sortBy, setSortBy] = useState<'default' | 'title' | 'release_date' | 'rating'>(() => readMoviesPageState().sortBy ?? 'default');
   const [genreFilter, setGenreFilter] = useState<string>(() => readMoviesPageState().genreFilter ?? 'all');
 
   useEffect(() => {
-    sessionStorage.setItem(MOVIES_PAGE_STATE_KEY, JSON.stringify({ activeTab, viewMode, sortBy, genreFilter }));
+    sessionStorage.setItem(MOVIES_PAGE_STATE_KEY, JSON.stringify({ activeTab, viewMode, sortBy, genreFilter, popularPage, topRatedPage, allPopularMovies, allTopRatedMovies }));
   }, [activeTab, viewMode, sortBy, genreFilter]);
 
   const popularMoviesQuery = useQuery({

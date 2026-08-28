@@ -22,6 +22,10 @@ type TVPageState = {
   viewMode?: 'grid' | 'list';
   sortBy?: 'default' | 'name' | 'first_air_date' | 'rating';
   genreFilter?: string;
+  popularPage?: number;
+  topRatedPage?: number;
+  allPopularShows?: Media[];
+  allTopRatedShows?: Media[];
 };
 
 const readTVPageState = (): TVPageState => {
@@ -37,16 +41,16 @@ const TVShows = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'popular' | 'top_rated'>(() => readTVPageState().activeTab ?? 'popular');
-  const [popularPage, setPopularPage] = useState(1);
-  const [topRatedPage, setTopRatedPage] = useState(1);
+  const [popularPage, setPopularPage] = useState(() => readTVPageState().popularPage ?? 1);
+  const [topRatedPage, setTopRatedPage] = useState(() => readTVPageState().topRatedPage ?? 1);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => readTVPageState().viewMode ?? 'grid');
-  const [allPopularShows, setAllPopularShows] = useState<Media[]>([]);
-  const [allTopRatedShows, setAllTopRatedShows] = useState<Media[]>([]);
+  const [allPopularShows, setAllPopularShows] = useState<Media[]>(() => readTVPageState().allPopularShows ?? []);
+  const [allTopRatedShows, setAllTopRatedShows] = useState<Media[]>(() => readTVPageState().allTopRatedShows ?? []);
   const [sortBy, setSortBy] = useState<'default' | 'name' | 'first_air_date' | 'rating'>(() => readTVPageState().sortBy ?? 'default');
   const [genreFilter, setGenreFilter] = useState<string>(() => readTVPageState().genreFilter ?? 'all');
 
   useEffect(() => {
-    sessionStorage.setItem(TV_PAGE_STATE_KEY, JSON.stringify({ activeTab, viewMode, sortBy, genreFilter }));
+    sessionStorage.setItem(TV_PAGE_STATE_KEY, JSON.stringify({ activeTab, viewMode, sortBy, genreFilter, popularPage, topRatedPage, allPopularShows, allTopRatedShows }));
   }, [activeTab, viewMode, sortBy, genreFilter]);
 
   const popularTVQuery = useQuery({

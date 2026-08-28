@@ -16,17 +16,39 @@ import Ads from '@/components/Ads';
 
 
 
+const MOVIES_PAGE_STATE_KEY = 'moviesPageState';
+
+type MoviesPageState = {
+  activeTab?: 'popular' | 'top_rated';
+  viewMode?: 'grid' | 'list';
+  sortBy?: 'default' | 'title' | 'release_date' | 'rating';
+  genreFilter?: string;
+};
+
+const readMoviesPageState = (): MoviesPageState => {
+  try {
+    const stored = sessionStorage.getItem(MOVIES_PAGE_STATE_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+};
+
 const Movies = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'popular' | 'top_rated'>('popular');
+  const [activeTab, setActiveTab] = useState<'popular' | 'top_rated'>(() => readMoviesPageState().activeTab ?? 'popular');
   const [popularPage, setPopularPage] = useState(1);
   const [topRatedPage, setTopRatedPage] = useState(1);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => readMoviesPageState().viewMode ?? 'grid');
   const [allPopularMovies, setAllPopularMovies] = useState<Media[]>([]);
   const [allTopRatedMovies, setAllTopRatedMovies] = useState<Media[]>([]);
-  const [sortBy, setSortBy] = useState<'default' | 'title' | 'release_date' | 'rating'>('default');
-  const [genreFilter, setGenreFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'default' | 'title' | 'release_date' | 'rating'>(() => readMoviesPageState().sortBy ?? 'default');
+  const [genreFilter, setGenreFilter] = useState<string>(() => readMoviesPageState().genreFilter ?? 'all');
+
+  useEffect(() => {
+    sessionStorage.setItem(MOVIES_PAGE_STATE_KEY, JSON.stringify({ activeTab, viewMode, sortBy, genreFilter }));
+  }, [activeTab, viewMode, sortBy, genreFilter]);
 
   const popularMoviesQuery = useQuery({
     queryKey: ['popularMovies', popularPage],

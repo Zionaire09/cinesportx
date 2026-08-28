@@ -12,8 +12,6 @@ import { TrendingUp, ChevronDown } from 'lucide-react';
 import Ads from '@/components/Ads';
 
 
-const ITEMS_PER_PAGE = 20;
-
 const Trending = () => {
   const [timeWindow, setTimeWindow] = useState<'day' | 'week'>('week');
   const [page, setPage] = useState(1);
@@ -28,7 +26,6 @@ const Trending = () => {
 
   useEffect(() => {
     if (trendingQuery.data) {
-      console.log('Raw Trending Data:', trendingQuery.data);
       setAllTrending(prev => {
         const newItems = trendingQuery.data
           .filter(item => !prev.some(p => p.id === (item.id || item.media_id || item.tmdb_id)))
@@ -39,7 +36,6 @@ const Trending = () => {
               media_id: item.id || item.media_id || item.tmdb_id,
               media_type: item.media_type,
             };
-            console.log('Transformed Trending Item:', transformedItem);
             return transformedItem;
           });
         return [...prev, ...newItems];
@@ -48,7 +44,7 @@ const Trending = () => {
   }, [trendingQuery.data]);
 
   useEffect(() => {
-    if (trendingQuery.data?.length === ITEMS_PER_PAGE) {
+    if (trendingQuery.data?.length > 0) {
       queryClient.prefetchQuery({
         queryKey: ['trending', timeWindow, page + 1],
         queryFn: () => getTrending(timeWindow, page + 1),
@@ -56,12 +52,29 @@ const Trending = () => {
     }
   }, [page, timeWindow, queryClient, trendingQuery.data]);
   
+  const hasMore = trendingQuery.data?.length > 0;
+
   const handleShowMore = () => {
-    setPage(prev => prev + 1);
+    if (!trendingQuery.isFetching && hasMore) {
+      setPage(prev => prev + 1);
+    }
   };
+
   
-  const hasMore = trendingQuery.data?.length === ITEMS_PER_PAGE;
-  
+  useEffect(() => {
+    const handleScroll = () => {
+      const nearBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 700;
+      if (!nearBottom) return;
+      if (!trendingQuery.isFetching && hasMore) {
+        setPage(prev => prev + 1);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [hasMore, trendingQuery.isFetching, page, timeWindow]);
+
   const handleTimeWindowChange = (value: 'day' | 'week') => {
     setTimeWindow(value);
     setPage(1);

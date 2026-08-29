@@ -16,7 +16,6 @@ interface SportMatchCardProps {
 }
 
 const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
-  const [isHovered, setIsHovered] = useState(false);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   
   const handleImageError = useCallback((badgeUrl: string) => {
@@ -41,26 +40,19 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
         "block group h-full select-none",
         className
       )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <Card 
         className={cn(
-          "overflow-hidden h-full shadow-2xl flex flex-col justify-between rounded-2xl transition-all duration-300 group-hover:shadow-[0_0_40px_rgba(0,0,0,0.6)] border border-white/20 bg-gradient-to-br",
+          "overflow-hidden h-full shadow-2xl flex flex-col justify-between rounded-2xl transition-all duration-300 border border-white/20 bg-gradient-to-br",
           sportColor.bg
         )}
-        style={{
-          boxShadow: isHovered ? `0 0 30px ${sportColor.glow}` : 'none'
-        }}
       >
         
         {/* Dynamic Canvas Area with Enhanced Effects */}
         <div className="relative aspect-[16/10] bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center p-4 border-b border-white/20 overflow-hidden">
           {/* Animated Background Gradient Overlay */}
           <motion.div
-            className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-white/10 to-transparent"
-            animate={isHovered ? { opacity: 0.15 } : { opacity: 0 }}
-            transition={{ duration: 0.4 }}
+            className="absolute inset-0 opacity-0 bg-gradient-to-br from-white/10 to-transparent"
           />
           
           {match.poster && (
@@ -68,7 +60,7 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
               <img
                 src={getMatchPosterUrl(match.poster)}
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover opacity-60 scale-100 group-hover:scale-105 transition-all duration-500"
+                className="absolute inset-0 w-full h-full object-cover opacity-60 scale-100 transition-all duration-500"
                 loading="lazy"
               />
               {/* Overlay Gradient */}
@@ -82,15 +74,11 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
           {match.teams ? (
             <motion.div 
               className="relative z-10 w-full flex items-center justify-between gap-1"
-              animate={isHovered ? { scale: 1.02 } : { scale: 1 }}
-              transition={{ duration: 0.3 }}
             >
               {/* Home Team */}
               <div className="flex flex-col items-center text-center w-[45%]">
                 <motion.div 
-                  className="w-20 h-20 rounded-xl bg-gradient-to-br from-white/30 to-white/10 border-2 border-white/40 p-3 flex items-center justify-center shadow-lg group-hover:border-white/60 transition-all duration-300 relative backdrop-blur-sm"
-                  animate={isHovered ? { y: -6, boxShadow: `0 12px 30px rgba(255,255,255,0.3)` } : { y: 0 }}
-                  transition={{ duration: 0.3 }}
+                  className="w-20 h-20 rounded-xl bg-gradient-to-br from-white/30 to-white/10 border-2 border-white/40 p-3 flex items-center justify-center shadow-lg transition-all duration-300 relative backdrop-blur-sm"
                 >
                   {!failedImages.has(match.teams.home.badge) ? (
                     <img
@@ -106,7 +94,7 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
                     </div>
                   )}
                 </motion.div>
-                <span className="text-xs font-black text-white truncate w-full mt-2.5 tracking-wide uppercase drop-shadow-lg group-hover:text-yellow-100 transition-all duration-300">
+                <span className="text-xs font-black text-white truncate w-full mt-2.5 tracking-wide uppercase drop-shadow-lg transition-all duration-300">
                   {match.teams.home.name}
                 </span>
               </div>
@@ -114,8 +102,6 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
               {/* VS Badge */}
               <motion.div 
                 className="text-[10px] font-black tracking-widest text-white bg-gradient-to-r from-white/30 to-white/10 px-2 py-1 rounded border border-white/40 backdrop-blur-sm drop-shadow-lg"
-                animate={isHovered ? { scale: 1.1, rotate: 360 } : { scale: 1, rotate: 0 }}
-                transition={{ duration: 0.5 }}
               >
                 VS
               </motion.div>
@@ -123,9 +109,7 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
               {/* Away Team */}
               <div className="flex flex-col items-center text-center w-[45%]">
                 <motion.div 
-                  className="w-20 h-20 rounded-xl bg-gradient-to-br from-white/30 to-white/10 border-2 border-white/40 p-3 flex items-center justify-center shadow-lg group-hover:border-white/60 transition-all duration-300 relative backdrop-blur-sm"
-                  animate={isHovered ? { y: -6, boxShadow: `0 12px 30px rgba(255,255,255,0.3)` } : { y: 0 }}
-                  transition={{ duration: 0.3 }}
+                  className="w-20 h-20 rounded-xl bg-gradient-to-br from-white/30 to-white/10 border-2 border-white/40 p-3 flex items-center justify-center shadow-lg transition-all duration-300 relative backdrop-blur-sm"
                 >
                   {!failedImages.has(match.teams.away.badge) ? (
                     <img
@@ -141,7 +125,7 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
                     </div>
                   )}
                 </motion.div>
-                <span className="text-xs font-black text-white truncate w-full mt-2.5 tracking-wide uppercase drop-shadow-lg group-hover:text-yellow-100 transition-all duration-300">
+                <span className="text-xs font-black text-white truncate w-full mt-2.5 tracking-wide uppercase drop-shadow-lg transition-all duration-300">
                   {match.teams.away.name}
                 </span>
               </div>
@@ -177,7 +161,6 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
             {/* Streaming Quality Indicator */}
             {match.sources && match.sources.length > 0 && (
               <motion.div
-                animate={isHovered ? { scale: 1.05 } : { scale: 1 }}
                 className="bg-white/20 backdrop-blur-sm text-[9px] font-black tracking-widest px-2 py-0.5 rounded border border-white/40 text-white flex items-center gap-1 drop-shadow-lg"
               >
                 <Zap className="h-3 w-3 text-yellow-300" />
@@ -202,8 +185,6 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
           {/* Bottom Stats Bar with Hover Effects */}
           <motion.div 
             className="mt-4 pt-3 border-t border-white/20 flex justify-between items-center text-[10px] font-bold text-white/80 tracking-wide uppercase"
-            animate={isHovered ? { y: -2 } : { y: 0 }}
-            transition={{ duration: 0.3 }}
           >
             <div className="flex items-center gap-1.5">
               {isLive ? (
@@ -225,8 +206,7 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
             </div>
 
             <motion.div 
-              className="bg-white/20 text-white/90 px-2 py-0.5 rounded font-mono text-[9px] border border-white/30 flex items-center gap-1 group-hover:border-white/50 transition-all backdrop-blur-sm drop-shadow-lg"
-              animate={isHovered ? { scale: 1.05 } : { scale: 1 }}
+              className="bg-white/20 text-white/90 px-2 py-0.5 rounded font-mono text-[9px] border border-white/30 flex items-center gap-1 transition-all backdrop-blur-sm drop-shadow-lg"
             >
               <Eye className="h-3 w-3" />
               {match.sources.length} NODES

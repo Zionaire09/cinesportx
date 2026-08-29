@@ -329,6 +329,10 @@ const SportMatchPlayer = () => {
                   )}
                 </div>
 
+                <div className="mt-4 flex justify-center">
+                  <BackupStreamLink />
+                </div>
+
                 {/* Info Center Banner */}
                 {matchInfo && (
                   <motion.div 

@@ -104,6 +104,25 @@ const SportsMatchGrid = ({
           </motion.div>
         ))}
       </motion.div>
+      {backupStreamHref && (
+        <motion.div
+          className="mt-8 flex justify-center"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+        >
+          <a
+            href={backupStreamHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 rounded-2xl border border-cyan-300/40 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 px-5 py-3 text-xs font-black uppercase tracking-wider text-cyan-100 shadow-lg shadow-cyan-950/30 transition-all hover:border-cyan-200/80 hover:from-cyan-500/30 hover:to-blue-500/30 hover:text-white"
+          >
+            <Zap className="h-4 w-4 text-cyan-200" />
+            <span>Alternate stream: rmppv.xyz</span>
+            <ExternalLink className="h-4 w-4" />
+          </a>
+        </motion.div>
+      )}
     </div>
   );
 };

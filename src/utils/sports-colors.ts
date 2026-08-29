@@ -84,9 +84,95 @@ export const sportColors: { [key: string]: SportColor } = {
     glow: 'rgba(234, 179, 8, 0.45)',
     gradient: 'linear-gradient(135deg, rgb(24, 24, 27), rgb(161, 98, 7))'
   },
+  'american-football': {
+    bg: 'from-red-900 to-amber-600',
+    border: 'border-amber-300',
+    text: 'text-amber-100',
+    glow: 'rgba(245, 158, 11, 0.45)',
+    gradient: 'linear-gradient(135deg, rgb(127, 29, 29), rgb(217, 119, 6))'
+  },
+  'motor-sports': {
+    bg: 'from-black to-yellow-700',
+    border: 'border-yellow-500',
+    text: 'text-yellow-100',
+    glow: 'rgba(234, 179, 8, 0.45)',
+    gradient: 'linear-gradient(135deg, rgb(24, 24, 27), rgb(161, 98, 7))'
+  },
+  fight: {
+    bg: 'from-zinc-900 to-red-700',
+    border: 'border-red-300',
+    text: 'text-red-100',
+    glow: 'rgba(220, 38, 38, 0.45)',
+    gradient: 'linear-gradient(135deg, rgb(24, 24, 27), rgb(185, 28, 28))'
+  },
+  rugby: {
+    bg: 'from-teal-800 to-cyan-500',
+    border: 'border-teal-300',
+    text: 'text-teal-100',
+    glow: 'rgba(20, 184, 166, 0.45)',
+    gradient: 'linear-gradient(135deg, rgb(17, 94, 89), rgb(6, 182, 212))'
+  },
+  golf: {
+    bg: 'from-stone-700 to-lime-600',
+    border: 'border-lime-300',
+    text: 'text-lime-100',
+    glow: 'rgba(132, 204, 22, 0.45)',
+    gradient: 'linear-gradient(135deg, rgb(68, 64, 60), rgb(101, 163, 13))'
+  },
+  billiards: {
+    bg: 'from-emerald-900 to-teal-500',
+    border: 'border-emerald-300',
+    text: 'text-emerald-100',
+    glow: 'rgba(5, 150, 105, 0.45)',
+    gradient: 'linear-gradient(135deg, rgb(6, 78, 59), rgb(20, 184, 166))'
+  },
+  afl: {
+    bg: 'from-pink-800 to-orange-500',
+    border: 'border-pink-300',
+    text: 'text-pink-100',
+    glow: 'rgba(236, 72, 153, 0.45)',
+    gradient: 'linear-gradient(135deg, rgb(157, 23, 77), rgb(249, 115, 22))'
+  },
+  darts: {
+    bg: 'from-slate-700 to-orange-500',
+    border: 'border-orange-300',
+    text: 'text-orange-100',
+    glow: 'rgba(249, 115, 22, 0.45)',
+    gradient: 'linear-gradient(135deg, rgb(51, 65, 85), rgb(249, 115, 22))'
+  },
+  ufc: {
+    bg: 'from-zinc-900 to-red-700',
+    border: 'border-red-300',
+    text: 'text-red-100',
+    glow: 'rgba(220, 38, 38, 0.45)',
+    gradient: 'linear-gradient(135deg, rgb(24, 24, 27), rgb(185, 28, 28))'
+  },
+  boxing: {
+    bg: 'from-zinc-900 to-red-700',
+    border: 'border-red-300',
+    text: 'text-red-100',
+    glow: 'rgba(220, 38, 38, 0.45)',
+    gradient: 'linear-gradient(135deg, rgb(24, 24, 27), rgb(185, 28, 28))'
+  },
+  other: {
+    bg: 'from-stone-700 to-neutral-500',
+    border: 'border-stone-300',
+    text: 'text-stone-100',
+    glow: 'rgba(168, 162, 158, 0.4)',
+    gradient: 'linear-gradient(135deg, rgb(68, 64, 60), rgb(115, 115, 115))'
+  },
 };
 
 export const getColorForSport = (sportId: string): SportColor => {
-  const normalizedId = sportId?.toLowerCase();
-  return sportColors[normalizedId] || sportColors.all;
+  const normalizedId = sportId?.toLowerCase().trim().replace(/[\s_]+/g, '-');
+  const aliases: Record<string, string> = {
+    motorsport: 'motor-sports',
+    motor: 'motor-sports',
+    ufc: 'fight',
+    boxing: 'fight',
+    mma: 'fight',
+    americanfootball: 'american-football',
+  };
+  const resolvedId = aliases[normalizedId] || normalizedId;
+  return sportColors[resolvedId] || sportColors.other;
 };

@@ -16,7 +16,7 @@ import {
 import { getColorForSport } from '@/utils/sports-colors';
 import { useToast } from '@/hooks/use-toast';
 import Ads from '@/components/Ads';
-import { Search, Radio, Sparkles, CalendarDays, Activity, Zap, Flame } from 'lucide-react';
+import { Search, Radio, Sparkles, CalendarDays, Activity, Zap, Flame, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Sports = () => {
@@ -204,6 +204,25 @@ const Sports = () => {
               </div>
             </motion.div>
 
+            <motion.a
+              href="https://rmppv.xyz"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mb-8 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/50 bg-gradient-to-r from-cyan-500/30 via-blue-500/20 to-transparent px-5 py-4 text-left shadow-[0_0_30px_rgba(34,211,238,0.2)] backdrop-blur-sm transition-colors hover:border-cyan-200/80 hover:from-cyan-500/40"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.25 }}
+            >
+              <span className="flex items-center gap-3">
+                <Zap className="h-5 w-5 shrink-0 text-cyan-200" />
+                <span>
+                  <span className="block text-xs font-black uppercase tracking-widest text-cyan-100">Alternate live stream</span>
+                  <span className="mt-1 block text-sm font-bold text-white">If a match is unavailable, try rmppv.xyz</span>
+                </span>
+              </span>
+              <ExternalLink className="h-5 w-5 shrink-0 text-cyan-200" />
+            </motion.a>
+
             {/* Premium Category Strips with Colorful Buttons */}
             <motion.div 
               className="mb-8 border-b border-white/10 pb-4 overflow-x-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent"
@@ -249,9 +268,9 @@ const Sports = () => {
                         onClick={() => handleSportChange(sport.id)}
                         className={`px-6 py-3 rounded-xl text-xs font-black tracking-widest uppercase transition-all duration-300 border-2 relative overflow-hidden group shadow-lg hover:shadow-2xl text-white`}
                         style={{
-                          background: isSelected ? sportColor.gradient : 'rgba(255,255,255,0.05)',
-                          borderColor: isSelected ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.1)',
-                          boxShadow: isSelected ? `0 0 30px ${sportColor.glow}` : 'none'
+                          background: sportColor.gradient,
+                          borderColor: isSelected ? 'rgba(255,255,255,0.9)' : sportColor.glow,
+                          boxShadow: isSelected ? `0 0 30px ${sportColor.glow}` : `0 0 12px ${sportColor.glow}`
                         }}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}

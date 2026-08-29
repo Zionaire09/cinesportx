@@ -46,6 +46,11 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
           "overflow-hidden h-full shadow-2xl flex flex-col justify-between rounded-2xl transition-all duration-300 border border-white/20 bg-gradient-to-br",
           sportColor.bg
         )}
+        style={{
+          background: sportColor.gradient,
+          borderColor: sportColor.glow,
+          boxShadow: `0 0 24px ${sportColor.glow}`
+        }}
       >
         
         {/* Dynamic Canvas Area with Enhanced Effects */}

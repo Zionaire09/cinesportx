@@ -208,19 +208,26 @@ const Sports = () => {
               href="https://rmppv.xyz"
               target="_blank"
               rel="noopener noreferrer"
-              className="mb-8 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/50 bg-gradient-to-r from-cyan-500/30 via-blue-500/20 to-transparent px-5 py-4 text-left shadow-[0_0_30px_rgba(34,211,238,0.2)] backdrop-blur-sm transition-colors hover:border-cyan-200/80 hover:from-cyan-500/40"
+              aria-label="Open the preferred stable live stream link at rmppv.xyz"
+              className="group mb-8 flex items-center justify-between gap-4 rounded-2xl border-2 border-red-400/80 bg-gradient-to-r from-red-600/55 via-rose-500/35 to-red-950/20 px-5 py-5 text-left shadow-[0_0_36px_rgba(239,68,68,0.32)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-red-200 hover:from-red-500/70 hover:shadow-[0_0_48px_rgba(239,68,68,0.48)]"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.25 }}
             >
-              <span className="flex items-center gap-3">
-                <Zap className="h-5 w-5 shrink-0 text-cyan-200" />
-                <span>
-                  <span className="block text-xs font-black uppercase tracking-widest text-cyan-100">Alternate live stream</span>
-                  <span className="mt-1 block text-sm font-bold text-white">If a match is unavailable, try rmppv.xyz</span>
+              <span className="flex min-w-0 items-center gap-4">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-950/50 ring-4 ring-red-300/20">
+                  <Zap className="h-5 w-5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-red-100">
+                    <span className="rounded-full bg-red-950/50 px-2.5 py-1 text-red-50">Recommended</span>
+                    <span className="text-red-200">Stable live stream</span>
+                  </span>
+                  <span className="mt-1 block text-base font-bold text-white sm:text-lg">For the best viewing experience, use</span>
+                  <span className="mt-0.5 block truncate text-2xl font-black tracking-tight text-red-100 underline decoration-red-200/70 decoration-2 underline-offset-4 transition-colors group-hover:text-white sm:text-3xl">rmppv.xyz</span>
                 </span>
               </span>
-              <ExternalLink className="h-5 w-5 shrink-0 text-cyan-200" />
+              <ExternalLink className="h-6 w-6 shrink-0 text-red-100 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </motion.a>
 
             {/* Premium Category Strips with Colorful Buttons */}

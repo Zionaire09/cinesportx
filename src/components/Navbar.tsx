@@ -219,7 +219,7 @@ const Navbar = () => {
   );
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black/55 backdrop-blur-xl">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black/80">
       <div className="mx-auto max-w-screen-2xl px-3 sm:px-4 lg:px-6">
         <div className="relative flex min-h-16 items-center justify-between gap-3 py-2 lg:grid lg:min-h-20 lg:grid-cols-[1fr_auto_1fr]">
           <Link

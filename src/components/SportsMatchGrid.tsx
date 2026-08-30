@@ -1,6 +1,6 @@
 import { APIMatch } from '@/utils/sports-types';
 import SportsMatchCard from './SportsMatchCard';
-import { motion, Variants } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ExternalLink, Zap } from 'lucide-react';
 
 interface SportMatchGridProps {
@@ -48,32 +48,6 @@ const SportsMatchGrid = ({
     );
   }
 
-  const container: Variants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.04,
-        delayChildren: 0.1,
-      },
-    },
-  };
-
-  const item: Variants = {
-    hidden: { opacity: 0, y: 20, scale: 0.95 },
-    show: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: 'spring',
-        stiffness: 100,
-        damping: 15,
-        duration: 0.5,
-      },
-    },
-  };
-
   return (
     <div className="py-4">
       {title && (
@@ -92,18 +66,13 @@ const SportsMatchGrid = ({
         </motion.h2>
       )}
 
-      <motion.div
-        className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-        variants={container}
-        initial="hidden"
-        animate="show"
-      >
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {matches.map((match) => (
-          <motion.div key={match.id} variants={item}>
+          <div key={match.id} className="sports-card">
             <SportsMatchCard match={match} />
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
+      </div>
       {backupStreamHref && (
         <motion.div
           className="mt-8 flex justify-center"

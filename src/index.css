@@ -46,6 +46,11 @@
     @apply absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent;
   }
 
+  .sports-card {
+    content-visibility: auto;
+    contain-intrinsic-size: 360px 420px;
+  }
+
   .hero-text-shadow {
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   }

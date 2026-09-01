@@ -18,6 +18,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import Ads from '@/components/Ads';
 import { AutoNextEpisode } from '@/components/AutoNextEpisode';
+import { getContinueWatching, saveContinueWatching } from '@/utils/continue-watching';
 
 // Simple debounce and throttle implementations (no lodash dependency)
 const debounce = <T extends (...args: any[]) => any>(func: T, wait: number) => {
@@ -231,6 +232,8 @@ const Player = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [mediaType, setMediaType] = useState<'movie' | 'tv'>('movie');
   const [mediaDetails, setMediaDetails] = useState<MovieDetails | TVDetails | null>(null);
+  const resumeSecondsRef = useRef(0);
+  const lastHistorySaveAtRef = useRef(0);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState<number>(0);
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -437,6 +440,80 @@ const Player = () => {
 
     setEmbedUrl(sourceUrl);
   }, [id, season, episode, hasInitialized, mediaDetails, mediaType, selectedSource, getEmbedUrlForSource]);
+
+  const persistContinueWatching = useCallback((progressSeconds: number, durationSeconds: number) => {
+    if (!id || !mediaDetails) return;
+    const source = videoSources.find((entry) => entry.key === selectedSource);
+    const tvEpisode = mediaType === 'tv' ? {
+      season_number: season ? parseInt(season, 10) : 1,
+      episode_number: episode ? parseInt(episode, 10) : 1,
+      episode_title: episodes.find((entry) => entry.episode_number === (episode ? parseInt(episode, 10) : 1))?.name,
+    } : {};
+    saveContinueWatching({
+      ...mediaDetails,
+      id: parseInt(id, 10),
+      media_type: mediaType,
+      progressSeconds: Math.max(0, Number.isFinite(progressSeconds) ? progressSeconds : 0),
+      durationSeconds: Math.max(0, Number.isFinite(durationSeconds) ? durationSeconds : 0),
+      lastPlayedAt: Date.now(),
+      serverKey: selectedSource,
+      serverName: source?.name || selectedSource,
+      ...tvEpisode,
+    });
+  }, [id, mediaDetails, mediaType, season, episode, episodes, selectedSource]);
+
+  useEffect(() => {
+    if (!id || !mediaDetails) return;
+    const mediaId = parseInt(id, 10);
+    const currentSeason = season ? parseInt(season, 10) : 1;
+    const currentEpisode = episode ? parseInt(episode, 10) : 1;
+    const saved = getContinueWatching().find((entry) =>
+      entry.id === mediaId &&
+      entry.media_type === mediaType &&
+      (mediaType !== 'tv' || (entry.season_number === currentSeason && entry.episode_number === currentEpisode))
+    );
+    resumeSecondsRef.current = saved?.progressSeconds || 0;
+    lastHistorySaveAtRef.current = 0;
+    if (saved?.serverKey && videoSources.some((entry) => entry.key === saved.serverKey)) {
+      setSelectedSource(saved.serverKey);
+    }
+    persistContinueWatching(saved?.progressSeconds || 0, saved?.durationSeconds || 0);
+  }, [id, season, episode, mediaType, mediaDetails, persistContinueWatching]);
+
+  useEffect(() => {
+    if (!id || !mediaDetails) return;
+    const handlePlayerEvent = (event: MessageEvent) => {
+      if (event.data?.type !== 'PLAYER_EVENT') return;
+      const { event: eventType, currentTime, duration } = event.data.data || {};
+      if (!Number.isFinite(currentTime) || !Number.isFinite(duration)) return;
+      if (eventType !== 'timeupdate' && eventType !== 'ended') return;
+      const now = Date.now();
+      if (eventType !== 'ended' && now - lastHistorySaveAtRef.current < 5000) return;
+      lastHistorySaveAtRef.current = now;
+      persistContinueWatching(currentTime, duration);
+    };
+    window.addEventListener('message', handlePlayerEvent);
+    return () => window.removeEventListener('message', handlePlayerEvent);
+  }, [id, mediaDetails, persistContinueWatching]);
+
+  const handleIframeLoad = useCallback(() => {
+    const resumeSeconds = resumeSecondsRef.current;
+    if (!resumeSeconds || !iframeRef.current?.contentWindow) return;
+    let targetOrigin = '*';
+    try {
+      targetOrigin = new URL(embedUrl).origin;
+    } catch {
+      // Keep wildcard target for unusual embed URLs.
+    }
+    const messages = [
+      { type: 'PLAYER_COMMAND', action: 'seek', currentTime: resumeSeconds, time: resumeSeconds },
+      { type: 'SET_CURRENT_TIME', currentTime: resumeSeconds, time: resumeSeconds },
+    ];
+    messages.forEach((message) => iframeRef.current?.contentWindow?.postMessage(message, targetOrigin));
+    window.setTimeout(() => {
+      messages.forEach((message) => iframeRef.current?.contentWindow?.postMessage(message, targetOrigin));
+    }, 1000);
+  }, [embedUrl]);
 
   const handleAutoNextToggle = useCallback((enabled: boolean) => {
     setAutoNextEnabled(enabled);
@@ -1000,6 +1077,7 @@ const Player = () => {
                   referrerPolicy="no-referrer"
                   allow="autoplay; encrypted-media; fullscreen"
                   loading="lazy"
+                  onLoad={handleIframeLoad}
                 />
               ) : (
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center">

@@ -21,6 +21,7 @@ import DiscordButton from '@/components/DiscordButton';
 import Ads from '@/components/Ads';
 import { Helmet } from 'react-helmet';
 import WelcomeDialog from '@/components/WelcomeDialog';
+import ContinueWatching from '@/components/ContinueWatching';
 
 const Index = () => {
   const [trendingMedia, setTrendingMedia] = useState<Media[]>([]);
@@ -130,6 +131,7 @@ const Index = () => {
                 contentVisible ? 'opacity-100' : 'opacity-0'
               }`}
             >
+              <ContinueWatching />
               <ContentRow title="Trending Now" media={trendingMedia} />
               <ContentRow title="Popular Movies" media={popularMovies} />
               <ContentRow title="Popular TV Shows" media={popularTVShows} />

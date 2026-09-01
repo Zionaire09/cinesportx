@@ -477,8 +477,7 @@ const Player = () => {
     if (saved?.serverKey && videoSources.some((entry) => entry.key === saved.serverKey)) {
       setSelectedSource(saved.serverKey);
     }
-    persistContinueWatching(saved?.progressSeconds || 0, saved?.durationSeconds || 0);
-  }, [id, season, episode, mediaType, mediaDetails, persistContinueWatching]);
+  }, [id, season, episode, mediaType, mediaDetails]);
 
   useEffect(() => {
     if (!id || !mediaDetails) return;

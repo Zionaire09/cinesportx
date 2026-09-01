@@ -593,6 +593,15 @@ const Player = () => {
     });
   }, [memoizedToast, id, mediaDetails, mediaType, season, episode, getEmbedUrlForSource, persistContinueWatching]);
 
+  const handleBackNavigation = useCallback(() => {
+    // Save synchronously before leaving so Home can render the new card immediately.
+    persistContinueWatching(
+      lastProgressSecondsRef.current || resumeSecondsRef.current || 0,
+      lastDurationSecondsRef.current || 0
+    );
+    memoizedNavigate(-1);
+  }, [memoizedNavigate, persistContinueWatching]);
+
   const goToDetails = useCallback(() => {
     if (id) {
       memoizedNavigate(`/${mediaType}/${id}`);
@@ -1062,7 +1071,7 @@ const Player = () => {
             variant="ghost"
             size="sm"
             className="text-white/80 hover:text-white transition-colors"
-            onClick={() => memoizedNavigate(-1)}
+            onClick={handleBackNavigation}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back

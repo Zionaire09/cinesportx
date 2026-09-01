@@ -85,3 +85,14 @@ export const removeContinueWatchingItem = (target: ContinueWatchingItem) => {
     console.warn('Unable to remove Continue Watching item:', error);
   }
 };
+
+export const removeContinueWatchingSeries = (id: number) => {
+  if (!isBrowser()) return;
+  try {
+    const next = getContinueWatching().filter((item) => !(item.id === id && item.media_type === 'tv'));
+    window.localStorage.setItem(CONTINUE_WATCHING_STORAGE_KEY, JSON.stringify(next));
+    window.dispatchEvent(new CustomEvent('continue-watching-updated'));
+  } catch (error) {
+    console.warn('Unable to remove Continue Watching series:', error);
+  }
+};

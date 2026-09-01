@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, Server, X } from 'lucide-react';
 import { posterSizes } from '@/utils/api';
-import { ContinueWatchingItem, getContinueWatching, getContinueWatchingRoute, removeContinueWatching } from '@/utils/continue-watching';
+import { ContinueWatchingItem, getContinueWatching, getContinueWatchingRoute, removeContinueWatchingItem } from '@/utils/continue-watching';
 
 const formatTime = (seconds: number) => {
   if (!Number.isFinite(seconds) || seconds <= 0) return 'Just started';
@@ -28,7 +28,7 @@ const ContinueWatching = () => {
   }, [refresh]);
 
   const handleDelete = (item: ContinueWatchingItem) => {
-    removeContinueWatching(item.id, item.media_type);
+    removeContinueWatchingItem(item);
   };
 
   if (items.length === 0) return null;

@@ -234,6 +234,8 @@ const Player = () => {
   const [mediaDetails, setMediaDetails] = useState<MovieDetails | TVDetails | null>(null);
   const resumeSecondsRef = useRef(0);
   const lastHistorySaveAtRef = useRef(0);
+  const lastProgressSecondsRef = useRef(0);
+  const lastDurationSecondsRef = useRef(0);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState<number>(0);
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -474,6 +476,8 @@ const Player = () => {
     );
     resumeSecondsRef.current = saved?.progressSeconds || 0;
     lastHistorySaveAtRef.current = 0;
+    lastProgressSecondsRef.current = 0;
+    lastDurationSecondsRef.current = 0;
     if (saved?.serverKey && videoSources.some((entry) => entry.key === saved.serverKey)) {
       setSelectedSource(saved.serverKey);
     }
@@ -483,16 +487,35 @@ const Player = () => {
     if (!id || !mediaDetails) return;
     const handlePlayerEvent = (event: MessageEvent) => {
       if (event.data?.type !== 'PLAYER_EVENT') return;
-      const { event: eventType, currentTime, duration } = event.data.data || {};
-      if (!Number.isFinite(currentTime) || !Number.isFinite(duration)) return;
+      const payload = event.data.data || event.data;
+      const eventType = payload.event || payload.eventType;
+      const currentTime = Number(payload.currentTime ?? payload.current_time ?? payload.watched);
+      const duration = Number(payload.duration ?? payload.totalDuration ?? payload.total_duration);
+      if (!Number.isFinite(currentTime) || !Number.isFinite(duration) || duration <= 0) return;
       if (eventType !== 'timeupdate' && eventType !== 'ended') return;
+      lastProgressSecondsRef.current = Math.max(0, currentTime);
+      lastDurationSecondsRef.current = duration;
       const now = Date.now();
       if (eventType !== 'ended' && now - lastHistorySaveAtRef.current < 5000) return;
       lastHistorySaveAtRef.current = now;
       persistContinueWatching(currentTime, duration);
     };
+    const flushLatestProgress = () => {
+      if (lastProgressSecondsRef.current > 0 && lastDurationSecondsRef.current > 0) {
+        persistContinueWatching(lastProgressSecondsRef.current, lastDurationSecondsRef.current);
+      }
+    };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') flushLatestProgress();
+    };
     window.addEventListener('message', handlePlayerEvent);
-    return () => window.removeEventListener('message', handlePlayerEvent);
+    window.addEventListener('pagehide', flushLatestProgress);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      window.removeEventListener('message', handlePlayerEvent);
+      window.removeEventListener('pagehide', flushLatestProgress);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [id, mediaDetails, persistContinueWatching]);
 
   const handleIframeLoad = useCallback(() => {
@@ -568,7 +591,7 @@ const Player = () => {
       description: `Switched to ${source.name}.`,
       duration: 3000,
     });
-  }, [memoizedToast, id, mediaDetails, mediaType, season, episode, getEmbedUrlForSource]);
+  }, [memoizedToast, id, mediaDetails, mediaType, season, episode, getEmbedUrlForSource, persistContinueWatching]);
 
   const goToDetails = useCallback(() => {
     if (id) {

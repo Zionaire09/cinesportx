@@ -36,7 +36,12 @@ export const saveContinueWatching = (item: ContinueWatchingItem) => {
   if (!isBrowser()) return;
   try {
     const existing = getContinueWatching();
-    const next = [item, ...existing.filter((entry) => !(entry.id === item.id && entry.media_type === item.media_type))]
+    const isSameHistoryItem = (entry: ContinueWatchingItem) =>
+      entry.id === item.id &&
+      entry.media_type === item.media_type &&
+      (item.media_type !== 'tv' ||
+        (entry.season_number === item.season_number && entry.episode_number === item.episode_number));
+    const next = [item, ...existing.filter((entry) => !isSameHistoryItem(entry))]
       .slice(0, MAX_CONTINUE_WATCHING_ITEMS);
     window.localStorage.setItem(CONTINUE_WATCHING_STORAGE_KEY, JSON.stringify(next));
     window.dispatchEvent(new CustomEvent('continue-watching-updated'));
@@ -63,4 +68,20 @@ export const getContinueWatchingRoute = (item: ContinueWatchingItem) => {
     return `/player/tv/${item.id}/${season}/${episode}`;
   }
   return `/player/movie/${item.id}`;
+};
+
+export const removeContinueWatchingItem = (target: ContinueWatchingItem) => {
+  if (!isBrowser()) return;
+  try {
+    const next = getContinueWatching().filter((item) => !(
+      item.id === target.id &&
+      item.media_type === target.media_type &&
+      (target.media_type !== 'tv' ||
+        (item.season_number === target.season_number && item.episode_number === target.episode_number))
+    ));
+    window.localStorage.setItem(CONTINUE_WATCHING_STORAGE_KEY, JSON.stringify(next));
+    window.dispatchEvent(new CustomEvent('continue-watching-updated'));
+  } catch (error) {
+    console.warn('Unable to remove Continue Watching item:', error);
+  }
 };

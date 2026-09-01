@@ -236,6 +236,7 @@ const Player = () => {
   const lastHistorySaveAtRef = useRef(0);
   const lastProgressSecondsRef = useRef(0);
   const lastDurationSecondsRef = useRef(0);
+  const resumeDurationRef = useRef(0);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState<number>(0);
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -478,6 +479,7 @@ const Player = () => {
     lastHistorySaveAtRef.current = 0;
     lastProgressSecondsRef.current = 0;
     lastDurationSecondsRef.current = 0;
+    resumeDurationRef.current = saved?.durationSeconds || 0;
     if (saved?.serverKey && videoSources.some((entry) => entry.key === saved.serverKey)) {
       setSelectedSource(saved.serverKey);
     }
@@ -501,19 +503,23 @@ const Player = () => {
       persistContinueWatching(currentTime, duration);
     };
     const flushLatestProgress = () => {
-      if (lastProgressSecondsRef.current > 0 && lastDurationSecondsRef.current > 0) {
-        persistContinueWatching(lastProgressSecondsRef.current, lastDurationSecondsRef.current);
-      }
+      persistContinueWatching(
+        lastProgressSecondsRef.current || resumeSecondsRef.current || 0,
+        lastDurationSecondsRef.current || resumeDurationRef.current || 0
+      );
     };
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') flushLatestProgress();
     };
     window.addEventListener('message', handlePlayerEvent);
     window.addEventListener('pagehide', flushLatestProgress);
+    window.addEventListener('beforeunload', flushLatestProgress);
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
+      flushLatestProgress();
       window.removeEventListener('message', handlePlayerEvent);
       window.removeEventListener('pagehide', flushLatestProgress);
+      window.removeEventListener('beforeunload', flushLatestProgress);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [id, mediaDetails, persistContinueWatching]);
@@ -597,7 +603,7 @@ const Player = () => {
     // Save synchronously before leaving so Home can render the new card immediately.
     persistContinueWatching(
       lastProgressSecondsRef.current || resumeSecondsRef.current || 0,
-      lastDurationSecondsRef.current || 0
+      lastDurationSecondsRef.current || resumeDurationRef.current || 0
     );
     memoizedNavigate(-1);
   }, [memoizedNavigate, persistContinueWatching]);

@@ -1110,9 +1110,6 @@ const Player = () => {
                   className="w-full h-full"
                   title={title}
                   allowFullScreen
-                  sandbox={selectedSource === 'vidsrc-mov'
-                    ? 'allow-forms allow-modals allow-pointer-lock allow-same-origin allow-scripts'
-                    : undefined}
                   referrerPolicy="no-referrer"
                   allow="autoplay; encrypted-media; fullscreen"
                   loading="lazy"

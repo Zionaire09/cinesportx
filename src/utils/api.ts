@@ -130,29 +130,29 @@ export const videoSources = [
     getTVUrl: (id: number, season: number, episode: number) => `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
   },
 {
-    key: 'vidfast',
-    name: '02 Ember',
-    getMovieUrl: (id: number) => `https://vidfast.pro/movie/${id}?autoPlay=true`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vidfast.pro/tv/${id}/${season}/${episode}?autoPlay=true`,
-  },
-{
     key: 'vidlink',
-    name: '03 Orbit',
+    name: '02 Supernova',
     getMovieUrl: (id: number) => `https://vidlink.pro/movie/${id}?autoplay=true&title=true`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidlink.pro/tv/${id}/${season}/${episode}?autoplay=true&title=true`,
   },
 {
     key: 'vidsrc-wtf-1',
-    name: '04 Beam',
+    name: '03 Pringle',
     getMovieUrl: (id: number) => `https://www.vidsrc.wtf/api/1/movie?id=${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://www.vidsrc.wtf/api/1/tv?id=${id}&s=${season}&e=${episode}`,
     sandbox: 'allow-scripts allow-same-origin'
   },
 {
     key: 'peachify',
-    name: '05 Pring2',
+    name: '04 Rabbi',
     getMovieUrl: (id: number) => `https://peachify.pro/embed/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://peachify.pro/embed/tv/${id}/${season}/${episode}`,
+  },
+{
+    key: 'vidfast',
+    name: '05 Ember',
+    getMovieUrl: (id: number) => `https://vidfast.pro/movie/${id}?autoPlay=true`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidfast.pro/tv/${id}/${season}/${episode}?autoPlay=true`,
   },
 {
     key: 'vidcore',
@@ -228,13 +228,13 @@ export const videoSources = [
   },
 {
     key: 'vidlux',
-    name: '18 Supernova',
+    name: '18 Nova',
     getMovieUrl: (id: number) => `https://vidlux.xyz/embed/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidlux.xyz/embed/tv/${id}/${season}/${episode}`,
   },
 {
     key: 'streamxtv',
-    name: '19 Rabbi',
+    name: '19 Zenith',
     getMovieUrl: (id: number) => `https://embed.streamxtv.tech/embed/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://embed.streamxtv.tech/embed/${id}/${season}/${episode}`,
   }

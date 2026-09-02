@@ -123,141 +123,121 @@ export const backdropSizes = {
 };
 
 export const videoSources = [
-  {
+{
     key: 'vidsrc-mov',
     name: '01 Armageddon',
     getMovieUrl: (id: number) => `https://vidsrc.mov/embed/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
   },
-  {
-    key: 'vidlux',
-    name: '02 Supernova',
-    getMovieUrl: (id: number) => `https://vidlux.xyz/embed/movie/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vidlux.xyz/embed/tv/${id}/${season}/${episode}`,
-  },
-  {
-    key: 'peachify',
-    name: '03 Pring2',
-    getMovieUrl: (id: number) => `https://peachify.pro/embed/movie/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://peachify.pro/embed/tv/${id}/${season}/${episode}`,
-  },
-  {
+{
     key: 'vidfast',
-    name: '04 Ember',
+    name: '02 Ember',
     getMovieUrl: (id: number) => `https://vidfast.pro/movie/${id}?autoPlay=true`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidfast.pro/tv/${id}/${season}/${episode}?autoPlay=true`,
   },
-  {
-    key: 'streamxtv',
-    name: '05 Rabbi',
-    getMovieUrl: (id: number) => `https://embed.streamxtv.tech/embed/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://embed.streamxtv.tech/embed/${id}/${season}/${episode}`,
+{
+    key: 'vidlink',
+    name: '03 Orbit',
+    getMovieUrl: (id: number) => `https://vidlink.pro/movie/${id}?autoplay=true&title=true`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidlink.pro/tv/${id}/${season}/${episode}?autoplay=true&title=true`,
   },
-  {
+{
+    key: 'vidsrc-wtf-1',
+    name: '04 Beam',
+    getMovieUrl: (id: number) => `https://www.vidsrc.wtf/api/1/movie?id=${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://www.vidsrc.wtf/api/1/tv?id=${id}&s=${season}&e=${episode}`,
+    sandbox: 'allow-scripts allow-same-origin'
+  },
+{
+    key: 'peachify',
+    name: '05 Pring2',
+    getMovieUrl: (id: number) => `https://peachify.pro/embed/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://peachify.pro/embed/tv/${id}/${season}/${episode}`,
+  },
+{
     key: 'vidcore',
     name: '06 Atlas',
     getMovieUrl: (id: number) => `https://vidcore.net/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidcore.net/tv/${id}/${season}/${episode}`,
   },
-  {
-    key: 'vidlink',
-    name: '07 Orbit',
-    getMovieUrl: (id: number) => `https://vidlink.pro/movie/${id}?autoplay=true&title=true`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vidlink.pro/tv/${id}/${season}/${episode}?autoplay=true&title=true`,
-  },
-  {
+{
     key: 'smashystream',
-    name: '08 Pulse',
+    name: '07 Pulse',
     getMovieUrl: (id: number) => `https://embed.smashystream.com/playere.php?tmdb=${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season}&episode=${episode}`,
   },
-  {
+{
     key: 'vidup',
-    name: '09 Swift',
+    name: '08 Swift',
     getMovieUrl: (id: number) => `https://vidup.to/movie/${id}?autoPlay=true`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidup.to/tv/${id}/${season}/${episode}?autoPlay=true`,
   },
-  {
+{
     key: '111movies',
-    name: '10 Prism',
+    name: '09 Prism',
     getMovieUrl: (id: number) => `https://111movies.com/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://111movies.com/tv/${id}/${season}/${episode}`,
   },
-  {
+{
     key: 'vidsrc-me',
-    name: '11 Echo',
+    name: '10 Echo',
     getMovieUrl: (id: number) => `https://vidsrcme.ru/embed/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidsrcme.ru/embed/tv/${id}/${season}/${episode}`,
   },
-  {
+{
     key: 'vidzee',
-    name: '12 Flux',
+    name: '11 Flux',
     getMovieUrl: (id: number) => `https://player.vidzee.wtf/embed/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://player.vidzee.wtf/embed/tv/${id}/${season}/${episode}`,
   },
-  {
+{
     key: 'videasy',
-    name: '13 Aura',
+    name: '12 Aura',
     getMovieUrl: (id: number) => `https://player.videasy.net/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://player.videasy.net/tv/${id}/${season}/${episode}`,
   },
-  {
+{
     key: 'vidnest',
-    name: '14 Haven',
+    name: '13 Haven',
     getMovieUrl: (id: number) => `https://vidnest.fun/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidnest.fun/tv/${id}/${season}/${episode}`,
   },
-  {
+{
     key: 'vidrock',
-    name: '15 Forge',
+    name: '14 Forge',
     getMovieUrl: (id: number) => `https://vidrock.ru/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidrock.ru/tv/${id}/${season}/${episode}`,
   },
-  {
-    key: 'vidscr-wtf',
-    name: '16 Drift',
-    getMovieUrl: (id: number) => `https://vidscr.wtf/movie/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vidscr.wtf/tv/${id}/${season}/${episode}`,
-  },
-  {
-    key: 'vidsrc-wtf-1',
-    name: '17 Beam',
-    getMovieUrl: (id: number) => `https://www.vidsrc.wtf/api/1/movie?id=${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://www.vidsrc.wtf/api/1/tv?id=${id}&s=${season}&e=${episode}`,
-    sandbox: 'allow-scripts allow-same-origin'
-  },
-  {
-    key: 'vidsrc-wtf-2',
-    name: '18 Wave',
-    getMovieUrl: (id: number) => `https://www.vidsrc.wtf/api/2/movie?id=${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://www.vidsrc.wtf/api/2/tv?id=${id}&s=${season}&e=${episode}`,
-    sandbox: 'allow-scripts allow-same-origin'
-  },
-  {
-    key: 'vidsrc-wtf-3',
-    name: '19 Axis',
-    getMovieUrl: (id: number) => `https://www.vidsrc.wtf/api/3/movie?id=${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://www.vidsrc.wtf/api/3/tv?id=${id}&s=${season}&e=${episode}`,
-    sandbox: 'allow-scripts allow-same-origin'
-  },
-  {
+{
     key: '2embed',
-    name: '20 Link',
+    name: '15 Link',
     getMovieUrl: (id: number) => `https://www.2embed.cc/embed/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://www.2embed.cc/embedtv/${id}&s=${season}&e=${episode}`,
   },
-  {
+{
     key: 'multiembed',
-    name: '21 Loop',
+    name: '16 Loop',
     getMovieUrl: (id: number) => `https://multiembed.mov/?video_id=${id}&tmdb=1`,
     getTVUrl: (id: number, season: number, episode: number) => `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${season}&e=${episode}`,
   },
-  {
+{
     key: 'primesrc',
-    name: '22 Prime',
+    name: '17 Prime',
     getMovieUrl: (id: number) => `https://primesrc.me/embed/movie?tmdb=${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://primesrc.me/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`,
   },
+{
+    key: 'vidlux',
+    name: '18 Supernova',
+    getMovieUrl: (id: number) => `https://vidlux.xyz/embed/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidlux.xyz/embed/tv/${id}/${season}/${episode}`,
+  },
+{
+    key: 'streamxtv',
+    name: '19 Rabbi',
+    getMovieUrl: (id: number) => `https://embed.streamxtv.tech/embed/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://embed.streamxtv.tech/embed/${id}/${season}/${episode}`,
+  }
 ];
 
 // Fetch reviews for a movie or TV show based on media type

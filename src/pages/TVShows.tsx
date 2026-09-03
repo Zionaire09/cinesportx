@@ -130,25 +130,29 @@ const TVShows = () => {
   const applyFiltersAndSort = (shows: Media[]) => {
     let filteredShows = [...shows];
     if (genreFilter !== 'all') {
-      filteredShows = filteredShows.filter(show => 
+      filteredShows = filteredShows.filter(show =>
         show.genre_ids?.includes(parseInt(genreFilter))
       );
     }
-    switch (sortBy) {
-      case 'name':
-        filteredShows.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'first_air_date':
-        filteredShows.sort((a, b) => 
-          new Date(b.first_air_date).getTime() - new Date(a.first_air_date).getTime()
-        );
-        break;
-      case 'rating':
-        filteredShows.sort((a, b) => b.vote_average - a.vote_average);
-        break;
-      default:
-        break;
-    }
+
+    // Keep pagination order as the primary key. This prevents a newly fetched
+    // page from jumping above already-rendered cards when a filter or sort is active.
+    filteredShows.sort((a, b) => {
+      const pageA = (a as Media & { __page?: number }).__page ?? 0;
+      const pageB = (b as Media & { __page?: number }).__page ?? 0;
+      if (pageA !== pageB) return pageA - pageB;
+
+      switch (sortBy) {
+        case 'name':
+          return (a.name || '').localeCompare(b.name || '');
+        case 'first_air_date':
+          return new Date(b.first_air_date || '').getTime() - new Date(a.first_air_date || '').getTime();
+        case 'rating':
+          return (b.vote_average || 0) - (a.vote_average || 0);
+        default:
+          return 0;
+      }
+    });
     return filteredShows;
   };
 

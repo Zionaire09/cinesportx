@@ -28,17 +28,18 @@ const Trending = () => {
     if (trendingQuery.data) {
       setAllTrending(prev => {
         const newItems = trendingQuery.data
-          .filter(item => !prev.some(p => p.id === (item.id || item.media_id || item.tmdb_id)))
+          .filter(item => !prev.some(p => `${p.media_type}-${p.id}` === `${item.media_type}-${item.id || item.media_id || item.tmdb_id}`))
           .map(item => {
             const transformedItem = {
               ...item,
               id: item.id || item.media_id || item.tmdb_id,
               media_id: item.id || item.media_id || item.tmdb_id,
               media_type: item.media_type,
+              __page: page,
             };
             return transformedItem;
           });
-        return [...prev, ...newItems];
+        return [...prev, ...newItems].sort((a, b) => ((a as Media & { __page?: number }).__page ?? 0) - ((b as Media & { __page?: number }).__page ?? 0));
       });
     }
   }, [trendingQuery.data]);

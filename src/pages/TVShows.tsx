@@ -77,11 +77,12 @@ const TVShows = () => {
               id: show.id || show.media_id || show.tmdb_id,
               media_id: show.id || show.media_id || show.tmdb_id,
               media_type: 'tv',
+              __page: popularPage,
             };
             console.log('Transformed Popular Show:', transformedShow);
             return transformedShow;
           });
-        return [...prev, ...newShows];
+        return [...prev, ...newShows].sort((a, b) => ((a as Media & { __page?: number }).__page ?? 0) - ((b as Media & { __page?: number }).__page ?? 0));
       });
     }
   }, [popularTVQuery.data]);
@@ -98,11 +99,12 @@ const TVShows = () => {
               id: show.id || show.media_id || show.tmdb_id,
               media_id: show.id || show.media_id || show.tmdb_id,
               media_type: 'tv',
+              __page: topRatedPage,
             };
             console.log('Transformed Top Rated Show:', transformedShow);
             return transformedShow;
           });
-        return [...prev, ...newShows];
+        return [...prev, ...newShows].sort((a, b) => ((a as Media & { __page?: number }).__page ?? 0) - ((b as Media & { __page?: number }).__page ?? 0));
       });
     }
   }, [topRatedTVQuery.data]);

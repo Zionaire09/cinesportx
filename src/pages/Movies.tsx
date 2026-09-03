@@ -79,8 +79,9 @@ const Movies = () => {
             id: movie.id || movie.media_id || movie.tmdb_id,
             media_id: movie.id || movie.media_id || movie.tmdb_id,
             media_type: 'movie',
+            __page: popularPage,
           }));
-        return [...prev, ...newMovies];
+        return [...prev, ...newMovies].sort((a, b) => ((a as Media & { __page?: number }).__page ?? 0) - ((b as Media & { __page?: number }).__page ?? 0));
       });
     }
   }, [popularMoviesQuery.data]);
@@ -95,8 +96,9 @@ const Movies = () => {
             id: movie.id || movie.media_id || movie.tmdb_id,
             media_id: movie.id || movie.media_id || movie.tmdb_id,
             media_type: 'movie',
+            __page: topRatedPage,
           }));
-        return [...prev, ...newMovies];
+        return [...prev, ...newMovies].sort((a, b) => ((a as Media & { __page?: number }).__page ?? 0) - ((b as Media & { __page?: number }).__page ?? 0));
       });
     }
   }, [topRatedMoviesQuery.data]);

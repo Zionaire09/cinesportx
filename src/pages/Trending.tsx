@@ -77,8 +77,11 @@ const Trending = () => {
   }, [hasMore, trendingQuery.isFetching, page, timeWindow]);
 
   const handleTimeWindowChange = (value: 'day' | 'week') => {
+    if (value === timeWindow) return;
     setTimeWindow(value);
     setPage(1);
+    // Clear the previous window before the new query resolves so day/week
+    // results can never share the same rendered accumulator.
     setAllTrending([]);
   };
   

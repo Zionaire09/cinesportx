@@ -153,27 +153,20 @@ const Movies = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [activeTab, hasMorePopular, hasMoreTopRated, popularMoviesQuery.isFetching, topRatedMoviesQuery.isFetching]);
 
-  const filteredPopularMovies = allPopularMovies
-    .filter(movie => genreFilter === 'all' || movie.genre_ids?.includes(parseInt(genreFilter)))
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'title':
-          return a.title.localeCompare(b.title);
-        case 'release_date':
-          return (b.release_date || '').localeCompare(a.release_date || '');
-        case 'rating':
-          return (b.vote_average || 0) - (a.vote_average || 0);
-        default:
-          return 0;
-      }
-    });
+  const sortMoviesWithinPages = (movies: Media[]) => {
+    const filteredMovies = movies.filter(movie =>
+      genreFilter === 'all' || movie.genre_ids?.includes(parseInt(genreFilter))
+    );
 
-  const filteredTopRatedMovies = allTopRatedMovies
-    .filter(movie => genreFilter === 'all' || movie.genre_ids?.includes(parseInt(genreFilter)))
-    .sort((a, b) => {
+    // Keep the server page as the primary order so filtered pages remain append-only.
+    return filteredMovies.sort((a, b) => {
+      const pageA = (a as Media & { __page?: number }).__page ?? 0;
+      const pageB = (b as Media & { __page?: number }).__page ?? 0;
+      if (pageA !== pageB) return pageA - pageB;
+
       switch (sortBy) {
         case 'title':
-          return a.title.localeCompare(b.title);
+          return (a.title || '').localeCompare(b.title || '');
         case 'release_date':
           return (b.release_date || '').localeCompare(a.release_date || '');
         case 'rating':
@@ -182,6 +175,10 @@ const Movies = () => {
           return 0;
       }
     });
+  };
+
+  const filteredPopularMovies = sortMoviesWithinPages(allPopularMovies);
+  const filteredTopRatedMovies = sortMoviesWithinPages(allTopRatedMovies);
 
   return (
     <PageTransition>

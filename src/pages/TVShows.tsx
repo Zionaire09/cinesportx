@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { MediaGridSkeleton } from '@/components/MediaSkeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Ads from '@/components/Ads';
+import { CategoryFilter } from './New';
 
 
 const TV_PAGE_STATE_KEY = 'tvShowsPageState';
@@ -202,21 +203,6 @@ const TVShows = () => {
                     <SelectItem value="name">Name</SelectItem>
                     <SelectItem value="first_air_date">First Air Date</SelectItem>
                     <SelectItem value="rating">Rating</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={genreFilter} onValueChange={setGenreFilter}>
-                  <SelectTrigger className="w-[180px] border-white/10 text-white bg-transparent">
-                    <SelectValue placeholder="Filter by Genre" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border-white/10 text-white">
-                    <SelectItem value="all">All Genres</SelectItem>
-                    <SelectItem value="10759">Action & Adventure</SelectItem>
-                    <SelectItem value="35">Comedy</SelectItem>
-                    <SelectItem value="18">Drama</SelectItem>
-                    <SelectItem value="10765">Sci-Fi & Fantasy</SelectItem>
-                    <SelectItem value="80">Crime</SelectItem>
-                    <SelectItem value="9648">Mystery</SelectItem>
-                    <SelectItem value="10762">Kids</SelectItem>
                   </SelectContent>
                 </Select>
                 <Button

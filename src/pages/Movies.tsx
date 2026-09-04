@@ -13,6 +13,7 @@ import PageTransition from '@/components/PageTransition';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Ads from '@/components/Ads';
+import { CategoryFilter } from './New';
 
 
 
@@ -190,33 +191,6 @@ const Movies = () => {
               <h1 className="text-2xl font-bold mb-4"> </h1>
             </div>
             <div className="flex items-center gap-4">
-              <Select value={genreFilter} onValueChange={setGenreFilter}>
-                <SelectTrigger className="w-[180px] bg-white/10 border-white/20 text-white">
-                  <SelectValue placeholder="Filter by Genre" />
-                </SelectTrigger>
-                <SelectContent className="bg-background border-white/10">
-                  <SelectItem value="all">All Genres</SelectItem>
-                  <SelectItem value="28">Action</SelectItem>
-                  <SelectItem value="12">Adventure</SelectItem>
-                  <SelectItem value="16">Animation</SelectItem>
-                  <SelectItem value="35">Comedy</SelectItem>
-                  <SelectItem value="80">Crime</SelectItem>
-                  <SelectItem value="99">Documentary</SelectItem>
-                  <SelectItem value="18">Drama</SelectItem>
-                  <SelectItem value="10751">Family</SelectItem>
-                  <SelectItem value="14">Fantasy</SelectItem>
-                  <SelectItem value="36">History</SelectItem>
-                  <SelectItem value="27">Horror</SelectItem>
-                  <SelectItem value="10402">Music</SelectItem>
-                  <SelectItem value="9648">Mystery</SelectItem>
-                  <SelectItem value="10749">Romance</SelectItem>
-                  <SelectItem value="878">Science Fiction</SelectItem>
-                  <SelectItem value="10770">TV Movie</SelectItem>
-                  <SelectItem value="53">Thriller</SelectItem>
-                  <SelectItem value="10752">War</SelectItem>
-                  <SelectItem value="37">Western</SelectItem>
-                </SelectContent>
-              </Select>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-[180px] bg-white/10 border-white/20 text-white">
                   <SelectValue placeholder="Sort by" />
@@ -238,6 +212,8 @@ const Movies = () => {
               </Button>
             </div>
           </div>
+
+          <CategoryFilter type="movie" genre={genreFilter} onChange={setGenreFilter} />
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">

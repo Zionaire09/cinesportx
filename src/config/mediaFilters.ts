@@ -22,7 +22,7 @@ export const mediaGenres = [
 
 export const matchesMediaFilters = (media: { media_type: 'movie' | 'tv'; genre_ids?: number[] }, type: MediaFilterType, genre: string) => {
   const matchesGenre = genre === 'all'
-    || (genre === 'action-adventure' && Boolean(media.genre_ids?.some((id) => id === 28 || id === 12)))
+    || (genre === 'action-adventure' && Boolean(media.genre_ids?.some((id) => id === 28 || id === 12 || id === 10759)))
     || media.genre_ids?.includes(Number(genre));
   return (type === 'all' || media.media_type === type) && matchesGenre;
 };

@@ -53,8 +53,8 @@ const PersonFilmography = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <button onClick={() => navigate(-1)} className="mb-6 inline-flex items-center gap-2 text-white/70 hover:text-white"><ArrowLeft className="h-4 w-4" /> Back</button>
+      <main className="max-w-7xl mx-auto px-4 pt-20 pb-8">
+        <button onClick={() => navigate(-1)} className="relative z-10 mb-6 inline-flex items-center gap-2 text-white/70 hover:text-white"><ArrowLeft className="h-4 w-4" /> Back</button>
         <div className="flex items-center gap-5 mb-8">
           {person.profile_path && <img src={`${posterSizes.medium}${person.profile_path}`} alt={person.name} className="h-24 w-24 rounded-full object-cover" />}
           <div><p className="text-sm uppercase tracking-wider text-accent">Cast member</p><h1 className="text-3xl font-bold text-white">{person.name}</h1><p className="text-white/60 mt-1">Movies and shows featuring this cast member</p></div>

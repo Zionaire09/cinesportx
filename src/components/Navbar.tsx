@@ -176,19 +176,24 @@ const Navbar = () => {
     <>
       {navItems.map((item) => {
         const isActive = !item.external && location.pathname === item.path;
+        const isSports = item.title === 'Sports';
         const desktopClasses = `inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 ${
-          isActive
-            ? 'bg-white text-black shadow-sm'
-            : item.external
-              ? 'border border-accent/40 bg-accent/10 text-accent hover:border-accent/70 hover:bg-accent/20 hover:text-white'
-              : 'text-white/75 hover:bg-white/10 hover:text-white'
+          isSports
+            ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30 hover:bg-blue-500 hover:text-white'
+            : isActive
+              ? 'bg-white text-black shadow-sm'
+              : item.external
+                ? 'border border-accent/40 bg-accent/10 text-accent hover:border-accent/70 hover:bg-accent/20 hover:text-white'
+                : 'text-white/75 hover:bg-white/10 hover:text-white'
         }`;
         const mobileClasses = `flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-base font-medium transition-colors ${
-          isActive
-            ? 'bg-white text-black'
-            : item.external
-              ? 'border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20'
-              : 'text-white/80 hover:bg-white/10 hover:text-white'
+          isSports
+            ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30 hover:bg-blue-500'
+            : isActive
+              ? 'bg-white text-black'
+              : item.external
+                ? 'border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20'
+                : 'text-white/80 hover:bg-white/10 hover:text-white'
         }`;
 
         return item.external ? (

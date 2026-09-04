@@ -175,7 +175,13 @@ const Navbar = () => {
   const NavLinks = ({ mobile = false }: { mobile?: boolean }) => (
     <>
       {navItems.map((item) => {
-        const isActive = !item.external && location.pathname === item.path;
+        const isMovieRoute = ['/movie', '/movies'].includes(location.pathname) || location.pathname.startsWith('/movie/') || location.pathname.startsWith('/player/movie/');
+        const isTVRoute = location.pathname === '/tv' || location.pathname.startsWith('/tv/') || location.pathname.startsWith('/player/tv/');
+        const isActive = !item.external && (
+          (item.title === 'Movies' && isMovieRoute) ||
+          (item.title === 'TV Shows' && isTVRoute) ||
+          (item.title !== 'Movies' && item.title !== 'TV Shows' && location.pathname === item.path)
+        );
         const isSports = item.title === 'Sports';
         const desktopClasses = `inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 ${
           isSports

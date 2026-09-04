@@ -55,18 +55,37 @@ const Movies = () => {
     sessionStorage.setItem(MOVIES_PAGE_STATE_KEY, JSON.stringify({ activeTab, viewMode, sortBy, genreFilter, popularPage, topRatedPage, allPopularMovies, allTopRatedMovies }));
   }, [activeTab, viewMode, sortBy, genreFilter]);
 
+  const movieApiSort = sortBy === 'release_date' ? 'primary_release_date.desc' : sortBy === 'rating' ? 'vote_average.desc' : 'popularity.desc';
+
   const popularMoviesQuery = useQuery({
-    queryKey: ['popularMovies', popularPage],
-    queryFn: () => getPopularMovies(popularPage),
+    queryKey: ['popularMovies', popularPage, movieApiSort, genreFilter],
+    queryFn: () => getPopularMovies(popularPage, movieApiSort, genreFilter),
     placeholderData: keepPreviousData,
   });
 
   const topRatedMoviesQuery = useQuery({
-    queryKey: ['topRatedMovies', topRatedPage],
-    queryFn: () => getTopRatedMovies(topRatedPage),
+    queryKey: ['topRatedMovies', topRatedPage, movieApiSort, genreFilter],
+    queryFn: () => getTopRatedMovies(topRatedPage, movieApiSort === 'popularity.desc' ? 'vote_average.desc' : movieApiSort, genreFilter),
     placeholderData: keepPreviousData,
   });
-    const handleAdBannerClick = () => {
+    const resetFilteredLists = () => {
+    setPopularPage(1);
+    setTopRatedPage(1);
+    setAllPopularMovies([]);
+    setAllTopRatedMovies([]);
+  };
+
+  const handleSortChange = (value: string) => {
+    setSortBy(value as typeof sortBy);
+    resetFilteredLists();
+  };
+
+  const handleGenreChange = (value: string) => {
+    setGenreFilter(value);
+    resetFilteredLists();
+  };
+
+  const handleAdBannerClick = () =>{
     window.open('https://a.acebet.com/api/click?a=64&lp=1&c=61', '_blank', 'noopener,noreferrer');
   };
 
@@ -191,7 +210,7 @@ const Movies = () => {
               <h1 className="text-2xl font-bold mb-4"> </h1>
             </div>
             <div className="flex items-center gap-4">
-              <Select value={sortBy} onValueChange={setSortBy}>
+              <Select value={sortBy} onValueChange={handleSortChange}>
                 <SelectTrigger className="w-[180px] bg-white/10 border-white/20 text-white">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -213,7 +232,7 @@ const Movies = () => {
             </div>
           </div>
 
-          <CategoryFilter type="movie" genre={genreFilter} onChange={setGenreFilter} showTypeLabel={false} />
+          <CategoryFilter type="movie" genre={genreFilter} onChange={handleGenreChange} showTypeLabel={false} />
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">

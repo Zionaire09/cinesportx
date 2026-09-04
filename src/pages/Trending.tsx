@@ -27,7 +27,7 @@ const Trending = () => {
     if (!trendingQuery.data) return;
     setAllTrending((previous) => {
       const additions = trendingQuery.data.filter((item) => !previous.some((existing) => `${existing.media_type}-${existing.id}` === `${item.media_type}-${item.id}`));
-      return [...previous, ...additions];
+      return [...previous, ...additions.map((item) => ({ ...item, __page: page }))].sort((a, b) => ((a as Media & { __page?: number }).__page ?? 0) - ((b as Media & { __page?: number }).__page ?? 0));
     });
   }, [trendingQuery.data]);
 

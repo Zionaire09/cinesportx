@@ -54,15 +54,17 @@ const TVShows = () => {
     sessionStorage.setItem(TV_PAGE_STATE_KEY, JSON.stringify({ activeTab, viewMode, sortBy, genreFilter, popularPage, topRatedPage, allPopularShows, allTopRatedShows }));
   }, [activeTab, viewMode, sortBy, genreFilter]);
 
+  const tvApiSort = sortBy === 'first_air_date' ? 'first_air_date.desc' : sortBy === 'rating' ? 'vote_average.desc' : 'popularity.desc';
+
   const popularTVQuery = useQuery({
-    queryKey: ['popularTV', popularPage],
-    queryFn: () => getPopularTVShows(popularPage),
+    queryKey: ['popularTV', popularPage, tvApiSort, genreFilter],
+    queryFn: () => getPopularTVShows(popularPage, tvApiSort, genreFilter),
     placeholderData: keepPreviousData,
   });
 
   const topRatedTVQuery = useQuery({
-    queryKey: ['topRatedTV', topRatedPage],
-    queryFn: () => getTopRatedTVShows(topRatedPage),
+    queryKey: ['topRatedTV', topRatedPage, tvApiSort, genreFilter],
+    queryFn: () => getTopRatedTVShows(topRatedPage, tvApiSort === 'popularity.desc' ? 'vote_average.desc' : tvApiSort, genreFilter),
     placeholderData: keepPreviousData,
   });
 
@@ -127,6 +129,23 @@ const TVShows = () => {
       });
     }
   }, [topRatedPage, queryClient, topRatedTVQuery.data]);
+
+  const resetFilteredLists = () => {
+    setPopularPage(1);
+    setTopRatedPage(1);
+    setAllPopularShows([]);
+    setAllTopRatedShows([]);
+  };
+
+  const handleSortChange = (value: string) => {
+    setSortBy(value as typeof sortBy);
+    resetFilteredLists();
+  };
+
+  const handleGenreChange = (value: string) => {
+    setGenreFilter(value);
+    resetFilteredLists();
+  };
 
   const applyFiltersAndSort = (shows: Media[]) => {
     let filteredShows = [...shows];
@@ -194,7 +213,7 @@ const TVShows = () => {
                 <h1 className="text-3xl font-bold text-white"></h1>
               </div>
               <div className="flex items-center gap-4 pt-6">
-                <Select value={sortBy} onValueChange={setSortBy}>
+                <Select value={sortBy} onValueChange={handleSortChange}>
                   <SelectTrigger className="w-[180px] border-white/10 text-white bg-transparent">
                     <SelectValue placeholder="Sort By" />
                   </SelectTrigger>
@@ -225,7 +244,7 @@ const TVShows = () => {
                 </Button>
               </div>
             </div>
-            <CategoryFilter type="tv" genre={genreFilter} onChange={setGenreFilter} />
+            <CategoryFilter type="tv" genre={genreFilter} onChange={handleGenreChange} />
             <Tabs defaultValue="popular" onValueChange={(value) => setActiveTab(value as 'popular' | 'top_rated')}>
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <TabsList className="mb-4 md:mb-0">

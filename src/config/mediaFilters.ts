@@ -8,8 +8,7 @@ export const mediaTypes: Array<{ value: MediaFilterType; label: string }> = [
 
 export const mediaGenres = [
   { id: 'all', label: 'All Categories' },
-  { id: '28', label: 'Action' },
-  { id: '12', label: 'Adventure' },
+  { id: 'action-adventure', label: 'Action & Adventure' },
   { id: '16', label: 'Animation' },
   { id: '35', label: 'Comedy' },
   { id: '80', label: 'Crime' },
@@ -21,6 +20,9 @@ export const mediaGenres = [
   { id: '53', label: 'Thriller' },
 ];
 
-export const matchesMediaFilters = (media: { media_type: 'movie' | 'tv'; genre_ids?: number[] }, type: MediaFilterType, genre: string) =>
-  (type === 'all' || media.media_type === type) &&
-  (genre === 'all' || media.genre_ids?.includes(Number(genre)));
+export const matchesMediaFilters = (media: { media_type: 'movie' | 'tv'; genre_ids?: number[] }, type: MediaFilterType, genre: string) => {
+  const matchesGenre = genre === 'all'
+    || (genre === 'action-adventure' && Boolean(media.genre_ids?.some((id) => id === 28 || id === 12)))
+    || media.genre_ids?.includes(Number(genre));
+  return (type === 'all' || media.media_type === type) && matchesGenre;
+};

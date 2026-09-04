@@ -225,6 +225,7 @@ const TVShows = () => {
                 </Button>
               </div>
             </div>
+            <CategoryFilter type="tv" genre={genreFilter} onChange={setGenreFilter} />
             <Tabs defaultValue="popular" onValueChange={(value) => setActiveTab(value as 'popular' | 'top_rated')}>
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <TabsList className="mb-4 md:mb-0">

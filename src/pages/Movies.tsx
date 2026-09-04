@@ -213,7 +213,7 @@ const Movies = () => {
             </div>
           </div>
 
-          <CategoryFilter type="movie" genre={genreFilter} onChange={setGenreFilter} />
+          <CategoryFilter type="movie" genre={genreFilter} onChange={setGenreFilter} showTypeLabel={false} />
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">

@@ -10,7 +10,7 @@ import { useState } from 'react';
 // Extend Media type to include optional string ID and timestamp
 interface ExtendedMedia extends Omit<Media, 'id'> {
   id: string | number;
-  media_id: number;
+  media_id?: number;
   docId?: string;
   created_at?: string;
   episode_info?: string;
@@ -170,7 +170,7 @@ const MediaGrid = ({
                 )}
                 <div className="flex-shrink-0 w-16 h-24 md:w-20 md:h-30 overflow-hidden rounded-md">
                   <MediaCard 
-                    media={{ ...mediaItem, id: mediaItem.media_id }} 
+                    media={{ ...mediaItem, id: mediaItem.media_id ?? mediaItem.id }} 
                     className="h-full w-full" 
                     minimal 
                     showEpisodeInfo={showEpisodeInfo}
@@ -249,7 +249,7 @@ const MediaGrid = ({
                 </div>
               )}
               <MediaCard 
-                media={{ ...mediaItem, id: mediaItem.media_id }} 
+                media={{ ...mediaItem, id: mediaItem.media_id ?? mediaItem.id }} 
                 minimal 
                 showEpisodeInfo={showEpisodeInfo}
               />

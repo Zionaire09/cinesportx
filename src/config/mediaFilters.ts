@@ -20,9 +20,21 @@ export const mediaGenres = [
   { id: '53', label: 'Thriller' },
 ];
 
+const genreIdsByCategory: Record<string, number[]> = {
+  'action-adventure': [28, 12, 10759],
+  '16': [16],
+  '35': [35],
+  '80': [80],
+  '18': [18],
+  '14': [14, 10765],
+  '27': [27],
+  '10749': [10749],
+  '878': [878, 10765],
+  '53': [53],
+};
+
 export const matchesMediaFilters = (media: { media_type: 'movie' | 'tv'; genre_ids?: number[] }, type: MediaFilterType, genre: string) => {
   const matchesGenre = genre === 'all'
-    || (genre === 'action-adventure' && Boolean(media.genre_ids?.some((id) => id === 28 || id === 12 || id === 10759)))
-    || media.genre_ids?.includes(Number(genre));
+    || Boolean(genreIdsByCategory[genre]?.some((id) => media.genre_ids?.includes(id)));
   return (type === 'all' || media.media_type === type) && matchesGenre;
 };

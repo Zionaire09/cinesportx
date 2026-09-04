@@ -50,7 +50,7 @@ const Trending = () => {
       <Navbar />
       <main className="flex-1"><div className="container px-4 py-8">
         <div className="flex flex-wrap items-center gap-3 mb-6 pt-10"><TrendingUp className="h-8 w-8 text-accent" /><h1 className="text-3xl font-bold text-white">Trending</h1><Tabs value={timeWindow} onValueChange={(value) => handleTimeWindowChange(value as 'day' | 'week')} className="ml-auto"><TabsList className="bg-transparent border-none"><TabsTrigger value="day" className="data-[state=active]:bg-accent/20">Today</TabsTrigger><TabsTrigger value="week" className="data-[state=active]:bg-accent/20">This Week</TabsTrigger></TabsList></Tabs></div>
-        <FilterControls type={type} genre={genre} onTypeChange={setType} onGenreChange={setGenre} />
+        <FilterControls type={type} genre={genre} onChange={(nextType, nextGenre) => { setType(nextType); setGenre(nextGenre); }} />
         {trendingQuery.isLoading && !allTrending.length ? <MediaGridSkeleton /> : trendingQuery.isError ? <div className="py-12 text-center text-white">Error loading trending content. Please try again.</div> : <><MediaGrid media={filteredTrending} title={timeWindow === 'day' ? 'Trending Today' : 'Trending This Week'} />{hasMore && <div className="flex justify-center my-8"><Button onClick={handleShowMore} variant="outline" className="border-white/10 text-white hover:bg-accent/20 hover:border-accent/50 hover:text-white">{trendingQuery.isFetching ? 'Loading...' : <>Show More <ChevronDown className="ml-2 h-4 w-4 animate-bounce" /></>}</Button></div>}</>}
       </div></main>
       <Footer /><Ads />

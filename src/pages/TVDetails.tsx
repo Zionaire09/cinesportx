@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import Ads from '@/components/Ads';
 import DownloadTVButton from '@/components/DownloadTVButton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Info from '@/components/Info';
 
 
 const TVDetailsPage = () => {
@@ -536,6 +537,7 @@ const TVDetailsPage = () => {
                 </div>
               </div>
             )}
+            <Info mediaId={tvShow.id} mediaType="tv" />
           </div>
         )}
         

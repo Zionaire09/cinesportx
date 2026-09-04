@@ -22,6 +22,7 @@ import TakedownNotice from "./pages/TakedownNotice";
 import ContentRemoval from "./pages/ContentRemoval";
 import Sports from "./pages/Sports";
 import SportMatchPlayer from "./pages/SportMatchPlayer";
+import PersonFilmography from "./pages/PersonFilmography";
 import ChristmasGreeting from "./components/ChristmasGreeting";
 
 const queryClient = new QueryClient();
@@ -74,6 +75,7 @@ const AnimatedRoutes = () => {
         <Route path="/movie/969681" element={<Navigate to="/takedown" replace />} />
         <Route path="/movie/:id" element={<MovieDetails />} />
         <Route path="/tv/:id" element={<TVDetails />} />
+        <Route path="/person/:id" element={<PersonFilmography />} />
         <Route path="/player/movie/1368337" element={<Navigate to="/takedown" replace />} />
         <Route path="/player/movie/969681" element={<Navigate to="/takedown" replace />} />
         <Route path="/player/movie/:id" element={<Player />} />

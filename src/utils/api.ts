@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { 
-  Media, MovieDetails, TVDetails, Episode, Review, Genre, Company, MovieImagesResponse, 
+  Media, MovieDetails, TVDetails, Episode, Review, Genre, Company, MovieImagesResponse, CastMember, PersonCreditItem, PersonDetails,
   DownloadV1Response, DownloadV3Response, DownloadV4Response, DownloadV5Response, 
   DownloadV6Response, DownloadV7Response, DownloadV8Response, DownloadV9Response, TVDownloadV1Response, TVDownloadV3Response, 
   TVDownloadV4Response, TVDownloadV5Response, TVDownloadV6Response, TVDownloadV7Response, TVDownloadV8Response 
@@ -1112,6 +1112,77 @@ export const getTVDownloadV8 = async (tmdbId: string, season: number, episode: n
     return data;
   } catch (error) {
     console.error(`Error fetching V8 TV download for TMDB ID ${tmdbId}, S${season} E${episode}:`, error);
+    return null;
+  }
+};
+
+
+export const getMovieCredits = async (movieId: number): Promise<CastMember[]> => {
+  try {
+    const response = await tmdb.get(`/movie/${movieId}/credits`);
+    return (response.data.cast || []).slice(0, 20).map((member: any) => ({
+      id: member.id,
+      name: member.name,
+      character: member.character || '',
+      profile_path: member.profile_path || null,
+      order: member.order ?? 0,
+    }));
+  } catch (error) {
+    console.error('Error fetching movie credits:', error);
+    return [];
+  }
+};
+
+export const getTVCredits = async (tvId: number): Promise<CastMember[]> => {
+  try {
+    const response = await tmdb.get(`/tv/${tvId}/aggregate_credits`);
+    return (response.data.cast || []).slice(0, 20).map((member: any) => ({
+      id: member.id,
+      name: member.name,
+      character: member.roles?.[0]?.character || '',
+      profile_path: member.profile_path || null,
+      order: member.order ?? 0,
+    }));
+  } catch (error) {
+    console.error('Error fetching TV credits:', error);
+    return [];
+  }
+};
+
+export const getPersonCombinedCredits = async (personId: number): Promise<PersonCreditItem[]> => {
+  try {
+    const response = await tmdb.get(`/person/${personId}/combined_credits`);
+    return (response.data.cast || []).map((credit: any) => ({
+      id: credit.id,
+      title: credit.title,
+      name: credit.name,
+      poster_path: credit.poster_path || '',
+      backdrop_path: credit.backdrop_path || '',
+      overview: credit.overview || '',
+      vote_average: credit.vote_average || 0,
+      release_date: credit.release_date,
+      first_air_date: credit.first_air_date,
+      media_type: credit.media_type === 'tv' ? 'tv' : 'movie',
+      genre_ids: credit.genre_ids || [],
+      character: credit.character,
+    }));
+  } catch (error) {
+    console.error('Error fetching person credits:', error);
+    return [];
+  }
+};
+
+
+export const getPersonDetails = async (personId: number): Promise<PersonDetails | null> => {
+  try {
+    const response = await tmdb.get(`/person/${personId}`);
+    return {
+      id: response.data.id,
+      name: response.data.name,
+      profile_path: response.data.profile_path || null,
+    };
+  } catch (error) {
+    console.error('Error fetching person details:', error);
     return null;
   }
 };

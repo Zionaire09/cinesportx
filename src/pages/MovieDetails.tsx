@@ -10,6 +10,7 @@ import { Play, Clock, Calendar, Star, ArrowLeft, Shield } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import Ads from '@/components/Ads';
 import DownloadButton from '@/components/DownloadButton';
+import Info from '@/components/Info';
 
 
 
@@ -361,6 +362,7 @@ const MovieDetailsPage = () => {
                 </div>
               </div>
             )}
+            <Info mediaId={movie.id} mediaType="movie" />
           </>
         ) : (
           /* Reviews section */

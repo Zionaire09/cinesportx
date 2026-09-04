@@ -1186,3 +1186,22 @@ export const getPersonDetails = async (personId: number): Promise<PersonDetails 
     return null;
   }
 };
+
+
+export const getNowPlayingMovies = async (): Promise<Media[]> => {
+  try {
+    const response = await tmdb.get('/movie/now_playing');
+    return (response.data.results || []).filter((item: any) => !BLOCKED_MOVIE_IDS.has(item.id)).map((item: any) => ({
+      id: item.id, title: item.title, poster_path: item.poster_path || '', backdrop_path: item.backdrop_path || '', overview: item.overview || '', vote_average: item.vote_average || 0, release_date: item.release_date, media_type: 'movie' as const, genre_ids: item.genre_ids || [],
+    }));
+  } catch (error) { console.error('Error fetching now-playing movies:', error); return []; }
+};
+
+export const getAiringTodayTV = async (): Promise<Media[]> => {
+  try {
+    const response = await tmdb.get('/tv/airing_today');
+    return (response.data.results || []).map((item: any) => ({
+      id: item.id, name: item.name, poster_path: item.poster_path || '', backdrop_path: item.backdrop_path || '', overview: item.overview || '', vote_average: item.vote_average || 0, first_air_date: item.first_air_date, media_type: 'tv' as const, genre_ids: item.genre_ids || [],
+    }));
+  } catch (error) { console.error('Error fetching airing-today TV:', error); return []; }
+};

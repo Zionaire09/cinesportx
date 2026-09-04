@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import Index from "./pages/Index";
 import Movies from "./pages/Movies";
 import TVShows from "./pages/TVShows";
-import Kdrama from "./pages/Kdrama";
+import New from "./pages/New";
 import Trending from "./pages/Trending";
 import MovieDetails from "./pages/MovieDetails";
 import TVDetails from "./pages/TVDetails";
@@ -67,7 +67,7 @@ const AnimatedRoutes = () => {
         <Route path="/movie" element={<Movies />} />
         <Route path="/movies" element={<Navigate to="/movie" replace />} />
         <Route path="/tv" element={<TVShows />} />
-        <Route path="/kdrama" element={<Kdrama />} />
+        <Route path="/new" element={<New />} />
         <Route path="/trending" element={<Trending />} />
         <Route path="/sports" element={<Sports />} />
         <Route path="/sports/player/:matchId" element={<SportMatchPlayer />} />

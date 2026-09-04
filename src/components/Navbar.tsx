@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
-import { ArrowRight, ExternalLink, Film, Home, Keyboard, Languages, Menu, Search, TrendingUp, Tv, Volleyball, X } from 'lucide-react';
+import { ArrowRight, ExternalLink, Film, Home, Keyboard, Menu, Search, Sparkles, TrendingUp, Tv, Volleyball, X } from 'lucide-react';
 import { searchMedia } from '@/utils/api';
 import { Media } from '@/utils/types';
 
@@ -16,10 +16,10 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { title: 'Home', path: '/', icon: <Home className="h-4 w-4" /> },
+  { title: 'Trending', path: '/trending', icon: <TrendingUp className="h-4 w-4" /> },
+  { title: 'New', path: '/new', icon: <Sparkles className="h-4 w-4" /> },
   { title: 'Movies', path: '/movies', icon: <Film className="h-4 w-4" /> },
   { title: 'TV Shows', path: '/tv', icon: <Tv className="h-4 w-4" /> },
-  { title: 'Kdrama', path: '/kdrama', icon: <Languages className="h-4 w-4" /> },
-  { title: 'Trending', path: '/trending', icon: <TrendingUp className="h-4 w-4" /> },
   { title: 'Sports', path: '/sports', icon: <Volleyball className="h-4 w-4" /> },
   { title: 'Anime', path: 'https://animeow.live', icon: <ExternalLink className="h-4 w-4" />, external: true },
 ];

@@ -42,7 +42,13 @@ const New = () => {
     observer.observe(node);
     return () => observer.disconnect();
   }, [hasMore, newQuery.isFetching]);
-  const filtered = useMemo(() => media.filter((item) => matchesMediaFilters(item, type, genre)), [media, type, genre]);
+  const filtered = useMemo(() => [...media]
+    .filter((item) => matchesMediaFilters(item, type, genre))
+    .sort((a, b) => {
+      const dateA = a.media_type === 'movie' ? a.release_date : a.first_air_date;
+      const dateB = b.media_type === 'movie' ? b.release_date : b.first_air_date;
+      return (dateB || '').localeCompare(dateA || '');
+    }), [media, type, genre]);
   const handleFilterChange = (nextType: MediaFilterType, nextGenre: string) => { setType(nextType); setGenre(nextGenre); };
 
   return (
@@ -65,7 +71,7 @@ const New = () => {
 
 export const FilterControls = ({ type, genre, onChange }: { type: MediaFilterType; genre: string; onChange: (type: MediaFilterType, genre: string) => void }) => (
   <div className="mb-8 space-y-5">
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-2 shadow-lg shadow-black/10">
+    <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.03] p-2 shadow-lg shadow-black/10">
       <div className="mb-2 flex items-center gap-2 px-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white/45"><Film className="h-3.5 w-3.5 text-accent" />Browse by type</div>
       <div className="grid grid-cols-3 gap-1 rounded-xl bg-black/25 p-1">{mediaTypes.map((item) => <button key={item.value} onClick={() => onChange(item.value, genre)} className={`rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${type === item.value ? 'bg-accent text-accent-foreground shadow-md shadow-accent/20' : 'text-white/55 hover:bg-white/10 hover:text-white'}`}>{item.label}</button>)}</div>
     </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getPopularMovies, getTopRatedMovies } from '@/utils/api';
 import { Media } from '@/utils/types';
 import Navbar from '@/components/Navbar';
@@ -13,7 +13,7 @@ import PageTransition from '@/components/PageTransition';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Ads from '@/components/Ads';
-import { CategoryFilter } from './New';
+import { CategoryFilter, CountryFilter } from './New';
 
 
 
@@ -22,8 +22,8 @@ const MOVIES_PAGE_STATE_KEY = 'moviesPageState';
 type MoviesPageState = {
   activeTab?: 'popular' | 'top_rated';
   viewMode?: 'grid' | 'list';
-  sortBy?: 'default' | 'title' | 'release_date' | 'rating';
   genreFilter?: string;
+  countryFilter?: string;
   popularPage?: number;
   topRatedPage?: number;
   allPopularMovies?: Media[];
@@ -48,25 +48,22 @@ const Movies = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => readMoviesPageState().viewMode ?? 'grid');
   const [allPopularMovies, setAllPopularMovies] = useState<Media[]>(() => readMoviesPageState().allPopularMovies ?? []);
   const [allTopRatedMovies, setAllTopRatedMovies] = useState<Media[]>(() => readMoviesPageState().allTopRatedMovies ?? []);
-  const [sortBy, setSortBy] = useState<'default' | 'title' | 'release_date' | 'rating'>(() => readMoviesPageState().sortBy ?? 'default');
+  const [countryFilter, setCountryFilter] = useState<string>(() => readMoviesPageState().countryFilter ?? 'all');
   const [genreFilter, setGenreFilter] = useState<string>(() => readMoviesPageState().genreFilter ?? 'all');
 
   useEffect(() => {
-    sessionStorage.setItem(MOVIES_PAGE_STATE_KEY, JSON.stringify({ activeTab, viewMode, sortBy, genreFilter, popularPage, topRatedPage, allPopularMovies, allTopRatedMovies }));
-  }, [activeTab, viewMode, sortBy, genreFilter]);
+    sessionStorage.setItem(MOVIES_PAGE_STATE_KEY, JSON.stringify({ activeTab, viewMode, genreFilter, countryFilter, popularPage, topRatedPage, allPopularMovies, allTopRatedMovies }));
+  }, [activeTab, viewMode, genreFilter, countryFilter, popularPage, topRatedPage, allPopularMovies, allTopRatedMovies]);
 
-  const movieApiSort = sortBy === 'release_date' ? 'primary_release_date.desc' : sortBy === 'rating' ? 'vote_average.desc' : 'popularity.desc';
 
   const popularMoviesQuery = useQuery({
-    queryKey: ['popularMovies', popularPage, movieApiSort, genreFilter],
-    queryFn: () => getPopularMovies(popularPage, movieApiSort, genreFilter),
-    placeholderData: keepPreviousData,
+    queryKey: ['popularMovies', popularPage, genreFilter, countryFilter],
+    queryFn: () => getPopularMovies(popularPage, 'popularity.desc', genreFilter, countryFilter),
   });
 
   const topRatedMoviesQuery = useQuery({
-    queryKey: ['topRatedMovies', topRatedPage, movieApiSort, genreFilter],
-    queryFn: () => getTopRatedMovies(topRatedPage, movieApiSort === 'popularity.desc' ? 'vote_average.desc' : movieApiSort, genreFilter),
-    placeholderData: keepPreviousData,
+    queryKey: ['topRatedMovies', topRatedPage, genreFilter, countryFilter],
+    queryFn: () => getTopRatedMovies(topRatedPage, 'vote_average.desc', genreFilter, countryFilter),
   });
     const resetFilteredLists = () => {
     setPopularPage(1);
@@ -75,8 +72,8 @@ const Movies = () => {
     setAllTopRatedMovies([]);
   };
 
-  const handleSortChange = (value: string) => {
-    setSortBy(value as typeof sortBy);
+  const handleCountryChange = (value: string) => {
+    setCountryFilter(value);
     resetFilteredLists();
   };
 
@@ -126,20 +123,20 @@ const Movies = () => {
   useEffect(() => {
     if (popularMoviesQuery.data?.length > 0) {
       queryClient.prefetchQuery({
-        queryKey: ['popularMovies', popularPage + 1],
-        queryFn: () => getPopularMovies(popularPage + 1),
+        queryKey: ['popularMovies', popularPage + 1, genreFilter, countryFilter],
+        queryFn: () => getPopularMovies(popularPage + 1, 'popularity.desc', genreFilter, countryFilter),
       });
     }
-  }, [popularPage, queryClient, popularMoviesQuery.data]);
+  }, [popularPage, queryClient, popularMoviesQuery.data, genreFilter, countryFilter]);
 
   useEffect(() => {
     if (topRatedMoviesQuery.data?.length > 0) {
       queryClient.prefetchQuery({
-        queryKey: ['topRatedMovies', topRatedPage + 1],
-        queryFn: () => getTopRatedMovies(topRatedPage + 1),
+        queryKey: ['topRatedMovies', topRatedPage + 1, genreFilter, countryFilter],
+        queryFn: () => getTopRatedMovies(topRatedPage + 1, 'vote_average.desc', genreFilter, countryFilter),
       });
     }
-  }, [topRatedPage, queryClient, topRatedMoviesQuery.data]);
+  }, [topRatedPage, queryClient, topRatedMoviesQuery.data, genreFilter, countryFilter]);
 
   const handleShowMorePopular = () => {
     if (!popularMoviesQuery.isFetching && hasMorePopular) {
@@ -173,32 +170,13 @@ const Movies = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [activeTab, hasMorePopular, hasMoreTopRated, popularMoviesQuery.isFetching, topRatedMoviesQuery.isFetching]);
 
-  const sortMoviesWithinPages = (movies: Media[]) => {
-    const filteredMovies = movies.filter(movie =>
-      genreFilter === 'all' || movie.genre_ids?.includes(parseInt(genreFilter))
-    );
-
-    // Keep the server page as the primary order so filtered pages remain append-only.
-    return filteredMovies.sort((a, b) => {
-      const pageA = (a as Media & { __page?: number }).__page ?? 0;
-      const pageB = (b as Media & { __page?: number }).__page ?? 0;
-      if (pageA !== pageB) return pageA - pageB;
-
-      switch (sortBy) {
-        case 'title':
-          return (a.title || '').localeCompare(b.title || '');
-        case 'release_date':
-          return (b.release_date || '').localeCompare(a.release_date || '');
-        case 'rating':
-          return (b.vote_average || 0) - (a.vote_average || 0);
-        default:
-          return 0;
-      }
-    });
+  const filterMoviesByGenre = (movies: Media[]) => {
+    if (genreFilter === 'all') return movies;
+    return movies.filter((movie) => movie.genre_ids?.includes(parseInt(genreFilter)));
   };
 
-  const filteredPopularMovies = sortMoviesWithinPages(allPopularMovies);
-  const filteredTopRatedMovies = sortMoviesWithinPages(allTopRatedMovies);
+  const filteredPopularMovies = filterMoviesByGenre(allPopularMovies);
+  const filteredTopRatedMovies = filterMoviesByGenre(allTopRatedMovies);
 
   return (
     <PageTransition>
@@ -210,17 +188,7 @@ const Movies = () => {
               <h1 className="text-2xl font-bold mb-4"> </h1>
             </div>
             <div className="flex items-center gap-4">
-              <Select value={sortBy} onValueChange={handleSortChange}>
-                <SelectTrigger className="w-[180px] bg-white/10 border-white/20 text-white">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent className="bg-background border-white/10">
-                  <SelectItem value="default">Default</SelectItem>
-                  <SelectItem value="title">Title</SelectItem>
-                  <SelectItem value="release_date">Release Date</SelectItem>
-                  <SelectItem value="rating">Rating</SelectItem>
-                </SelectContent>
-              </Select>
+              <CountryFilter value={countryFilter} onChange={handleCountryChange} />
               <Button
                 variant="outline"
                 size="icon"

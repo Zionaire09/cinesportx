@@ -455,11 +455,11 @@ export const getTVReviews = async (tvId: number): Promise<Review[]> => {
   }
 };
 
-export const getPopularMovies = async (page: number = 1, sortBy: 'popularity.desc' | 'primary_release_date.desc' | 'vote_average.desc' = 'popularity.desc', genreId: string = 'all'): Promise<Media[]> => {
+export const getPopularMovies = async (page: number = 1, sortBy: 'popularity.desc' | 'primary_release_date.desc' | 'vote_average.desc' = 'popularity.desc', genreId: string = 'all', countryCode: string = 'all'): Promise<Media[]> => {
   try {
-    const useDiscover = sortBy !== 'popularity.desc' || genreId !== 'all';
+    const useDiscover = sortBy !== 'popularity.desc' || genreId !== 'all' || countryCode !== 'all';
     const response = await tmdb.get<{ results: TMDBMovieResult[] }>(useDiscover ? '/discover/movie' : '/movie/popular', {
-      params: useDiscover ? { page, sort_by: sortBy, ...(genreId !== 'all' ? { with_genres: genreId } : {}) } : { page },
+      params: useDiscover ? { page, sort_by: sortBy, ...(genreId !== 'all' ? { with_genres: genreId } : {}), ...(countryCode !== 'all' ? { with_origin_country: countryCode } : {}) } : { page },
     });
     return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
@@ -480,11 +480,11 @@ export const getPopularMovies = async (page: number = 1, sortBy: 'popularity.des
   }
 };
 
-export const getPopularTVShows = async (page: number = 1, sortBy: 'popularity.desc' | 'first_air_date.desc' | 'vote_average.desc' = 'popularity.desc', genreId: string = 'all'): Promise<Media[]> => {
+export const getPopularTVShows = async (page: number = 1, sortBy: 'popularity.desc' | 'first_air_date.desc' | 'vote_average.desc' = 'popularity.desc', genreId: string = 'all', countryCode: string = 'all'): Promise<Media[]> => {
   try {
-    const useDiscover = sortBy !== 'popularity.desc' || genreId !== 'all';
+    const useDiscover = sortBy !== 'popularity.desc' || genreId !== 'all' || countryCode !== 'all';
     const response = await tmdb.get<{ results: TMDBTVResult[] }>(useDiscover ? '/discover/tv' : '/tv/popular', {
-      params: useDiscover ? { page, sort_by: sortBy, ...(genreId !== 'all' ? { with_genres: genreId } : {}) } : { page },
+      params: useDiscover ? { page, sort_by: sortBy, ...(genreId !== 'all' ? { with_genres: genreId } : {}), ...(countryCode !== 'all' ? { with_origin_country: countryCode } : {}) } : { page },
     });
     return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
@@ -505,11 +505,11 @@ export const getPopularTVShows = async (page: number = 1, sortBy: 'popularity.de
   }
 };
 
-export const getTopRatedMovies = async (page: number = 1, sortBy: 'vote_average.desc' | 'primary_release_date.desc' | 'popularity.desc' = 'vote_average.desc', genreId: string = 'all'): Promise<Media[]> => {
+export const getTopRatedMovies = async (page: number = 1, sortBy: 'vote_average.desc' | 'primary_release_date.desc' | 'popularity.desc' = 'vote_average.desc', genreId: string = 'all', countryCode: string = 'all'): Promise<Media[]> => {
   try {
-    const useDiscover = sortBy !== 'vote_average.desc' || genreId !== 'all';
+    const useDiscover = sortBy !== 'vote_average.desc' || genreId !== 'all' || countryCode !== 'all';
     const response = await tmdb.get<{ results: TMDBMovieResult[] }>(useDiscover ? '/discover/movie' : '/movie/top_rated', {
-      params: useDiscover ? { page, sort_by: sortBy, ...(genreId !== 'all' ? { with_genres: genreId } : {}) } : { page },
+      params: useDiscover ? { page, sort_by: sortBy, ...(genreId !== 'all' ? { with_genres: genreId } : {}), ...(countryCode !== 'all' ? { with_origin_country: countryCode } : {}) } : { page },
     });
     return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
@@ -530,11 +530,11 @@ export const getTopRatedMovies = async (page: number = 1, sortBy: 'vote_average.
   }
 };
 
-export const getTopRatedTVShows = async (page: number = 1, sortBy: 'vote_average.desc' | 'first_air_date.desc' | 'popularity.desc' = 'vote_average.desc', genreId: string = 'all'): Promise<Media[]> => {
+export const getTopRatedTVShows = async (page: number = 1, sortBy: 'vote_average.desc' | 'first_air_date.desc' | 'popularity.desc' = 'vote_average.desc', genreId: string = 'all', countryCode: string = 'all'): Promise<Media[]> => {
   try {
-    const useDiscover = sortBy !== 'vote_average.desc' || genreId !== 'all';
+    const useDiscover = sortBy !== 'vote_average.desc' || genreId !== 'all' || countryCode !== 'all';
     const response = await tmdb.get<{ results: TMDBTVResult[] }>(useDiscover ? '/discover/tv' : '/tv/top_rated', {
-      params: useDiscover ? { page, sort_by: sortBy, ...(genreId !== 'all' ? { with_genres: genreId } : {}) } : { page },
+      params: useDiscover ? { page, sort_by: sortBy, ...(genreId !== 'all' ? { with_genres: genreId } : {}), ...(countryCode !== 'all' ? { with_origin_country: countryCode } : {}) } : { page },
     });
     return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,

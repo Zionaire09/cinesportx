@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getPopularTVShows, getTopRatedTVShows } from '@/utils/api';
 import { Media } from '@/utils/types';
 import Navbar from '@/components/Navbar';
@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { MediaGridSkeleton } from '@/components/MediaSkeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Ads from '@/components/Ads';
-import { CategoryFilter } from './New';
+import { CategoryFilter, CountryFilter } from './New';
 
 
 const TV_PAGE_STATE_KEY = 'tvShowsPageState';
@@ -21,8 +21,8 @@ const TV_PAGE_STATE_KEY = 'tvShowsPageState';
 type TVPageState = {
   activeTab?: 'popular' | 'top_rated';
   viewMode?: 'grid' | 'list';
-  sortBy?: 'default' | 'name' | 'first_air_date' | 'rating';
   genreFilter?: string;
+  countryFilter?: string;
   popularPage?: number;
   topRatedPage?: number;
   allPopularShows?: Media[];
@@ -47,25 +47,22 @@ const TVShows = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => readTVPageState().viewMode ?? 'grid');
   const [allPopularShows, setAllPopularShows] = useState<Media[]>(() => readTVPageState().allPopularShows ?? []);
   const [allTopRatedShows, setAllTopRatedShows] = useState<Media[]>(() => readTVPageState().allTopRatedShows ?? []);
-  const [sortBy, setSortBy] = useState<'default' | 'name' | 'first_air_date' | 'rating'>(() => readTVPageState().sortBy ?? 'default');
+  const [countryFilter, setCountryFilter] = useState<string>(() => readTVPageState().countryFilter ?? 'all');
   const [genreFilter, setGenreFilter] = useState<string>(() => readTVPageState().genreFilter ?? 'all');
 
   useEffect(() => {
-    sessionStorage.setItem(TV_PAGE_STATE_KEY, JSON.stringify({ activeTab, viewMode, sortBy, genreFilter, popularPage, topRatedPage, allPopularShows, allTopRatedShows }));
-  }, [activeTab, viewMode, sortBy, genreFilter]);
+    sessionStorage.setItem(TV_PAGE_STATE_KEY, JSON.stringify({ activeTab, viewMode, genreFilter, countryFilter, popularPage, topRatedPage, allPopularShows, allTopRatedShows }));
+  }, [activeTab, viewMode, genreFilter, countryFilter, popularPage, topRatedPage, allPopularShows, allTopRatedShows]);
 
-  const tvApiSort = sortBy === 'first_air_date' ? 'first_air_date.desc' : sortBy === 'rating' ? 'vote_average.desc' : 'popularity.desc';
 
   const popularTVQuery = useQuery({
-    queryKey: ['popularTV', popularPage, tvApiSort, genreFilter],
-    queryFn: () => getPopularTVShows(popularPage, tvApiSort, genreFilter),
-    placeholderData: keepPreviousData,
+    queryKey: ['popularTV', popularPage, genreFilter, countryFilter],
+    queryFn: () => getPopularTVShows(popularPage, 'popularity.desc', genreFilter, countryFilter),
   });
 
   const topRatedTVQuery = useQuery({
-    queryKey: ['topRatedTV', topRatedPage, tvApiSort, genreFilter],
-    queryFn: () => getTopRatedTVShows(topRatedPage, tvApiSort === 'popularity.desc' ? 'vote_average.desc' : tvApiSort, genreFilter),
-    placeholderData: keepPreviousData,
+    queryKey: ['topRatedTV', topRatedPage, genreFilter, countryFilter],
+    queryFn: () => getTopRatedTVShows(topRatedPage, 'vote_average.desc', genreFilter, countryFilter),
   });
 
   useEffect(() => {
@@ -115,20 +112,20 @@ const TVShows = () => {
   useEffect(() => {
     if (popularTVQuery.data?.length > 0) {
       queryClient.prefetchQuery({
-        queryKey: ['popularTV', popularPage + 1],
-        queryFn: () => getPopularTVShows(popularPage + 1),
+        queryKey: ['popularTV', popularPage + 1, genreFilter, countryFilter],
+        queryFn: () => getPopularTVShows(popularPage + 1, 'popularity.desc', genreFilter, countryFilter),
       });
     }
-  }, [popularPage, queryClient, popularTVQuery.data]);
+  }, [popularPage, queryClient, popularTVQuery.data, genreFilter, countryFilter]);
 
   useEffect(() => {
     if (topRatedTVQuery.data?.length > 0) {
       queryClient.prefetchQuery({
-        queryKey: ['topRatedTV', topRatedPage + 1],
-        queryFn: () => getTopRatedTVShows(topRatedPage + 1),
+        queryKey: ['topRatedTV', topRatedPage + 1, genreFilter, countryFilter],
+        queryFn: () => getTopRatedTVShows(topRatedPage + 1, 'vote_average.desc', genreFilter, countryFilter),
       });
     }
-  }, [topRatedPage, queryClient, topRatedTVQuery.data]);
+  }, [topRatedPage, queryClient, topRatedTVQuery.data, genreFilter, countryFilter]);
 
   const resetFilteredLists = () => {
     setPopularPage(1);
@@ -137,8 +134,8 @@ const TVShows = () => {
     setAllTopRatedShows([]);
   };
 
-  const handleSortChange = (value: string) => {
-    setSortBy(value as typeof sortBy);
+  const handleCountryChange = (value: string) => {
+    setCountryFilter(value);
     resetFilteredLists();
   };
 
@@ -147,37 +144,13 @@ const TVShows = () => {
     resetFilteredLists();
   };
 
-  const applyFiltersAndSort = (shows: Media[]) => {
-    let filteredShows = [...shows];
-    if (genreFilter !== 'all') {
-      filteredShows = filteredShows.filter(show =>
-        show.genre_ids?.includes(parseInt(genreFilter))
-      );
-    }
-
-    // Keep pagination order as the primary key. This prevents a newly fetched
-    // page from jumping above already-rendered cards when a filter or sort is active.
-    filteredShows.sort((a, b) => {
-      const pageA = (a as Media & { __page?: number }).__page ?? 0;
-      const pageB = (b as Media & { __page?: number }).__page ?? 0;
-      if (pageA !== pageB) return pageA - pageB;
-
-      switch (sortBy) {
-        case 'name':
-          return (a.name || '').localeCompare(b.name || '');
-        case 'first_air_date':
-          return new Date(b.first_air_date || '').getTime() - new Date(a.first_air_date || '').getTime();
-        case 'rating':
-          return (b.vote_average || 0) - (a.vote_average || 0);
-        default:
-          return 0;
-      }
-    });
-    return filteredShows;
+  const applyFilters = (shows: Media[]) => {
+    if (genreFilter === 'all') return shows;
+    return shows.filter((show) => show.genre_ids?.includes(parseInt(genreFilter)));
   };
 
-  const filteredPopularShows = applyFiltersAndSort(allPopularShows);
-  const filteredTopRatedShows = applyFiltersAndSort(allTopRatedShows);
+  const filteredPopularShows = applyFilters(allPopularShows);
+  const filteredTopRatedShows = applyFilters(allTopRatedShows);
 
   const handleShowMorePopular = () => setPopularPage(prev => prev + 1);
   const handleShowMoreTopRated = () => setTopRatedPage(prev => prev + 1);
@@ -213,17 +186,7 @@ const TVShows = () => {
                 <h1 className="text-3xl font-bold text-white"></h1>
               </div>
               <div className="flex items-center gap-4 pt-6">
-                <Select value={sortBy} onValueChange={handleSortChange}>
-                  <SelectTrigger className="w-[180px] border-white/10 text-white bg-transparent">
-                    <SelectValue placeholder="Sort By" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border-white/10 text-white">
-                    <SelectItem value="default">Default</SelectItem>
-                    <SelectItem value="name">Name</SelectItem>
-                    <SelectItem value="first_air_date">First Air Date</SelectItem>
-                    <SelectItem value="rating">Rating</SelectItem>
-                  </SelectContent>
-                </Select>
+                <CountryFilter value={countryFilter} onChange={handleCountryChange} />
                 <Button
                   variant="outline"
                   size="sm"

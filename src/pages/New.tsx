@@ -4,7 +4,7 @@ import { getAiringTodayTV, getNowPlayingMovies } from '@/utils/api';
 import { Media } from '@/utils/types';
 import Navbar from '@/components/Navbar'; import Footer from '@/components/Footer'; import MediaGrid from '@/components/MediaGrid'; import { MediaGridSkeleton } from '@/components/MediaSkeleton'; import Ads from '@/components/Ads'; import PageTransition from '@/components/PageTransition';
 import { genresForType, matchesMediaFilters, mediaGenres, mediaTypes, MediaFilterType, GenreOption } from '@/config/mediaFilters';
-import { Loader2, Sparkles, Tv } from 'lucide-react';
+import { Globe2, Loader2, Sparkles, Tv } from 'lucide-react';
 
 const New = () => {
   const [page, setPage] = useState(1); const [type, setType] = useState<MediaFilterType>('all'); const [genre, setGenre] = useState('all'); const [media, setMedia] = useState<Media[]>([]); const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -16,6 +16,49 @@ const New = () => {
   const changeType = (next: MediaFilterType) => { setType(next); if (!genresForType(next).some((item) => item.id === genre)) setGenre('all'); };
   return <PageTransition><div className="min-h-screen bg-background text-white"><Navbar /><main className="flex-1"><div className="container px-4 py-8 md:px-8"><div className="mb-6 flex flex-col gap-5 pt-16 md:pt-20 md:flex-row md:items-center md:justify-between"><div className="flex items-center gap-3"><div className="rounded-2xl border border-accent/25 bg-accent/10 p-3"><Sparkles className="h-6 w-6 text-accent" /></div><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent">Fresh arrivals</p><h1 className="text-3xl font-bold tracking-tight md:text-4xl">New</h1></div></div><TypeFilter type={type} onChange={changeType} /></div><p className="mb-6 text-sm text-white/60">Recently released movies and newly airing shows</p><CategoryFilter type={type} genre={genre} onChange={setGenre} />{query.isLoading && !media.length ? <MediaGridSkeleton /> : query.isError ? <div className="py-16 text-center text-white/70">Unable to load new titles. Please try again.</div> : filtered.length ? <MediaGrid media={filtered} title="New Releases" /> : <div className="py-16 text-center text-white/60">No matching titles loaded yet. Keep scrolling to search more releases.</div>}<div ref={loadMoreRef} className="flex min-h-20 items-center justify-center text-sm text-white/45">{query.isFetching && media.length ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading more</> : hasMore ? 'Scroll for more' : 'You have reached the end'}</div></div></main><Footer /><Ads /></div></PageTransition>;
 };
+
+
+
+export const TMDB_COUNTRIES = [
+  { code: 'US', label: 'United States' },
+  { code: 'GB', label: 'United Kingdom' },
+  { code: 'IN', label: 'India' },
+  { code: 'JP', label: 'Japan' },
+  { code: 'KR', label: 'South Korea' },
+  { code: 'FR', label: 'France' },
+  { code: 'DE', label: 'Germany' },
+  { code: 'ES', label: 'Spain' },
+  { code: 'IT', label: 'Italy' },
+  { code: 'CA', label: 'Canada' },
+  { code: 'AU', label: 'Australia' },
+  { code: 'CN', label: 'China' },
+  { code: 'HK', label: 'Hong Kong' },
+  { code: 'TW', label: 'Taiwan' },
+  { code: 'TH', label: 'Thailand' },
+  { code: 'TR', label: 'Turkey' },
+  { code: 'RU', label: 'Russia' },
+  { code: 'MX', label: 'Mexico' },
+  { code: 'BR', label: 'Brazil' },
+  { code: 'PH', label: 'Philippines' },
+] as const;
+
+export const CountryFilter = ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
+  <div className="w-full md:w-[230px]">
+    <div className="mb-2 flex items-center gap-2 px-1 text-[11px] font-bold uppercase tracking-[0.18em] text-white/45">
+      <Globe2 className="h-3.5 w-3.5 text-accent" />
+      Country of origin
+    </div>
+    <select
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      className="h-10 w-full rounded-xl border border-accent/25 bg-background px-3 text-sm font-medium text-white shadow-lg shadow-accent/5 outline-none transition-colors focus:border-accent/70 focus:ring-2 focus:ring-accent/20"
+      aria-label="Select country of origin"
+    >
+      <option value="all">All countries</option>
+      {TMDB_COUNTRIES.map((country) => <option key={country.code} value={country.code}>{country.label}</option>)}
+    </select>
+  </div>
+);
 
 export const TypeFilter = ({ type, onChange }: { type: MediaFilterType; onChange: (type: MediaFilterType) => void }) => <div className="w-full shrink-0 rounded-2xl border border-white/10 bg-white/[0.03] p-2 shadow-lg md:w-auto"><div className="grid grid-cols-3 gap-1 rounded-xl bg-black/25 p-1 md:min-w-[300px]">{mediaTypes.map((item) => <button key={item.value} onClick={() => onChange(item.value)} className={`rounded-lg px-3 py-2 text-sm font-semibold transition-all ${type === item.value ? 'bg-accent text-accent-foreground shadow-md shadow-accent/20' : 'text-white/55 hover:bg-white/10 hover:text-white'}`}>{item.label}</button>)}</div></div>;
 export const CategoryFilter = ({ type, genre, onChange, showTypeLabel = true }: { type: MediaFilterType; genre: string; onChange: (genre: string) => void; showTypeLabel?: boolean }) => { const options = genresForType(type); return <div><div className="mb-2 flex items-center gap-2 px-1 text-[11px] font-bold uppercase tracking-[0.18em] text-white/45"><Tv className="h-3.5 w-3.5 text-accent" />Categories {showTypeLabel && <span className="normal-case tracking-normal text-white/30">({type === 'tv' ? 'TV' : 'Movies'})</span>}</div><div className="category-scroll flex gap-2 overflow-x-auto pb-3 touch-pan-x overscroll-x-contain">{options.map((item: GenreOption) => <button key={item.id} onClick={() => onChange(item.id)} className={`shrink-0 rounded-full border px-4 py-2 text-sm transition-all ${genre === item.id ? 'border-accent/70 bg-accent/15 text-white shadow-sm shadow-accent/10' : 'border-white/10 bg-white/[0.04] text-white/60 hover:border-accent/50 hover:bg-accent/10 hover:text-white'}`}>{item.label}</button>)}</div></div>; };

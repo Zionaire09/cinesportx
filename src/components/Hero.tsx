@@ -23,7 +23,7 @@ const Hero = ({ media, className }: HeroProps) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const [extendedMedia, setExtendedMedia] = useState<ExtendedMedia[]>([]);
+  const [extendedMedia, setExtendedMedia] = useState<ExtendedMedia[]>(() => media as ExtendedMedia[]);
   const navigate = useNavigate();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
@@ -53,8 +53,12 @@ const Hero = ({ media, className }: HeroProps) => {
     }
   };
 
-  // Fetch logos when media changes
+  // Render the banner from Home data immediately, then enrich titles with logos in the background.
   useEffect(() => {
+    let cancelled = false;
+    const baseMedia = media as ExtendedMedia[];
+    setExtendedMedia(baseMedia);
+
     const fetchLogos = async () => {
       const results = await Promise.allSettled(
         media.map(async (item) => {
@@ -62,15 +66,16 @@ const Hero = ({ media, className }: HeroProps) => {
           return { ...item, logo_path };
         })
       );
-      
-      const updatedMedia = results.map((result, index) => 
+
+      if (cancelled) return;
+      const updatedMedia = results.map((result, index) =>
         result.status === 'fulfilled' ? result.value : { ...media[index], logo_path: undefined }
       );
-      
       setExtendedMedia(updatedMedia);
     };
 
     fetchLogos();
+    return () => { cancelled = true; };
   }, [media]);
 
   const filteredMedia = useMemo(() => 
@@ -229,8 +234,10 @@ const Hero = ({ media, className }: HeroProps) => {
           className="absolute inset-0"
         >
           <img
-            src={`${backdropSizes.original}${featuredMedia.backdrop_path}`}
+            src={`${backdropSizes.large}${featuredMedia.backdrop_path}`}
             alt={title}
+            loading="eager"
+            fetchPriority="high"
             className="w-full h-full object-cover"
             style={{
               maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',

@@ -50,52 +50,50 @@ const Index = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const results = await Promise.allSettled([
-          getTrending(),
-          getPopularMovies(),
-          getPopularTVShows(),
-          getTopRatedMovies(),
-          getTopRatedTVShows(),
-          getUpcomingMovies(),
-          getActionMovies(),
-          getComedySeries()
-        ]);
+      const trendingPromise = getTrending();
+      const secondaryPromise = Promise.allSettled([
+        getPopularMovies(),
+        getPopularTVShows(),
+        getTopRatedMovies(),
+        getTopRatedTVShows(),
+        getUpcomingMovies(),
+        getActionMovies(),
+        getComedySeries(),
+      ]);
 
-        const data = results.map(result => result.status === 'fulfilled' ? result.value : []);
+      // The Home banner only needs Trending data. Release it without waiting for every content row.
+      const trendingResult = await Promise.allSettled([trendingPromise]);
+      const trendingData = trendingResult[0].status === 'fulfilled' ? trendingResult[0].value : [];
+      setTrendingMedia(trendingData.filter(item => item.backdrop_path));
+      setIsLoading(false);
+      setTimeout(() => setContentVisible(true), 300);
 
-        const [
-          trendingData,
-          popularMoviesData,
-          popularTVData,
-          topMoviesData,
-          topTVData,
-          upcomingMoviesData,
-          actionMoviesData,
-          comedySeriesData
-        ] = data;
+      const results = await secondaryPromise;
+      const data = results.map(result => result.status === 'fulfilled' ? result.value : []);
+      const [
+        popularMoviesData,
+        popularTVData,
+        topMoviesData,
+        topTVData,
+        upcomingMoviesData,
+        actionMoviesData,
+        comedySeriesData,
+      ] = data;
 
-        const filteredTrendingData = trendingData.filter(
-          item => item.backdrop_path
-        );
-
-        setTrendingMedia(filteredTrendingData);
-        setPopularMovies(popularMoviesData);
-        setPopularTVShows(popularTVData);
-        setTopRatedMovies(topMoviesData);
-        setTopRatedTVShows(topTVData);
-        setUpcomingMovies(upcomingMoviesData);
-        setActionMovies(actionMoviesData);
-        setComedySeries(comedySeriesData);
-      } catch (error) {
-        console.error('Error fetching homepage data:', error);
-      } finally {
-        setIsLoading(false);
-        setTimeout(() => setContentVisible(true), 300);
-      }
+      setPopularMovies(popularMoviesData);
+      setPopularTVShows(popularTVData);
+      setTopRatedMovies(topMoviesData);
+      setTopRatedTVShows(topTVData);
+      setUpcomingMovies(upcomingMoviesData);
+      setActionMovies(actionMoviesData);
+      setComedySeries(comedySeriesData);
     };
 
-    fetchData();
+    fetchData().catch(error => {
+      console.error('Error fetching homepage data:', error);
+      setIsLoading(false);
+      setContentVisible(true);
+    });
   }, []);
 
   const closeWelcomeCard = () => {

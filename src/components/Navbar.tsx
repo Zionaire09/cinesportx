@@ -240,10 +240,10 @@ const Navbar = () => {
         <div className="relative flex min-h-16 items-center justify-between gap-3 py-2 lg:grid lg:min-h-20 lg:grid-cols-[1fr_auto_1fr]">
           <Link
             to="/"
-            className="hidden h-16 w-36 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-1.5 shadow-sm transition-all hover:border-white/25 hover:bg-white/10 hover:shadow-md lg:flex lg:justify-self-start"
+            className="hidden h-12 w-28 shrink-0 items-center justify-center overflow-hidden lg:flex lg:justify-self-start"
             aria-label="RabbitMeow home"
           >
-            <img src={Logo} alt="RabbitMeow" className="h-full w-full object-contain" />
+            <img src={Logo} alt="RabbitMeow" className="h-10 w-24 object-contain opacity-80" />
           </Link>
           <nav className="hidden items-center gap-1 rounded-xl border border-white/10 bg-black/35 p-1 shadow-lg lg:flex lg:justify-self-center">
             <NavLinks />
@@ -307,7 +307,7 @@ const Navbar = () => {
         {isMobileMenuOpen && (
           <div className="border-t border-white/10 pb-3 pt-2 lg:hidden">
             <div className="mb-2 flex items-center gap-3 px-2">
-              <img src={Logo} alt="RabbitMeow" className="h-10 w-20 rounded-lg border border-white/10 bg-white/5 object-contain p-1" />
+              <img src={Logo} alt="RabbitMeow" className="h-8 w-16 object-contain opacity-80" />
               <span className="text-sm font-semibold text-white/85">RabbitMeow</span>
             </div>
             <nav className="grid gap-1 rounded-xl border border-white/10 bg-black/35 p-2">

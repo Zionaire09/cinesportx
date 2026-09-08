@@ -1237,11 +1237,11 @@ const Player = () => {
                   <div className="pointer-events-none absolute -bottom-24 left-1/3 h-44 w-44 rounded-full bg-blue-500/20 blur-3xl" />
 
                   <div className="relative">
-                    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-center lg:gap-8">
-                      <p className="text-lg font-bold leading-8 text-cyan-50 lg:pr-4 xl:text-xl">
+                    <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_260px] md:items-center md:gap-8">
+                      <p className="text-lg font-bold leading-8 text-cyan-50 md:pr-4 xl:text-xl">
                         If the stream does not load or subtitles do not work, choose a different server
                       </p>
-                      <div className="w-full lg:max-w-[260px] lg:justify-self-end">
+                      <div className="w-full max-w-[260px] justify-self-end">
                         <Select value={selectedSource} onValueChange={handleSourceChange}>
                           <SelectTrigger className="h-14 w-full border border-cyan-200/50 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 px-4 text-white shadow-lg shadow-cyan-950/40 transition-all duration-300 hover:scale-[1.01] hover:border-white/80 hover:from-cyan-400 hover:via-sky-500 hover:to-blue-500 focus:ring-cyan-200/70">
                             <div className="flex min-w-0 items-center gap-3">

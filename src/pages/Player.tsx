@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, memo, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getMovieDetails, getTVDetails, videoSources, getSeasonDetails } from '@/utils/api';
-import { MovieDetails, TVDetails, Episode } from '@/utils/types';
+import { getMovieDetails, getTVDetails, videoSources, getSeasonDetails, getMovieCredits, getTVCredits, getMovieRecommendations, getTVRecommendations } from '@/utils/api';
+import { MovieDetails, TVDetails, Episode, CastMember, Media } from '@/utils/types';
 import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { 
@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import Ads from '@/components/Ads';
 import { AutoNextEpisode } from '@/components/AutoNextEpisode';
 import { getContinueWatching, saveContinueWatching } from '@/utils/continue-watching';
+import MediaCard from '@/components/MediaCard';
 
 // Simple debounce and throttle implementations (no lodash dependency)
 const debounce = <T extends (...args: any[]) => any>(func: T, wait: number) => {
@@ -248,6 +249,8 @@ const Player = () => {
   const [expandedEpisodes, setExpandedEpisodes] = useState<Record<number, boolean>>({});
   const [visibleEpisodesCount, setVisibleEpisodesCount] = useState(10);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [cast, setCast] = useState<CastMember[]>([]);
+  const [recommendations, setRecommendations] = useState<Media[]>([]);
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -261,6 +264,20 @@ const Player = () => {
 
   const memoizedNavigate = useCallback(navigate, [navigate]);
   const memoizedToast = useCallback(toast, [toast]);
+
+  useEffect(() => {
+    if (!id || !mediaDetails) return;
+    const mediaId = parseInt(id, 10);
+    const loadRelatedContent = async () => {
+      const [nextCast, nextRecommendations] = await Promise.all([
+        mediaType === 'tv' ? getTVCredits(mediaId) : getMovieCredits(mediaId),
+        mediaType === 'tv' ? getTVRecommendations(mediaId) : getMovieRecommendations(mediaId),
+      ]);
+      setCast(nextCast.slice(0, 12));
+      setRecommendations(nextRecommendations.slice(0, 12));
+    };
+    loadRelatedContent().catch((error) => console.error('Unable to load related Player content:', error));
+  }, [id, mediaType, mediaDetails]);
 
 
   const toggleEpisodeDescription = useCallback((episodeId: number, e: React.MouseEvent) => {
@@ -1221,24 +1238,7 @@ const Player = () => {
 
                   <div className="relative">
                     <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-                      <div className="max-w-2xl">
-                        <div className="mb-2 flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-200/30 bg-cyan-200/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-100">
-                            <Server className="h-3.5 w-3.5" />
-                            Stream controls
-                          </span>
-                        </div>
-                        <h2 className="text-lg font-semibold tracking-tight text-white">Choose your stream server</h2>
-                        <p className="mt-1.5 text-sm leading-relaxed text-cyan-50/75">
-                          Use this selectable dropdown to choose or change the stream server at any time.
-                        </p>
-                      </div>
-
                       <div className="w-full md:w-1/3 md:min-w-[280px] lg:max-w-md">
-                        <div className="mb-2 px-1">
-                          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-100/80">Select a stream server</span>
-                        </div>
-
                         <Select value={selectedSource} onValueChange={handleSourceChange}>
                           <SelectTrigger className="h-14 w-full border border-cyan-200/50 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 px-4 text-white shadow-lg shadow-cyan-950/40 transition-all duration-300 hover:scale-[1.01] hover:border-white/80 hover:from-cyan-400 hover:via-sky-500 hover:to-blue-500 focus:ring-cyan-200/70">
                             <div className="flex min-w-0 items-center gap-3">
@@ -1267,17 +1267,56 @@ const Player = () => {
                       </div>
                     </div>
 
-                    <div className="mt-5 grid gap-3 border-t border-white/10 pt-4 md:grid-cols-[auto_minmax(0,1fr)] md:items-start">
-                      <div className="inline-flex w-fit items-center gap-2 rounded-full border border-violet-300/25 bg-violet-400/10 px-3 py-1.5 text-xs font-semibold text-violet-100">
-                        <AlertCircle className="h-4 w-4 text-violet-200" />
-                        Playback tip
-                      </div>
-                      <p className="pt-1 text-sm leading-relaxed text-white/75">
-If movie is not available, try switching servers.
-                      </p>
+                    <div className="mt-5 border-t border-white/10 pt-4 text-center text-sm text-white/75">
+                      If the server does not work, choose a different server
                     </div>
                   </div>
                 </section>
+
+                {mediaDetails && (
+                  <section className="mt-8 space-y-8">
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 shadow-xl backdrop-blur-xl">
+                      <h2 className="mb-3 text-xl font-semibold text-white">{mediaType === 'tv' ? 'About this show' : 'About this movie'}</h2>
+                      {(mediaDetails as MovieDetails | TVDetails).tagline && (
+                        <p className="mb-3 text-sm italic text-accent/80">{(mediaDetails as MovieDetails | TVDetails).tagline}</p>
+                      )}
+                      <p className="text-sm leading-7 text-white/70">
+                        {(mediaDetails as MovieDetails | TVDetails).overview || 'No description available.'}
+                      </p>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {(mediaDetails as MovieDetails | TVDetails).genres?.map((genre) => (
+                          <span key={genre.id} className="rounded-full border border-accent/25 bg-accent/10 px-3 py-1 text-xs text-white/75">{genre.name}</span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {cast.length > 0 && (
+                      <div>
+                        <h2 className="mb-4 text-xl font-semibold text-white">Cast</h2>
+                        <div className="flex gap-4 overflow-x-auto pb-3">
+                          {cast.map((member) => (
+                            <a key={member.id} href={`/person/${member.id}`} className="w-24 shrink-0 text-center">
+                              <div className="aspect-[2/3] overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                                {member.profile_path ? <img src={`https://image.tmdb.org/t/p/w185${member.profile_path}`} alt={member.name} className="h-full w-full object-cover" loading="lazy" /> : <div className="flex h-full items-center justify-center text-xs text-white/40">No image</div>}
+                              </div>
+                              <p className="mt-2 truncate text-xs font-medium text-white/85">{member.name}</p>
+                              <p className="truncate text-[11px] text-white/50">{member.character}</p>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {recommendations.length > 0 && (
+                      <div>
+                        <h2 className="mb-4 text-xl font-semibold text-white">More Like This</h2>
+                        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                          {recommendations.map((item) => <MediaCard key={`${item.media_type}-${item.id}`} media={item} />)}
+                        </div>
+                      </div>
+                    )}
+                  </section>
+                )}
               </div>
             </div>
           </div>

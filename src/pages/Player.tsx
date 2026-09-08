@@ -604,8 +604,10 @@ const Player = () => {
       lastProgressSecondsRef.current || resumeSecondsRef.current || 0,
       lastDurationSecondsRef.current || resumeDurationRef.current || 0
     );
-    memoizedNavigate(-1);
-  }, [memoizedNavigate, persistContinueWatching]);
+    if (id) {
+      memoizedNavigate(`/${mediaType}/${id}`, { replace: true });
+    }
+  }, [id, mediaType, memoizedNavigate, persistContinueWatching]);
 
   const goToDetails = useCallback(() => {
     if (id) {

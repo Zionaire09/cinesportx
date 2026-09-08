@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils';
 import Ads from '@/components/Ads';
 import { AutoNextEpisode } from '@/components/AutoNextEpisode';
 import { getContinueWatching, saveContinueWatching } from '@/utils/continue-watching';
-import MediaCard from '@/components/MediaCard';
+import ContentRow from '@/components/ContentRow';
 
 // Simple debounce and throttle implementations (no lodash dependency)
 const debounce = <T extends (...args: any[]) => any>(func: T, wait: number) => {
@@ -1310,12 +1310,7 @@ const Player = () => {
                     )}
 
                     {recommendations.length > 0 && (
-                      <div>
-                        <h2 className="mb-4 text-xl font-semibold text-white">More Like This</h2>
-                        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                          {recommendations.map((item) => <MediaCard key={`${item.media_type}-${item.id}`} media={item} />)}
-                        </div>
-                      </div>
+                      <ContentRow title="More Like This" media={recommendations} />
                     )}
                   </section>
                 )}

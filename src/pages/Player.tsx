@@ -1110,7 +1110,7 @@ const Player = () => {
           "max-w-7xl mx-auto",
           isMobile ? "flex flex-col" : "flex flex-col md:flex-row gap-8"
         )}>
-          <div className="flex-1">
+          <div className="min-w-0 flex-1 overflow-hidden">
             <div
               ref={playerContainerRef}
               className={cn(

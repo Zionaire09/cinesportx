@@ -954,7 +954,7 @@ const Player = () => {
     return (
       <button
         onClick={() => setIsEpisodeMenuOpen(prev => !prev)}
-        className="fixed right-0 top-1/2 z-40 bg-gradient-to-l from-accent/30 to-accent/10 backdrop-blur-md p-3 rounded-l-xl border border-r-0 border-white/20 shadow-2xl transition-transform active:scale-95"
+        className="fixed right-0 top-1/2 z-40 bg-gradient-to-l from-accent/30 to-accent/10 backdrop-blur-md p-3 rounded-l-xl border border-r-0 border-white/20 shadow-2xl transition-transform active:scale-95 lg:hidden"
         style={{ transform: 'translateY(-50%)' }}
       >
         <div className="flex flex-col items-center">
@@ -973,14 +973,14 @@ const Player = () => {
     return (
       <>
         <div 
-          className={`fixed inset-0 bg-black/80 backdrop-blur-sm z-50 transition-opacity duration-200 ${
+          className={`fixed inset-0 bg-black/80 backdrop-blur-sm z-50 transition-opacity duration-200 lg:hidden ${
             isEpisodeMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
           onClick={() => setIsEpisodeMenuOpen(false)}
         />
         
         <div 
-          className={`fixed right-0 top-0 bottom-0 w-[85%] max-w-sm bg-gradient-to-b from-background to-background/95 backdrop-blur-xl z-50 border-l border-white/10 shadow-2xl transition-transform duration-300 ease-out ${
+          className={`fixed right-0 top-0 bottom-0 w-[85%] max-w-sm bg-gradient-to-b from-background to-background/95 backdrop-blur-xl z-50 border-l border-white/10 shadow-2xl transition-transform duration-300 ease-out lg:hidden ${
             isEpisodeMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
@@ -1405,8 +1405,8 @@ const Player = () => {
       </div>
 
       {/* Mobile Episode Menu */}
-      {isMobile && renderMobileEpisodeButton()}
-      {isMobile && renderMobileEpisodeMenu()}
+      {mediaType === 'tv' && renderMobileEpisodeButton()}
+      {mediaType === 'tv' && renderMobileEpisodeMenu()}
     </div>
   );
 };

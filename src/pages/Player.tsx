@@ -1106,10 +1106,7 @@ const Player = () => {
         </div>
 
 
-        <div className={cn(
-          "max-w-7xl mx-auto",
-          isMobile ? "flex flex-col" : "flex flex-col md:flex-row gap-8"
-        )}>
+        <div className="mx-auto flex max-w-7xl flex-col gap-8 lg:flex-row">
           <div className="flex-1">
             <div
               ref={playerContainerRef}
@@ -1319,8 +1316,8 @@ const Player = () => {
           </div>
 
           {/* Desktop Episodes Panel */}
-          {!isMobile && mediaType === 'tv' && mediaDetails && (
-            <div className="w-full md:w-[440px] flex-shrink-0 md:-ml-32 md:translate-x-32">
+          {mediaType === 'tv' && mediaDetails && (
+            <div className="hidden w-full flex-shrink-0 lg:block lg:w-[440px] lg:-ml-32 lg:translate-x-32">
               <div className="bg-gradient-to-br from-background/80 to-background/40 backdrop-blur-xl p-6 rounded-xl shadow-2xl border border-white/10">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-2xl font-bold bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">

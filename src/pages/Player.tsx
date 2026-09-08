@@ -1237,7 +1237,10 @@ const Player = () => {
                   <div className="pointer-events-none absolute -bottom-24 left-1/3 h-44 w-44 rounded-full bg-blue-500/20 blur-3xl" />
 
                   <div className="relative">
-                    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                      <p className="max-w-xl text-base font-semibold leading-7 text-white/90 lg:pr-8">
+                        If the stream does not load or subtitles do not work, choose a different server
+                      </p>
                       <div className="w-full md:w-1/3 md:min-w-[280px] lg:max-w-md">
                         <Select value={selectedSource} onValueChange={handleSourceChange}>
                           <SelectTrigger className="h-14 w-full border border-cyan-200/50 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 px-4 text-white shadow-lg shadow-cyan-950/40 transition-all duration-300 hover:scale-[1.01] hover:border-white/80 hover:from-cyan-400 hover:via-sky-500 hover:to-blue-500 focus:ring-cyan-200/70">
@@ -1267,16 +1270,15 @@ const Player = () => {
                       </div>
                     </div>
 
-                    <div className="mt-5 border-t border-white/10 pt-4 text-center text-sm text-white/75">
-                      If the server does not work, choose a different server
-                    </div>
                   </div>
                 </section>
 
                 {mediaDetails && (
                   <section className="mt-8 space-y-8">
                     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 shadow-xl backdrop-blur-xl">
-                      <h2 className="mb-3 text-xl font-semibold text-white">{mediaType === 'tv' ? 'About this show' : 'About this movie'}</h2>
+                      <h2 className="mb-3 text-2xl font-bold tracking-tight text-white md:text-3xl">
+                        {(mediaDetails as MovieDetails | TVDetails).title || (mediaDetails as MovieDetails | TVDetails).name || title}
+                      </h2>
                       {(mediaDetails as MovieDetails | TVDetails).tagline && (
                         <p className="mb-3 text-sm italic text-accent/80">{(mediaDetails as MovieDetails | TVDetails).tagline}</p>
                       )}

@@ -1276,19 +1276,18 @@ const Player = () => {
                 {mediaDetails && (
                   <section className="mt-8 space-y-8">
                     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 shadow-xl backdrop-blur-xl">
-                      <h2 className="mb-3 text-2xl font-bold tracking-tight text-white md:text-3xl">
-                        {(mediaDetails as MovieDetails | TVDetails).title || (mediaDetails as MovieDetails | TVDetails).name || title}
-                      </h2>
-                      {(mediaDetails as MovieDetails | TVDetails).tagline && (
-                        <p className="mb-3 text-sm italic text-accent/80">{(mediaDetails as MovieDetails | TVDetails).tagline}</p>
-                      )}
-                      <p className="text-sm leading-7 text-white/70">
-                        {(mediaDetails as MovieDetails | TVDetails).overview || 'No description available.'}
-                      </p>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {(mediaDetails as MovieDetails | TVDetails).genres?.map((genre) => (
-                          <span key={genre.id} className="rounded-full border border-accent/25 bg-accent/10 px-3 py-1 text-xs text-white/75">{genre.name}</span>
-                        ))}
+                      <div className="flex flex-col gap-5 sm:flex-row">
+                        <div className="w-28 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-lg sm:w-32">
+                          {(mediaDetails as MovieDetails | TVDetails).poster_path ? (
+                            <img src={`https://image.tmdb.org/t/p/w342${(mediaDetails as MovieDetails | TVDetails).poster_path}`} alt={(mediaDetails as MovieDetails | TVDetails).title || (mediaDetails as MovieDetails | TVDetails).name || title} className="aspect-[2/3] h-full w-full object-cover" loading="lazy" />
+                          ) : <div className="flex aspect-[2/3] items-center justify-center text-xs text-white/40">No poster</div>}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h2 className="mb-3 text-2xl font-bold tracking-tight text-white md:text-3xl">{(mediaDetails as MovieDetails | TVDetails).title || (mediaDetails as MovieDetails | TVDetails).name || title}</h2>
+                          {(mediaDetails as MovieDetails | TVDetails).tagline && <p className="mb-3 text-sm italic text-accent/80">{(mediaDetails as MovieDetails | TVDetails).tagline}</p>}
+                          <p className="text-sm leading-7 text-white/70">{(mediaDetails as MovieDetails | TVDetails).overview || 'No description available.'}</p>
+                          <div className="mt-4 flex flex-wrap gap-2">{(mediaDetails as MovieDetails | TVDetails).genres?.map((genre) => <span key={genre.id} className="rounded-full border border-accent/25 bg-accent/10 px-3 py-1 text-xs text-white/75">{genre.name}</span>)}</div>
+                        </div>
                       </div>
                     </div>
 

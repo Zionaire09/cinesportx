@@ -954,7 +954,7 @@ const Player = () => {
     return (
       <button
         onClick={() => setIsEpisodeMenuOpen(prev => !prev)}
-        className="fixed right-0 top-1/2 z-40 bg-gradient-to-l from-accent/30 to-accent/10 backdrop-blur-md p-3 rounded-l-xl border border-r-0 border-white/20 shadow-2xl transition-transform active:scale-95 lg:hidden"
+        className="fixed right-0 top-1/2 z-40 bg-gradient-to-l from-accent/30 to-accent/10 backdrop-blur-md p-3 rounded-l-xl border border-r-0 border-white/20 shadow-2xl transition-transform active:scale-95"
         style={{ transform: 'translateY(-50%)' }}
       >
         <div className="flex flex-col items-center">
@@ -973,14 +973,14 @@ const Player = () => {
     return (
       <>
         <div 
-          className={`fixed inset-0 bg-black/80 backdrop-blur-sm z-50 transition-opacity duration-200 lg:hidden ${
+          className={`fixed inset-0 bg-black/80 backdrop-blur-sm z-50 transition-opacity duration-200 ${
             isEpisodeMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
           onClick={() => setIsEpisodeMenuOpen(false)}
         />
         
         <div 
-          className={`fixed right-0 top-0 bottom-0 w-[85%] max-w-sm bg-gradient-to-b from-background to-background/95 backdrop-blur-xl z-50 border-l border-white/10 shadow-2xl transition-transform duration-300 ease-out lg:hidden ${
+          className={`fixed right-0 top-0 bottom-0 w-[85%] max-w-sm bg-gradient-to-b from-background to-background/95 backdrop-blur-xl z-50 border-l border-white/10 shadow-2xl transition-transform duration-300 ease-out ${
             isEpisodeMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
@@ -1106,7 +1106,10 @@ const Player = () => {
         </div>
 
 
-        <div className="mx-auto flex max-w-7xl flex-col gap-8 lg:flex-row">
+        <div className={cn(
+          "max-w-7xl mx-auto",
+          isMobile ? "flex flex-col" : "flex flex-col md:flex-row gap-8"
+        )}>
           <div className="flex-1">
             <div
               ref={playerContainerRef}
@@ -1316,8 +1319,8 @@ const Player = () => {
           </div>
 
           {/* Desktop Episodes Panel */}
-          {mediaType === 'tv' && mediaDetails && (
-            <div className="hidden w-full flex-shrink-0 lg:block lg:w-[440px] lg:-ml-32 lg:translate-x-32">
+          {!isMobile && mediaType === 'tv' && mediaDetails && (
+            <div className="w-full md:w-[440px] flex-shrink-0 md:-ml-32 md:translate-x-32">
               <div className="bg-gradient-to-br from-background/80 to-background/40 backdrop-blur-xl p-6 rounded-xl shadow-2xl border border-white/10">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-2xl font-bold bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
@@ -1405,8 +1408,8 @@ const Player = () => {
       </div>
 
       {/* Mobile Episode Menu */}
-      {mediaType === 'tv' && renderMobileEpisodeButton()}
-      {mediaType === 'tv' && renderMobileEpisodeMenu()}
+      {isMobile && renderMobileEpisodeButton()}
+      {isMobile && renderMobileEpisodeMenu()}
     </div>
   );
 };

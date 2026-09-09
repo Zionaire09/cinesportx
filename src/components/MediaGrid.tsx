@@ -152,7 +152,7 @@ const MediaGrid = ({
       </div>
       
       {listView ? (
-        <motion.div className="flex flex-col gap-4" variants={container} initial="hidden" animate="show">
+        <motion.div className="flex flex-col gap-4" variants={container} initial={false} animate="show">
           {media.map((mediaItem) => (
             <motion.div 
               key={`${mediaItem.media_type}-${mediaItem.id}`}
@@ -219,7 +219,7 @@ const MediaGrid = ({
         <motion.div 
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6"
           variants={container}
-          initial="hidden"
+          initial={false}
           animate="show"
         >
           {media.map((mediaItem) => (

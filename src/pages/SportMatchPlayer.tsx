@@ -69,18 +69,21 @@ const SportMatchPlayer = () => {
     queryKey: ['match-info', matchId],
     queryFn: () => matchId ? getMatchById(matchId) : Promise.resolve(null),
     enabled: !!matchId,
+    refetchOnWindowFocus: false,
   });
 
   const { data: activeSources = [], isLoading: sourcesLoading, refetch: refetchSources } = useQuery({
     queryKey: ['active-sources', matchId],
     queryFn: () => matchId ? getActiveSourcesForMatch(matchId) : Promise.resolve([]),
     enabled: !!matchId && !!matchData,
+    refetchOnWindowFocus: false,
   });
 
   const { data: groupedStreams = {}, isLoading: streamsLoading, refetch: refetchStreams } = useQuery({
     queryKey: ['grouped-streams', matchId],
     queryFn: () => matchId ? getStreamsGroupedBySource(matchId) : Promise.resolve({}),
     enabled: !!matchId && !!matchData,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
@@ -111,7 +114,7 @@ const SportMatchPlayer = () => {
       setIsSignalUnavailable(false);
       setIframeKey(prev => prev + 1);
     }
-  }, [selectedSource, selectedStreamNo, currentStream]);
+  }, [selectedSource, selectedStreamNo, embedUrl]);
 
   useEffect(() => {
     if (!embedUrl || !isLoadingPlayer) return;

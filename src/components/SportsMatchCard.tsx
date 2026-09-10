@@ -42,7 +42,7 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
     >
         <Card
           className={cn(
-          "overflow-hidden h-full shadow-lg flex flex-col justify-between rounded-2xl border border-white/20 bg-gradient-to-br",
+          "overflow-hidden h-full shadow-lg flex flex-col justify-between rounded-xl md:rounded-2xl border border-white/20 bg-gradient-to-br",
           sportColor.bg
         )}
         style={{
@@ -53,7 +53,7 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
       >
 
         {/* Dynamic Canvas Area with Enhanced Effects */}
-        <div className="relative aspect-[16/10] bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center p-4 border-b border-white/20 overflow-hidden">
+        <div className="relative aspect-[16/9] md:aspect-[16/10] bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center p-2 md:p-4 border-b border-white/20 overflow-hidden">
           {/* Animated Background Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0" />
 
@@ -80,7 +80,7 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
               {/* Home Team */}
               <div className="flex flex-col items-center text-center w-[45%]">
                 <div
-                  className="w-20 h-20 rounded-xl bg-gradient-to-br from-white/30 to-white/10 border-2 border-white/40 p-3 flex items-center justify-center shadow-md relative"
+                  className="w-12 h-12 md:w-20 md:h-20 rounded-lg md:rounded-xl bg-gradient-to-br from-white/30 to-white/10 border border-white/40 md:border-2 p-2 md:p-3 flex items-center justify-center shadow-md relative"
                 >
                   {!failedImages.has(match.teams.home.badge) ? (
                     <img
@@ -96,14 +96,14 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
                     </div>
                   )}
                 </div>
-                <span className="text-xs font-black text-white truncate w-full mt-2.5 tracking-wide uppercase">
+                <span className="text-[10px] md:text-xs font-black text-white truncate w-full mt-1 md:mt-2.5 tracking-wide uppercase">
                   {match.teams.home.name}
                 </span>
               </div>
 
               {/* VS Badge */}
               <div
-                className="text-[10px] font-black tracking-widest text-white bg-gradient-to-r from-white/30 to-white/10 px-2 py-1 rounded border border-white/40"
+                className="text-[9px] md:text-[10px] font-black tracking-widest text-white bg-gradient-to-r from-white/30 to-white/10 px-1.5 py-0.5 md:px-2 md:py-1 rounded border border-white/40"
               >
                 VS
               </div>
@@ -111,7 +111,7 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
               {/* Away Team */}
               <div className="flex flex-col items-center text-center w-[45%]">
                 <div
-                  className="w-20 h-20 rounded-xl bg-gradient-to-br from-white/30 to-white/10 border-2 border-white/40 p-3 flex items-center justify-center shadow-md relative"
+                  className="w-12 h-12 md:w-20 md:h-20 rounded-lg md:rounded-xl bg-gradient-to-br from-white/30 to-white/10 border border-white/40 md:border-2 p-2 md:p-3 flex items-center justify-center shadow-md relative"
                 >
                   {!failedImages.has(match.teams.away.badge) ? (
                     <img
@@ -127,7 +127,7 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
                     </div>
                   )}
                 </div>
-                <span className="text-xs font-black text-white truncate w-full mt-2.5 tracking-wide uppercase">
+                <span className="text-[10px] md:text-xs font-black text-white truncate w-full mt-1 md:mt-2.5 tracking-wide uppercase">
                   {match.teams.away.name}
                 </span>
               </div>
@@ -170,7 +170,7 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
         </div>
 
         {/* Info Deck with Enhanced Typography */}
-        <CardContent className="p-4 bg-gradient-to-b from-white/10 to-white/5 flex-grow flex flex-col justify-between">
+        <CardContent className="p-2.5 md:p-4 bg-gradient-to-b from-white/10 to-white/5 flex-grow flex flex-col justify-between">
           <div>
             <div className="text-[9px] font-black tracking-widest text-white/90 uppercase mb-1 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
@@ -183,7 +183,7 @@ const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
 
           {/* Bottom Stats Bar with Hover Effects */}
           <div
-            className="mt-4 pt-3 border-t border-white/20 flex justify-between items-center text-[10px] font-bold text-white/80 tracking-wide uppercase"
+            className="mt-2 md:mt-4 pt-2 md:pt-3 border-t border-white/20 flex justify-between items-center text-[9px] md:text-[10px] font-bold text-white/80 tracking-wide uppercase"
           >
             <div className="flex items-center gap-1.5">
               {isLive ? (

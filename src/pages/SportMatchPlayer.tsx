@@ -333,6 +333,29 @@ const SportMatchPlayer = () => {
                   <BackupStreamLink />
                 </div>
 
+                <motion.a
+                  href="https://rmppv.xyz/replays"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Watch sports replays at rmppv.xyz/replays"
+                  className="group mt-4 flex items-center justify-between gap-3 rounded-xl border-2 border-cyan-300/70 bg-gradient-to-r from-blue-700/70 via-cyan-600/45 to-blue-950/40 px-4 py-4 shadow-[0_0_28px_rgba(34,211,238,0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-100 hover:shadow-[0_0_42px_rgba(34,211,238,0.4)] md:gap-4 md:rounded-2xl md:px-5 md:py-5"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.25 }}
+                >
+                  <span className="flex min-w-0 items-center gap-3 text-left">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-400 text-blue-950 shadow-lg shadow-cyan-950/50 ring-2 ring-cyan-100/30 md:h-11 md:w-11 md:ring-4">
+                      <Clock className="h-4 w-4 md:h-5 md:w-5" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-cyan-100 md:text-xs">Replay available</span>
+                      <span className="block truncate text-lg font-black tracking-tight text-white md:text-2xl">Watch Sports Replays</span>
+                      <span className="block truncate text-xs font-bold text-cyan-100/80 md:text-sm">rmppv.xyz/replays</span>
+                    </span>
+                  </span>
+                  <ExternalLink className="h-5 w-5 shrink-0 text-cyan-100 md:h-6 md:w-6" />
+                </motion.a>
+
                 {/* Info Center Banner */}
                 {matchInfo && (
                   <motion.div 

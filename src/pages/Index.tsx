@@ -17,7 +17,6 @@ import Footer from '@/components/Footer';
 import Spinner from '@/components/ui/spinner';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import Chatbot from '@/components/Chatbot';
-import DiscordButton from '@/components/DiscordButton';
 import Ads from '@/components/Ads';
 import { Helmet } from 'react-helmet';
 import WelcomeDialog from '@/components/WelcomeDialog';

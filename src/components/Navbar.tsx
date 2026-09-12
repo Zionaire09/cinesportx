@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowRight, ExternalLink, Film, Home, Keyboard, Menu, Search, Sparkles, TrendingUp, Tv, Volleyball, X } from 'lucide-react';
 import { searchMedia } from '@/utils/api';
 import { Media } from '@/utils/types';
+import { DiscordIcon } from '@/components/DiscordButton';
 
 const Logo = '/logo2.png';
 
@@ -22,6 +23,7 @@ const navItems: NavItem[] = [
   { title: 'TV Shows', path: '/tv', icon: <Tv className="h-4 w-4" /> },
   { title: 'Sports', path: '/sports', icon: <Volleyball className="h-4 w-4" /> },
   { title: 'Anime', path: 'https://animeow.live', icon: <ExternalLink className="h-4 w-4" />, external: true },
+  { title: 'Discord', path: 'https://discord.gg/Ge7Pe5Nmd', icon: <DiscordIcon className="h-4 w-4" />, external: true },
 ];
 
 const Navbar = () => {

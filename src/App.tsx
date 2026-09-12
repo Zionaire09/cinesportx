@@ -24,7 +24,6 @@ import Sports from "./pages/Sports";
 import SportMatchPlayer from "./pages/SportMatchPlayer";
 import PersonFilmography from "./pages/PersonFilmography";
 import ChristmasGreeting from "./components/ChristmasGreeting";
-import DiscordButton from "./components/DiscordButton";
 
 const queryClient = new QueryClient();
 const GA_MEASUREMENT_ID = import.meta.env.VITE_FIREBASE_MEASUREMENT_ID;
@@ -100,7 +99,6 @@ const App = () => (
       <Sonner />
       <Router>
         <ChristmasGreeting />
-        <DiscordButton />
         <AnimatedRoutes />
       </Router>
     </TooltipProvider>

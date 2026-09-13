@@ -205,31 +205,6 @@ const Sports = () => {
             </motion.div>
 
             <motion.a
-              href="https://rmppv.xyz"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Open the preferred stable live stream link at rmppv.xyz"
-              className="group mb-6 flex items-center justify-between gap-2 rounded-xl border border-red-400/80 bg-gradient-to-r from-red-600/55 via-rose-500/35 to-red-950/20 px-3 py-3 text-left shadow-[0_0_24px_rgba(239,68,68,0.25)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-red-200 hover:from-red-500/70 hover:shadow-[0_0_48px_rgba(239,68,68,0.48)] md:mb-8 md:gap-4 md:rounded-2xl md:border-2 md:px-5 md:py-5"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.25 }}
-            >
-              <span className="flex min-w-0 items-center gap-4">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-950/50 ring-2 ring-red-300/20 md:h-11 md:w-11 md:ring-4">
-                  <Zap className="h-4 w-4 md:h-5 md:w-5" />
-                </span>
-                <span className="min-w-0">
-                  <span className="flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-red-100">
-                    <span className="rounded-full bg-red-950/50 px-2.5 py-1 text-red-50">Recommended</span>
-                    <span className="text-red-200">Stable live stream</span>
-                  </span>
-                  <span className="mt-1 block text-xs font-bold text-white sm:text-sm md:text-lg">For the best viewing experience, use</span>
-                  <span className="mt-0.5 block truncate text-lg font-black tracking-tight text-red-100 underline decoration-red-200/70 decoration-2 underline-offset-4 transition-colors group-hover:text-white sm:text-2xl md:text-3xl">rmppv.xyz</span>
-                </span>
-              </span>
-              <ExternalLink className="h-6 w-6 shrink-0 text-red-100 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </motion.a>
-            <motion.a
               href="https://rmppv.xyz/replays"
               target="_blank"
               rel="noopener noreferrer"

@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Ads from '@/components/Ads';
 import { CategoryFilter, CountryFilter } from './New';
+import SportsBanner from '@/components/SportsBanner';
 
 
 
@@ -182,7 +183,8 @@ const Movies = () => {
     <PageTransition>
       <div className="min-h-screen bg-background text-white flex flex-col">
         <Navbar />
-        <main className="flex-1 container mx-auto px-4 pt-24 pb-8">
+        <div className="pt-24"><SportsBanner className="mb-0" /></div>
+        <main className="flex-1 container mx-auto px-4 pb-8 pt-0">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <h1 className="text-2xl font-bold mb-4"> </h1>
@@ -217,7 +219,7 @@ const Movies = () => {
                 <div className="py-12 text-center text-white">Error loading movies. Please try again.</div>
               ) : (
                 <>
-                   
+
                    <MediaGrid
                     media={filteredPopularMovies}
                     title="Popular Movies"
@@ -283,4 +285,4 @@ const Movies = () => {
 };
 
 export default Movies;
- 
+

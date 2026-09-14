@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import PageTransition from '@/components/PageTransition';
 import { getActiveSourcesForMatch, getStreamsGroupedBySource, getMatchById } from '@/utils/sports-api';
 import Ads from '@/components/Ads';
+import SportsBanner from '@/components/SportsBanner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -204,6 +205,7 @@ const SportMatchPlayer = () => {
 
         <div className="pt-24 pb-16">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+            <SportsBanner />
             
             {/* Action Return Header */}
             <motion.div 

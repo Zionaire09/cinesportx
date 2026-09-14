@@ -16,6 +16,7 @@ import {
 import { getColorForSport } from '@/utils/sports-colors';
 import { useToast } from '@/hooks/use-toast';
 import Ads from '@/components/Ads';
+import SportsBanner from '@/components/SportsBanner';
 import { Search, Radio, Sparkles, CalendarDays, Activity, Zap, Flame, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -203,6 +204,8 @@ const Sports = () => {
                 </motion.p>
               </div>
             </motion.div>
+
+            <SportsBanner className="mb-0" />
 
             <motion.a
               href="https://rmppv.xyz/replays"

@@ -3,6 +3,7 @@ import { getMovieCredits, getTVCredits, posterSizes } from '@/utils/api';
 import { CastMember } from '@/utils/types';
 import { useEffect, useState } from 'react';
 import { UserRound } from 'lucide-react';
+import SportsBanner from '@/components/SportsBanner';
 
 interface InfoProps {
   mediaId: number;
@@ -29,9 +30,13 @@ const Info = ({ mediaId, mediaType = 'movie' }: InfoProps) => {
     return () => { cancelled = true; };
   }, [mediaId, mediaType]);
 
+  const banner = <SportsBanner className="mb-0" />;
+
   if (isLoading) {
     return (
-      <section className="mt-8">
+      <>
+        {banner}
+        <section className="mt-8">
         <h2 className="text-xl font-semibold text-white mb-4">Cast</h2>
         <div className="flex gap-4 overflow-hidden">
           {[1, 2, 3, 4, 5].map((item) => (
@@ -41,14 +46,17 @@ const Info = ({ mediaId, mediaType = 'movie' }: InfoProps) => {
             </div>
           ))}
         </div>
-      </section>
+        </section>
+      </>
     );
   }
 
   if (!cast.length) return null;
 
   return (
-    <section className="mt-8" aria-labelledby="cast-heading">
+    <>
+      {banner}
+      <section className="mt-8" aria-labelledby="cast-heading">
       <div className="flex items-center justify-between mb-4">
         <h2 id="cast-heading" className="text-xl font-semibold text-white">Cast</h2>
         <span className="text-sm text-white/50">{cast.length} listed</span>
@@ -82,7 +90,8 @@ const Info = ({ mediaId, mediaType = 'movie' }: InfoProps) => {
           </Link>
         ))}
       </div>
-    </section>
+      </section>
+    </>
   );
 };
 

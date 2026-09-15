@@ -61,6 +61,10 @@ const Sports = () => {
     },
     enabled: selectedSport !== 'all',
   });
+  const is24SevenMatch = (match: { date: string }) => {
+    const date = new Date(match.date);
+    return date.getFullYear() <= 1970 || (date.getMonth() === 0 && date.getDate() === 1);
+  };
 
   useEffect(() => {
     if (sportsError) {
@@ -69,6 +73,7 @@ const Sports = () => {
   }, [sportsError, toast]);
 
   const currentMatches = useMemo(() => {
+    if (activeTab === '247') return (selectedSport === 'all' ? todayMatches : sportMatches).filter(is24SevenMatch);
     if (selectedSport !== 'all') return sportMatches;
     if (activeTab === 'popular') return popularMatches;
     if (activeTab === 'live') return liveMatches;
@@ -87,7 +92,7 @@ const Sports = () => {
   }, [currentMatches, searchQuery]);
 
   const emptyMessage = selectedSport === 'all'
-    ? activeTab === 'live' ? 'No live matches are streaming right now.' : activeTab === 'popular' ? 'No featured matches are available right now.' : 'No matches are scheduled for today.'
+    ? activeTab === 'live' ? 'No live matches are streaming right now.' : activeTab === 'popular' ? 'No featured matches are available right now.' : activeTab === '247' ? 'No 24/7 live streams are available right now.' : 'No matches are scheduled for today.'
     : `No ${sportsList.find((sport) => sport.id === selectedSport)?.name || 'selected'} matches found.`;
 
   return (
@@ -129,14 +134,15 @@ const Sports = () => {
 
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <div className="flex flex-col gap-3 border-t border-slate-800 pt-4 lg:flex-row lg:items-center lg:justify-between">
-                  <TabsList className="grid h-11 w-full grid-cols-3 gap-1 rounded-xl bg-slate-900 p-1 lg:w-[390px]">
+                  <TabsList className="grid h-11 w-full grid-cols-4 gap-1 rounded-xl bg-slate-900 p-1 lg:w-[500px]">
                     <TabsTrigger value="popular" className="gap-2 rounded-lg text-xs font-bold text-slate-500 data-[state=active]:bg-amber-400/15 data-[state=active]:text-amber-200"><Flame className="h-3.5 w-3.5" /> Featured</TabsTrigger>
                     <TabsTrigger value="live" className="gap-2 rounded-lg text-xs font-bold text-slate-500 data-[state=active]:bg-rose-400/15 data-[state=active]:text-rose-200"><Radio className="h-3.5 w-3.5" /> Live</TabsTrigger>
                     <TabsTrigger value="all" className="gap-2 rounded-lg text-xs font-bold text-slate-500 data-[state=active]:bg-cyan-400/15 data-[state=active]:text-cyan-200"><CalendarDays className="h-3.5 w-3.5" /> Today</TabsTrigger>
+                    <TabsTrigger value="247" className="rounded-lg text-xs font-bold text-slate-500 data-[state=active]:bg-cyan-400/15 data-[state=active]:text-cyan-200">24/7</TabsTrigger>
                   </TabsList>
                   <label className="relative block w-full lg:max-w-sm"><Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" /><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search teams, leagues..." className="h-11 w-full rounded-xl border border-slate-700 bg-slate-900 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/70 focus:ring-2 focus:ring-cyan-400/10" /></label>
                 </div>
-                {['popular', 'live', 'all'].map((tab) => <TabsContent key={tab} value={tab} className="mt-5 focus-visible:outline-none">{isLoading ? <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{[1, 2, 3, 4, 5, 6].map((item) => <div key={item} className="aspect-[1.18] animate-pulse rounded-2xl border border-slate-800 bg-slate-900" />)}</div> : <SportsMatchGrid matches={filteredMatches} emptyMessage={searchQuery ? 'No matches match your search.' : emptyMessage} backupStreamHref="https://rmppv.xyz" />}</TabsContent>)}
+                {['popular', 'live', 'all', '247'].map((tab) => <TabsContent key={tab} value={tab} className="mt-5 focus-visible:outline-none">{isLoading ? <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{[1, 2, 3, 4, 5, 6].map((item) => <div key={item} className="aspect-[1.18] animate-pulse rounded-2xl border border-slate-800 bg-slate-900" />)}</div> : <SportsMatchGrid matches={filteredMatches} emptyMessage={searchQuery ? 'No matches match your search.' : emptyMessage} backupStreamHref="https://rmppv.xyz" />}</TabsContent>)}
               </Tabs>
             </section>
           </div>

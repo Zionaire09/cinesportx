@@ -1,22 +1,19 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { APIMatch } from '@/utils/sports-types';
-import { getMatchPosterUrl, getTeamBadgeUrl } from '@/utils/sports-api';
+import { getMatchPosterUrl } from '@/utils/sports-api';
 import { format } from 'date-fns';
-import { CalendarDays, ChevronRight, Clock3, Eye, Radio, Star, Trophy } from 'lucide-react';
+import { CalendarDays, ChevronRight, Clock3, Eye, Radio, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SportMatchCardProps { match: APIMatch; className?: string }
 
 const SportsMatchCard = ({ match, className }: SportMatchCardProps) => {
-  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
-  const handleImageError = useCallback((url: string) => setFailedImages((previous) => new Set(previous).add(url)), []);
   const matchTime = new Date(match.date);
   const isLive = match.status === 'live' || (match.status !== 'finished' && matchTime.getTime() <= Date.now() && Date.now() - matchTime.getTime() < 3 * 60 * 60 * 1000);
   const isFinished = match.status === 'finished' || (!isLive && matchTime.getTime() < Date.now());
   const state = isLive ? 'live' : isFinished ? 'finished' : 'upcoming';
   const stateStyles = { live: 'border-rose-400/40 shadow-rose-950/20', upcoming: 'border-slate-700 hover:border-cyan-400/50', finished: 'border-slate-800 opacity-90' };
-  const renderBadge = (badge: string, name: string) => failedImages.has(badge) ? <span className="text-lg font-black text-cyan-300">{name.split(/\s+/).map((part) => part[0]).join('').slice(0, 3).toUpperCase()}</span> : <img src={getTeamBadgeUrl(badge)} alt={`${name} crest`} className="h-full w-full object-contain" loading="lazy" onError={() => handleImageError(badge)} />;
 
   return <Link to={`/sports/player/${match.id}`} className={cn('group block h-full', className)}>
     <article className={cn('flex h-full min-h-[288px] flex-col overflow-hidden rounded-2xl border bg-[#0e1b2c] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl', stateStyles[state])}>
@@ -25,9 +22,9 @@ const SportsMatchCard = ({ match, className }: SportMatchCardProps) => {
         <span className={cn('ml-3 shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider', isLive ? 'bg-rose-400/15 text-rose-200' : isFinished ? 'bg-slate-700 text-slate-400' : 'bg-cyan-400/10 text-cyan-200')}>{isLive ? <><span className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-rose-300" />Live</> : isFinished ? 'Final' : 'Upcoming'}</span>
       </div>
       <div className="relative flex flex-1 flex-col justify-center px-4 py-6">
-        {match.poster && <img src={getMatchPosterUrl(match.poster)} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.07]" loading="lazy" />}
-        <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-          {(['home', 'away'] as const).map((side) => <React.Fragment key={side}><div className={cn('flex min-w-0 flex-col items-center text-center', side === 'away' && 'col-start-3')}><div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-700 bg-slate-900/90 p-2 shadow-lg transition-transform group-hover:scale-105 md:h-16 md:w-16">{match.teams ? renderBadge(match.teams[side].badge, match.teams[side].name) : <Trophy className="h-6 w-6 text-slate-500" />}</div><p className="line-clamp-2 min-h-8 w-full text-xs font-bold leading-4 text-slate-200">{match.teams?.[side].name || (side === 'home' ? 'Home side' : 'Away side')}</p></div>{side === 'home' && <div className="col-start-2 row-start-1 flex flex-col items-center gap-2"><span className="text-[10px] font-black uppercase tracking-widest text-slate-600">{isLive ? 'Now' : 'vs'}</span><span className="h-px w-5 bg-slate-700" /></div>}</React.Fragment>)}
+        {match.poster && <><img src={getMatchPosterUrl(match.poster)} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25" loading="lazy" /><div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0e1b2c] via-[#0e1b2c]/55 to-[#0e1b2c]" /></>}
+        <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+          {(['home', 'away'] as const).map((side) => <React.Fragment key={side}><div className={cn('flex min-w-0 flex-col text-center', side === 'away' && 'col-start-3')}><p className="line-clamp-3 min-h-12 w-full text-base font-black leading-5 text-white transition-colors group-hover:text-cyan-100 md:text-lg">{match.teams?.[side].name || (side === 'home' ? 'Home side' : 'Away side')}</p><p className="mt-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">{side === 'home' ? 'Home' : 'Away'}</p></div>{side === 'home' && <div className="col-start-2 row-start-1 flex flex-col items-center gap-2"><span className="text-[10px] font-black uppercase tracking-widest text-slate-300">{isLive ? 'Now' : 'vs'}</span><span className="h-px w-6 bg-cyan-300/50" /></div>}</React.Fragment>)}
         </div>
       </div>
       <div className="border-t border-slate-800 px-4 py-3">

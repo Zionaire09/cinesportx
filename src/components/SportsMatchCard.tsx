@@ -29,7 +29,7 @@ const SportsMatchCard = ({ match, className }: SportMatchCardProps) => {
       </div>
       <div className="border-t border-slate-800 px-4 py-3">
         <div className="flex items-center justify-between text-[11px] text-slate-400"><span className="flex items-center gap-1.5">{isLive ? <Radio className="h-3.5 w-3.5 text-rose-300" /> : isFinished ? <CalendarDays className="h-3.5 w-3.5" /> : <Clock3 className="h-3.5 w-3.5 text-cyan-300" />}{isLive ? 'Streaming now' : format(matchTime, 'EEE, MMM d · h:mm a')}</span><span className="flex items-center gap-1 text-slate-500"><Eye className="h-3.5 w-3.5" />{match.sources?.length || 0}</span></div>
-        <div className="mt-3 flex items-center justify-between text-xs font-bold"><span className="flex items-center gap-1.5 text-slate-300">{match.popular && <Star className="h-3.5 w-3.5 fill-amber-300 text-amber-300" />}{match.popular ? 'Featured fixture' : 'View match details'}</span><ChevronRight className="h-4 w-4 text-cyan-300 transition-transform group-hover:translate-x-1" /></div>
+        <div className="mt-3 flex items-center justify-between text-xs font-bold"><span className="flex items-center gap-1.5 text-slate-300">{match.popular && <Star className="h-3.5 w-3.5 fill-amber-300 text-amber-300" />}{match.popular ? 'Featured match' : 'View match details'}</span><ChevronRight className="h-4 w-4 text-cyan-300 transition-transform group-hover:translate-x-1" /></div>
       </div>
     </article>
   </Link>;

@@ -87,8 +87,8 @@ const Sports = () => {
   }, [currentMatches, searchQuery]);
 
   const emptyMessage = selectedSport === 'all'
-    ? activeTab === 'live' ? 'No live fixtures are streaming right now.' : activeTab === 'popular' ? 'No featured fixtures are available right now.' : 'No fixtures are scheduled for today.'
-    : `No ${sportsList.find((sport) => sport.id === selectedSport)?.name || 'selected'} fixtures found.`;
+    ? activeTab === 'live' ? 'No live matches are streaming right now.' : activeTab === 'popular' ? 'No featured matches are available right now.' : 'No matches are scheduled for today.'
+    : `No ${sportsList.find((sport) => sport.id === selectedSport)?.name || 'selected'} matches found.`;
 
   return (
     <PageTransition>
@@ -103,8 +103,8 @@ const Sports = () => {
                 <div className="absolute right-20 top-10 hidden text-cyan-300/10 md:block"><Trophy className="h-36 w-36" /></div>
                 <div className="relative max-w-2xl">
                   <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-cyan-300"><span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_12px_#67e8f9]" /> RabbitMeow Sports Center</div>
-                  <h1 className="text-3xl font-black tracking-tight text-white md:text-5xl">Every fixture.<br /><span className="text-cyan-300">One place to watch.</span></h1>
-                  <p className="mt-4 max-w-xl text-sm leading-6 text-slate-400 md:text-base">Follow the world’s biggest matchups with live signals, fixtures, and reliable stream access.</p>
+                  <h1 className="text-3xl font-black tracking-tight text-white md:text-5xl">Every match.<br /><span className="text-cyan-300">One place to watch.</span></h1>
+                  <p className="mt-4 max-w-xl text-sm leading-6 text-slate-400 md:text-base">Follow the world’s biggest matchups with live signals, matches, and reliable stream access.</p>
                   <div className="mt-6 flex flex-wrap gap-3 text-xs font-semibold">
                     <div className="flex items-center gap-2 rounded-full border border-rose-400/20 bg-rose-400/10 px-3 py-2 text-rose-200"><Radio className="h-3.5 w-3.5" /> {liveMatches.length} live now</div>
                     <div className="flex items-center gap-2 rounded-full border border-slate-600 bg-slate-900/60 px-3 py-2 text-slate-300"><CalendarDays className="h-3.5 w-3.5 text-cyan-300" /> {todayMatches.length} today</div>
@@ -117,7 +117,7 @@ const Sports = () => {
             <SportsBanner className="mb-7" />
 
             <a href="https://rmppv.xyz/replays" target="_blank" rel="noopener noreferrer" className="group mb-8 flex items-center justify-between rounded-2xl border border-cyan-400/25 bg-cyan-400/[0.07] px-4 py-4 transition-colors hover:border-cyan-300/60 hover:bg-cyan-400/10 md:px-5">
-              <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-300 text-[#07101d]"><Sparkles className="h-5 w-5" /></span><span><span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">Missed a fixture?</span><span className="block text-sm font-bold text-white md:text-base">Catch up on sports replays</span><span className="mt-0.5 block text-xs font-medium text-cyan-200/75">rmppv.xyz/replays</span></span></span><ChevronRight className="h-5 w-5 text-cyan-300 transition-transform group-hover:translate-x-1" />
+              <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-300 text-[#07101d]"><Sparkles className="h-5 w-5" /></span><span><span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">Missed a match?</span><span className="block text-sm font-bold text-white md:text-base">Catch up on sports replays</span><span className="mt-0.5 block text-xs font-medium text-cyan-200/75">rmppv.xyz/replays</span></span></span><ChevronRight className="h-5 w-5 text-cyan-300 transition-transform group-hover:translate-x-1" />
             </a>
 
             <section className="rounded-2xl border border-slate-800 bg-[#0a1524]/80 p-3 md:p-5">
@@ -136,7 +136,7 @@ const Sports = () => {
                   </TabsList>
                   <label className="relative block w-full lg:max-w-sm"><Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" /><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search teams, leagues..." className="h-11 w-full rounded-xl border border-slate-700 bg-slate-900 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/70 focus:ring-2 focus:ring-cyan-400/10" /></label>
                 </div>
-                {['popular', 'live', 'all'].map((tab) => <TabsContent key={tab} value={tab} className="mt-5 focus-visible:outline-none">{isLoading ? <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{[1, 2, 3, 4, 5, 6].map((item) => <div key={item} className="aspect-[1.18] animate-pulse rounded-2xl border border-slate-800 bg-slate-900" />)}</div> : <SportsMatchGrid matches={filteredMatches} emptyMessage={searchQuery ? 'No fixtures match your search.' : emptyMessage} backupStreamHref="https://rmppv.xyz" />}</TabsContent>)}
+                {['popular', 'live', 'all'].map((tab) => <TabsContent key={tab} value={tab} className="mt-5 focus-visible:outline-none">{isLoading ? <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{[1, 2, 3, 4, 5, 6].map((item) => <div key={item} className="aspect-[1.18] animate-pulse rounded-2xl border border-slate-800 bg-slate-900" />)}</div> : <SportsMatchGrid matches={filteredMatches} emptyMessage={searchQuery ? 'No matches match your search.' : emptyMessage} backupStreamHref="https://rmppv.xyz" />}</TabsContent>)}
               </Tabs>
             </section>
           </div>

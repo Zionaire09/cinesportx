@@ -9,538 +9,59 @@ import Ads from '@/components/Ads';
 import SportsBanner from '@/components/SportsBanner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Loader2, 
-  Wifi, 
-  RefreshCw, 
-  Signal,
-  ExternalLink,
-  ArrowLeft, 
-  Tv, 
-  Check,
-  Maximize2,
-  Minimize2,
-  ChevronDown,
-  Clock,
-  Terminal,
-  MessageCircle
-} from 'lucide-react';
+import { Loader2, Wifi, RefreshCw, Signal, ExternalLink, ArrowLeft, Maximize2, Minimize2, ChevronDown, Clock, Check, Sparkles, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 
 const BACKUP_STREAM_URL = 'https://rmppv.xyz';
-
-const BackupStreamLink = () => (
-  <a
-    href={BACKUP_STREAM_URL}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-300/40 bg-cyan-400/10 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-cyan-100 transition-all hover:border-cyan-200/80 hover:bg-cyan-400/20 hover:text-white"
-  >
-    Try rmppv.xyz backup stream
-    <ExternalLink className="h-3.5 w-3.5" />
-  </a>
-);
+const BackupStreamLink = () => <a href={BACKUP_STREAM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-300/40 bg-cyan-400/10 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-cyan-100 transition-all hover:border-cyan-200/80 hover:bg-cyan-400/20 hover:text-white">Try rmppv.xyz backup stream <ExternalLink className="h-3.5 w-3.5" /></a>;
 
 const SportMatchPlayer = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { matchId } = useParams();
-  
-  const [selectedSource, setSelectedSource] = useState<string>('');
-  const [selectedSourceId, setSelectedSourceId] = useState<string>('');
-  const [selectedStreamNo, setSelectedStreamNo] = useState<number>(1);
+  const [selectedSource, setSelectedSource] = useState('');
+  const [selectedStreamNo, setSelectedStreamNo] = useState(1);
   const [matchInfo, setMatchInfo] = useState<any>(null);
-  const [iframeKey, setIframeKey] = useState<number>(0);
-  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-  const [isLoadingPlayer, setIsLoadingPlayer] = useState<boolean>(true);
-  const [isSignalUnavailable, setIsSignalUnavailable] = useState<boolean>(false);
-  const [showSourceDropdown, setShowSourceDropdown] = useState<boolean>(false);
-  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
-  
-  const handleImageError = React.useCallback((badgeUrl: string) => {
-    setFailedImages(prev => new Set(prev).add(badgeUrl));
-  }, []);
-  
+  const [iframeKey, setIframeKey] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isLoadingPlayer, setIsLoadingPlayer] = useState(true);
+  const [isSignalUnavailable, setIsSignalUnavailable] = useState(false);
+  const [showSourceDropdown, setShowSourceDropdown] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
   const sourceDropdownRef = useRef<HTMLDivElement>(null);
-
-  const { data: matchData, isLoading: matchLoading } = useQuery({
-    queryKey: ['match-info', matchId],
-    queryFn: () => matchId ? getMatchById(matchId) : Promise.resolve(null),
-    enabled: !!matchId,
-    refetchOnWindowFocus: false,
-  });
-
-  const { data: activeSources = [], isLoading: sourcesLoading, refetch: refetchSources } = useQuery({
-    queryKey: ['active-sources', matchId],
-    queryFn: () => matchId ? getActiveSourcesForMatch(matchId) : Promise.resolve([]),
-    enabled: !!matchId && !!matchData,
-    refetchOnWindowFocus: false,
-  });
-
-  const { data: groupedStreams = {}, isLoading: streamsLoading, refetch: refetchStreams } = useQuery({
-    queryKey: ['grouped-streams', matchId],
-    queryFn: () => matchId ? getStreamsGroupedBySource(matchId) : Promise.resolve({}),
-    enabled: !!matchId && !!matchData,
-    refetchOnWindowFocus: false,
-  });
-
-  useEffect(() => {
-    if (matchData) setMatchInfo(matchData);
-  }, [matchData]);
-
-  useEffect(() => {
-    if (Object.keys(groupedStreams).length > 0 && activeSources.length > 0) {
-      if (!selectedSource) {
-        const firstSource = activeSources[0];
-        if (firstSource) {
-          setSelectedSource(firstSource.source);
-          setSelectedSourceId(firstSource.sourceId);
-          setSelectedStreamNo(1);
-          setIsLoadingPlayer(true);
-        }
-      }
-    }
-  }, [groupedStreams, activeSources, selectedSource]);
-
+  const { data: matchData, isLoading: matchLoading } = useQuery({ queryKey: ['match-info', matchId], queryFn: () => matchId ? getMatchById(matchId) : Promise.resolve(null), enabled: !!matchId, refetchOnWindowFocus: false });
+  const { data: activeSources = [], isLoading: sourcesLoading, refetch: refetchSources } = useQuery({ queryKey: ['active-sources', matchId], queryFn: () => matchId ? getActiveSourcesForMatch(matchId) : Promise.resolve([]), enabled: !!matchId && !!matchData, refetchOnWindowFocus: false });
+  const { data: groupedStreams = {}, isLoading: streamsLoading, refetch: refetchStreams } = useQuery({ queryKey: ['grouped-streams', matchId], queryFn: () => matchId ? getStreamsGroupedBySource(matchId) : Promise.resolve({}), enabled: !!matchId && !!matchData, refetchOnWindowFocus: false });
+  useEffect(() => { if (matchData) setMatchInfo(matchData); }, [matchData]);
+  useEffect(() => { if (!selectedSource && activeSources[0]) setSelectedSource(activeSources[0].source); }, [activeSources, selectedSource]);
   const currentStreams = selectedSource ? (groupedStreams[selectedSource] || []) : [];
   const currentStream = currentStreams.find(s => s.streamNo === selectedStreamNo) || currentStreams[0];
   const embedUrl = currentStream?.embedUrl || '';
-
-  useEffect(() => {
-    if (selectedSource && currentStream) {
-      setIsLoadingPlayer(true);
-      setIsSignalUnavailable(false);
-      setIframeKey(prev => prev + 1);
-    }
-  }, [selectedSource, selectedStreamNo, embedUrl]);
-
-  useEffect(() => {
-    if (!embedUrl || !isLoadingPlayer) return;
-
-    const noSignalTimer = window.setTimeout(() => {
-      setIsSignalUnavailable(true);
-    }, 12000);
-
-    return () => window.clearTimeout(noSignalTimer);
-  }, [embedUrl, iframeKey, isLoadingPlayer]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (sourceDropdownRef.current && !sourceDropdownRef.current.contains(event.target as Node)) {
-        setShowSourceDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleSourceChange = (sourceInfo: {source: string, sourceId: string}) => {
-    setSelectedSource(sourceInfo.source);
-    setSelectedSourceId(sourceInfo.sourceId);
-    setSelectedStreamNo(1);
-    setShowSourceDropdown(false);
-    toast({
-      title: "NODE REDIRECT",
-      description: `Targeting feed server: ${sourceInfo.source.toUpperCase()}`,
-    });
-  };
-
-  const handleStreamChange = (streamNo: number) => {
-    setSelectedStreamNo(streamNo);
-    const stream = currentStreams.find(s => s.streamNo === streamNo);
-    if (stream) {
-      toast({
-        title: "CHANNEL CHANGED",
-        description: `Active subchannel mapped to channel index #${stream.streamNo}`,
-      });
-    }
-  };
-
-  const handleRefresh = () => {
-    setIsSignalUnavailable(false);
-    setIsLoadingPlayer(true);
-    setIframeKey(prev => prev + 1);
-    refetchSources();
-    refetchStreams();
-    toast({
-      title: "RE-INDEXING CHANNELS",
-      description: "Refreshing network source registers.",
-    });
-  };
-
-  const toggleFullscreen = () => {
-    if (!playerRef.current) return;
-    if (!isFullscreen) {
-      playerRef.current.requestFullscreen?.();
-    } else {
-      document.exitFullscreen?.();
-    }
-  };
-
-  useEffect(() => {
-    const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
-
+  useEffect(() => { if (selectedSource && currentStream) { setIsLoadingPlayer(true); setIsSignalUnavailable(false); setIframeKey(value => value + 1); } }, [selectedSource, selectedStreamNo, embedUrl]);
+  useEffect(() => { if (!embedUrl || !isLoadingPlayer) return; const timer = window.setTimeout(() => setIsSignalUnavailable(true), 12000); return () => window.clearTimeout(timer); }, [embedUrl, iframeKey, isLoadingPlayer]);
+  useEffect(() => { const handleClickOutside = (event: MouseEvent) => { if (sourceDropdownRef.current && !sourceDropdownRef.current.contains(event.target as Node)) setShowSourceDropdown(false); }; document.addEventListener('mousedown', handleClickOutside); return () => document.removeEventListener('mousedown', handleClickOutside); }, []);
+  useEffect(() => { const handler = () => setIsFullscreen(!!document.fullscreenElement); document.addEventListener('fullscreenchange', handler); return () => document.removeEventListener('fullscreenchange', handler); }, []);
+  const handleSourceChange = (sourceInfo: { source: string }) => { setSelectedSource(sourceInfo.source); setSelectedStreamNo(1); setShowSourceDropdown(false); toast({ title: 'SERVER CHANGED', description: `Now using ${sourceInfo.source.toUpperCase()}.` }); };
+  const handleStreamChange = (streamNo: number) => { setSelectedStreamNo(streamNo); toast({ title: 'STREAM CHANGED', description: `Now playing Server ${streamNo}.` }); };
+  const handleRefresh = () => { setIsSignalUnavailable(false); setIsLoadingPlayer(true); setIframeKey(value => value + 1); refetchSources(); refetchStreams(); toast({ title: 'STREAMS REFRESHED', description: 'Checking for the latest available streams.' }); };
+  const toggleFullscreen = () => { if (!playerRef.current) return; if (!isFullscreen) playerRef.current.requestFullscreen?.(); else document.exitFullscreen?.(); };
   const isLoading = matchLoading || sourcesLoading || streamsLoading;
   const hasActiveSources = activeSources.length > 0;
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-white mb-2" />
-        <span className="text-[10px] font-black tracking-widest text-white/60 uppercase">FETCHING FEED PARAMS...</span>
-      </div>
-    );
-  }
-
-  return (
-    <PageTransition>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-neutral-200 antialiased">
-        <Navbar />
-
-        <div className="pt-24 pb-16">
-          <div className="container mx-auto px-4 md:px-6 max-w-7xl">
-            <SportsBanner />
-            
-            {/* Action Return Header */}
-            <motion.div 
-              className="mb-6 flex items-center justify-between"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-            >
-              <motion.button 
-                onClick={() => navigate('/sports')}
-                className="text-white px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 border border-blue-400/50 hover:border-blue-300 transition-all flex items-center gap-2 text-xs font-black uppercase tracking-wider shadow-lg hover:shadow-xl"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>TERMINAL INDEX</span>
-              </motion.button>
-              
-              <div className="flex items-center gap-2 text-white/70 font-mono text-xs bg-white/10 px-3 py-2 rounded-lg border border-white/20 backdrop-blur-sm">
-                <Terminal className="h-3.5 w-3.5" />
-                <span>ID: {matchId?.slice(0, 8)}</span>
-              </div>
-            </motion.div>
-
-            {/* Split Screen Control Architecture - SWAPPED LAYOUT */}
-            <div className="grid grid-cols-1 gap-8 items-start">
-              {/* Theater View Block - NOW IN CENTER AND LARGER */}
-              <motion.div 
-                className="space-y-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <div ref={playerRef} className="relative bg-black rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.9)] border border-white/20">
-                  <div className="relative aspect-video">
-                    {embedUrl ? (
-                      <>
-                        <iframe
-                          key={iframeKey}
-                          src={embedUrl}
-                          className="absolute inset-0 w-full h-full"
-                          title="Media Interface"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          referrerPolicy="strict-origin-when-cross-origin"
-                          allowFullScreen
-                          onLoad={() => {
-                            setIsLoadingPlayer(false);
-                            setIsSignalUnavailable(false);
-                          }}
-                        />
-                        {isLoadingPlayer && (
-                          <motion.div
-                            className="absolute inset-0 flex items-center justify-center bg-black/95 p-6"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                          >
-                            {isSignalUnavailable ? (
-                              <div className="flex max-w-sm flex-col items-center text-center">
-                                <Signal className="mb-3 h-7 w-7 text-cyan-200" />
-                                <p className="mb-4 text-xs font-black uppercase tracking-wider text-white">This stream has not returned a signal</p>
-                                <div className="flex flex-wrap justify-center gap-3">
-                                  <BackupStreamLink />
-                                  <Button onClick={handleRefresh} size="sm" variant="outline" className="border-white/30 bg-white/10 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/20 hover:text-white">
-                                    Retry signal
-                                  </Button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="flex flex-col items-center gap-3">
-                                <Loader2 className="h-6 w-6 animate-spin text-white/60" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-white/60">Connecting to stream...</span>
-                              </div>
-                            )}
-                          </motion.div>
-                        )}
-                      </>
-                    ) : hasActiveSources && selectedSource ? (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-6">
-                        <div className="flex max-w-sm flex-col items-center text-center">
-                          <Signal className="mb-3 h-7 w-7 text-cyan-200" />
-                          <p className="mb-4 text-xs font-black uppercase tracking-wider text-white">No stream signal is available from this source</p>
-                          <BackupStreamLink />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-6">
-                        <div className="flex max-w-sm flex-col items-center text-center">
-                          <Signal className="mb-3 h-7 w-7 text-white/50" />
-                          <p className="mb-4 text-xs font-black uppercase tracking-wider text-white">No feeds are active for this entry</p>
-                          <div className="flex flex-wrap justify-center gap-3">
-                            <Button onClick={handleRefresh} size="sm" className="bg-gradient-to-r from-blue-600 to-blue-500 border border-blue-400/50 text-white text-xs font-bold uppercase tracking-wider hover:from-blue-500 hover:to-blue-400">
-                              Sync Signals
-                            </Button>
-                            <BackupStreamLink />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Strip Interface Controls */}
-                  {embedUrl && (
-                    <motion.div 
-                      className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-white/10 to-white/5 border-t border-white/20 text-xs font-bold tracking-wide uppercase backdrop-blur-sm"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.2 }}
-                    >
-                      <div className="flex items-center gap-2 text-white/80">
-                        <motion.span 
-                          className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-300"
-                          animate={{ scale: [1, 1.3, 1] }}
-                          transition={{ duration: 1, repeat: Infinity }}
-                        />
-                        <span>
-                          NODE: <span className="text-white">{selectedSource}</span>
-                          <span className="text-white/60 ml-2 font-mono lowercase">
-                            • stream_idx_{currentStream?.streamNo}
-                          </span>
-                        </span>
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={toggleFullscreen} className="h-8 w-8 p-0 text-white/60 hover:text-white">
-                        {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                      </Button>
-                    </motion.div>
-                  )}
-                </div>
-
-                <div className="mt-4 flex justify-center">
-                  <BackupStreamLink />
-                </div>
-
-                <motion.a
-                  href="https://rmppv.xyz/replays"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Watch sports replays at rmppv.xyz/replays"
-                  className="group mt-4 flex items-center justify-between gap-3 rounded-xl border-2 border-cyan-300/70 bg-gradient-to-r from-blue-700/70 via-cyan-600/45 to-blue-950/40 px-4 py-4 shadow-[0_0_28px_rgba(34,211,238,0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-100 hover:shadow-[0_0_42px_rgba(34,211,238,0.4)] md:gap-4 md:rounded-2xl md:px-5 md:py-5"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.25 }}
-                >
-                  <span className="flex min-w-0 items-center gap-3 text-left">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-400 text-blue-950 shadow-lg shadow-cyan-950/50 ring-2 ring-cyan-100/30 md:h-11 md:w-11 md:ring-4">
-                      <Clock className="h-4 w-4 md:h-5 md:w-5" />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-cyan-100 md:text-xs">Replay available</span>
-                      <span className="block truncate text-lg font-black tracking-tight text-white md:text-2xl">Watch Sports Replays</span>
-                      <span className="block truncate text-xs font-bold text-cyan-100/80 md:text-sm">rmppv.xyz/replays</span>
-                    </span>
-                  </span>
-                  <ExternalLink className="h-5 w-5 shrink-0 text-cyan-100 md:h-6 md:w-6" />
-                </motion.a>
-
-                {/* Info Center Banner */}
-                {matchInfo && (
-                  <motion.div 
-                    className="bg-gradient-to-r from-blue-700/25 to-cyan-600/15 rounded-2xl p-6 border border-blue-300/20 space-y-4 backdrop-blur-sm"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                  >
-                    <div>
-                      <span className="text-[10px] font-black tracking-widest text-white/90 uppercase bg-gradient-to-r from-blue-500/35 to-cyan-500/25 px-2 py-1 rounded border border-blue-200/20 backdrop-blur-sm inline-block">
-                        {matchInfo.category}
-                      </span>
-                      <h1 className="text-2xl font-black text-white uppercase tracking-tight mt-3 drop-shadow-lg">{matchInfo.title}</h1>
-                      <div className="flex items-center gap-2 mt-2 text-white/70 text-xs font-bold uppercase tracking-wider">
-                        <Clock className="h-3.5 w-3.5" />
-                        <span>{format(new Date(matchInfo.date), "MMM d, yyyy • h:mm a")}</span>
-                      </div>
-                    </div>
-
-                    {matchInfo.teams && (
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-white/10 rounded-xl p-4 border border-white/20 gap-4 backdrop-blur-sm">
-                        <div className="flex items-center gap-6">
-                          <div className="flex items-center gap-2">
-                          {!failedImages.has(matchInfo.teams.home.badge) ? (
-                            <img
-                              src={`https://streamed.pk/api/images/badge/${matchInfo.teams.home.badge?.replace(/\.(webp|png|jpg|jpeg)$/i, '')}.webp`}
-                              className="w-7 h-7 object-contain drop-shadow-lg"
-                              onError={() => handleImageError(matchInfo.teams.home.badge)}
-                              alt=""
-                            />
-                          ) : (
-                            <div className="w-7 h-7 flex items-center justify-center bg-white/10 rounded text-[8px] font-black text-white/50">N/A</div>
-                          )}
-                            <span className="text-white font-black text-xs uppercase tracking-wider">{matchInfo.teams.home.name}</span>
-                          </div>
-                          
-                          <span className="text-[9px] font-black text-white/60 tracking-widest">VS</span>
-                          
-                          <div className="flex items-center gap-2">
-                          {!failedImages.has(matchInfo.teams.away.badge) ? (
-                            <img
-                              src={`https://streamed.pk/api/images/badge/${matchInfo.teams.away.badge?.replace(/\.(webp|png|jpg|jpeg)$/i, '')}.webp`}
-                              className="w-7 h-7 object-contain drop-shadow-lg"
-                              onError={() => handleImageError(matchInfo.teams.away.badge)}
-                              alt=""
-                            />
-                          ) : (
-                            <div className="w-7 h-7 flex items-center justify-center bg-white/10 rounded text-[8px] font-black text-white/50">N/A</div>
-                          )}
-                            <span className="text-white font-black text-xs uppercase tracking-wider">{matchInfo.teams.away.name}</span>
-                          </div>
-                        </div>
-
-                        {matchInfo.popular && (
-                          <Badge className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white font-black text-[9px] tracking-widest px-2 py-1 rounded-md border-none uppercase drop-shadow-lg">
-                            ⭐ POPULAR
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-
-                {/* Routing Station - NOW BELOW PLAYER */}
-                <motion.div 
-                  className="bg-gradient-to-br from-blue-600/20 to-cyan-600/20 p-6 rounded-2xl border border-white/20 space-y-6 backdrop-blur-sm"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                >
-                  <div>
-                    <h3 className="text-xs font-black text-white tracking-widest uppercase mb-1 flex items-center gap-2 drop-shadow-lg">
-                      <Wifi className="h-4 w-4 text-cyan-400" />
-                      ROUTING STATION
-                    </h3>
-                    <p className="text-[11px] text-white/70 font-medium tracking-wide uppercase">Toggle channels below if transmission lag hits frames.</p>
-                  </div>
-
-                  {/* Server Dropdown Element */}
-                  {hasActiveSources && (
-                    <div className="space-y-2">
-                      <label className="block text-white/70 text-[10px] font-black uppercase tracking-widest">Active Server Profile</label>
-                      <div className="relative" ref={sourceDropdownRef}>
-                        <motion.button
-                          onClick={() => setShowSourceDropdown(!showSourceDropdown)}
-                          className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white/10 border-2 border-white/20 hover:border-white/30 hover:bg-white/15 transition-all text-left backdrop-blur-sm"
-                          whileHover={{ scale: 1.02 }}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <Wifi className="h-4 w-4 text-cyan-400" />
-                            <span className="text-white text-xs font-black uppercase tracking-widest">
-                              {selectedSource ? selectedSource : 'Select Server Node'}
-                            </span>
-                          </div>
-                          <ChevronDown className={`h-4 w-4 text-white/60 transition-transform duration-300 ${showSourceDropdown ? 'rotate-180' : ''}`} />
-                        </motion.button>
-                        
-                        <AnimatePresence>
-                          {showSourceDropdown && (
-                            <motion.div
-                              initial={{ opacity: 0, y: -4 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -4 }}
-                              className="absolute top-full left-0 mt-2 w-full bg-gradient-to-br from-white/20 to-white/10 rounded-xl border border-white/30 shadow-3xl z-50 overflow-hidden backdrop-blur-sm"
-                            >
-                              {activeSources.map((sourceInfo) => {
-                                const isSelected = selectedSource === sourceInfo.source;
-                                return (
-                                  <motion.button
-                                    key={sourceInfo.source}
-                                    onClick={() => handleSourceChange(sourceInfo)}
-                                    className={`w-full flex items-center justify-between px-4 py-3 transition-all text-left border-b border-white/10 ${isSelected ? 'bg-white/20' : 'hover:bg-white/10'}`}
-                                    whileHover={{ x: 4 }}
-                                  >
-                                    <span className="text-white text-xs font-black uppercase tracking-wider">{sourceInfo.source}</span>
-                                    {isSelected && <Check className="h-4 w-4 text-cyan-400" />}
-                                  </motion.button>
-                                );
-                              })}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Multi-channel Subchannel buttons layout */}
-                  {selectedSource && currentStreams.length > 1 && (
-                    <div className="space-y-2">
-                      <label className="block text-white/70 text-[10px] font-black uppercase tracking-widest">Sub-Link Channel Indices</label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {currentStreams.map((stream) => {
-                          const isSelected = selectedStreamNo === stream.streamNo;
-                          return (
-                            <motion.button
-                              key={stream.streamNo}
-                              onClick={() => handleStreamChange(stream.streamNo)}
-                              className={`px-3 py-2.5 rounded-xl transition-all duration-200 flex flex-col gap-1 text-left border-2 ${
-                                isSelected 
-                                  ? 'text-white border-white/40 shadow-md font-bold bg-gradient-to-r from-cyan-500/30 to-blue-500/30' 
-                                  : 'bg-white/10 text-white/70 border-white/20 text-xs hover:bg-white/15 hover:border-white/30'
-                              }`}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <span className="text-[10px] font-black tracking-widest uppercase">NODE #{stream.streamNo}</span>
-                              <div className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-tighter opacity-60">
-                                {stream.language?.trim() && <span>{stream.language.trim()}</span>}
-                                {stream.hd && <span className="font-black">[HD]</span>}
-                              </div>
-                            </motion.button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  <motion.div 
-                    className="pt-2 border-t border-white/20"
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <Button
-                      onClick={handleRefresh}
-                      className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 border border-cyan-400/50 text-white text-xs font-black uppercase tracking-widest h-11 rounded-xl hover:from-cyan-500 hover:to-blue-500 shadow-lg"
-                    >
-                      <RefreshCw className="h-3.5 w-3.5" />
-                      POLL STREAMS
-                    </Button>
-                  </motion.div>
-                </motion.div>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-        
-        <Ads />
-        <Footer />
-      </div>
-    </PageTransition>
-  );
+  if (isLoading) return <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"><Loader2 className="mb-2 h-8 w-8 animate-spin text-white" /><span className="text-[10px] font-black uppercase tracking-widest text-white/60">Loading match streams...</span></div>;
+  const title = matchInfo?.title || 'Sports match';
+  const teams = matchInfo?.teams?.home?.name && matchInfo?.teams?.away?.name ? `${matchInfo.teams.home.name} vs ${matchInfo.teams.away.name}` : '';
+  return <PageTransition><div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-neutral-200 antialiased"><Navbar /><div className="px-4 pb-16 pt-24 md:px-6"><div className="container mx-auto max-w-7xl"><SportsBanner />
+    <div className="mb-5 flex items-center justify-between"><button onClick={() => navigate('/sports')} className="flex items-center gap-2 rounded-xl border border-cyan-400/50 bg-gradient-to-r from-cyan-600 to-blue-600 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-lg transition hover:border-cyan-200"><ArrowLeft className="h-4 w-4" /> Back</button><span className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 font-mono text-[10px] text-white/60">MATCH {matchId?.slice(0, 8)}</span></div>
+    <motion.header className="mb-5 rounded-2xl border border-cyan-400/20 bg-gradient-to-r from-cyan-400/[0.12] to-blue-500/[0.08] px-5 py-5 text-center shadow-xl" initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}><p className="text-[10px] font-black uppercase tracking-[0.25em] text-cyan-300">{matchInfo?.category || 'Sports'}{matchInfo?.league ? ` • ${matchInfo.league}` : ''}</p><h1 className="mt-2 text-2xl font-black tracking-tight text-white md:text-4xl">{teams || title}</h1>{teams && <p className="mt-1 text-sm font-bold text-cyan-100/80">{title}</p>}<p className="mt-2 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white/60"><Clock className="h-3.5 w-3.5" />{matchInfo?.date ? format(new Date(matchInfo.date), 'MMM d, yyyy • h:mm a') : 'Match details unavailable'}</p></motion.header>
+    <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,4fr)_minmax(250px,1fr)]">
+      <main className="min-w-0 space-y-5"><motion.div ref={playerRef} className="overflow-hidden rounded-2xl border border-white/20 bg-black shadow-[0_0_50px_rgba(0,0,0,0.8)]" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="relative aspect-video">{embedUrl ? <><iframe key={iframeKey} src={embedUrl} className="absolute inset-0 h-full w-full" title="Match stream" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen onLoad={() => { setIsLoadingPlayer(false); setIsSignalUnavailable(false); }} />{isLoadingPlayer && <div className="absolute inset-0 flex items-center justify-center bg-black/95 p-6">{isSignalUnavailable ? <div className="flex max-w-sm flex-col items-center text-center"><Signal className="mb-3 h-7 w-7 text-cyan-200" /><p className="mb-4 text-xs font-black uppercase tracking-wider text-white">This stream has not returned a signal</p><div className="flex flex-wrap justify-center gap-3"><BackupStreamLink /><Button onClick={handleRefresh} size="sm" variant="outline" className="border-white/30 bg-white/10 text-xs font-bold uppercase tracking-wider text-white">Refresh streams</Button></div></div> : <div className="flex flex-col items-center gap-3"><Loader2 className="h-6 w-6 animate-spin text-white/60" /><span className="text-[10px] font-black uppercase tracking-widest text-white/60">Connecting to stream...</span></div>}</div>}</> : <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-6"><div className="flex max-w-sm flex-col items-center text-center"><Signal className="mb-3 h-7 w-7 text-white/50" /><p className="mb-4 text-xs font-black uppercase tracking-wider text-white">No streams are available for this match</p><div className="flex flex-wrap justify-center gap-3"><Button onClick={handleRefresh} size="sm" className="border border-cyan-400/50 bg-gradient-to-r from-cyan-600 to-blue-600 text-xs font-bold uppercase tracking-wider text-white">Refresh streams</Button><BackupStreamLink /></div></div></div>}</div>{embedUrl && <div className="flex items-center justify-between border-t border-white/20 bg-white/5 px-4 py-3 text-xs uppercase tracking-wide"><span className="truncate text-white/70"><span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-cyan-300" />{selectedSource} • stream {currentStream?.streamNo}</span><Button variant="ghost" size="sm" onClick={toggleFullscreen} className="h-8 w-8 p-0 text-white/60 hover:text-white">{isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}</Button></div>}</motion.div>
+        <motion.div className="rounded-2xl border border-cyan-400/25 bg-cyan-400/[0.07] px-4 py-4 transition hover:border-cyan-300/60 md:px-5" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}><div className="flex items-start gap-3"><Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" /><div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300">Discover more on RabbitMeow</p><p className="mt-1 text-base font-black text-white md:text-lg">Stay for the match. Explore more after the final whistle.</p><p className="mt-1 text-xs leading-5 text-cyan-100/75">Browse movies and TV shows on RabbitMeow, then invite your friends to discover the site with you.</p><div className="mt-3 flex flex-wrap gap-2"><a href="/movies" className="rounded-lg bg-cyan-300 px-3 py-2 text-xs font-black text-slate-950 transition hover:bg-white">Explore Movies</a><a href="/tv" className="rounded-lg border border-cyan-300/40 px-3 py-2 text-xs font-black text-cyan-100 transition hover:bg-cyan-300/10">Browse TV Shows</a></div></div></div></motion.div>
+        <a href="https://rmppv.xyz/replays" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-between gap-3 rounded-2xl border border-cyan-400/25 bg-cyan-400/[0.07] px-4 py-4 transition hover:border-cyan-300/60 hover:bg-cyan-400/10 md:px-5"><span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-300 text-slate-950"><Clock className="h-5 w-5" /></span><span><span className="block text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300">Missed a match?</span><span className="block text-base font-black text-white md:text-lg">Catch up on sports replays</span><span className="block text-xs font-bold text-cyan-100/75">rmppv.xyz/replays</span></span></span><ExternalLink className="h-5 w-5 text-cyan-300 transition group-hover:translate-x-1" /></a>
+      </main>
+      <aside className="rounded-2xl border border-cyan-400/25 bg-gradient-to-br from-cyan-500/[0.14] to-blue-600/[0.12] p-4 shadow-xl backdrop-blur-sm lg:sticky lg:top-24"><div className="mb-5"><h2 className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.16em] text-white"><Wifi className="h-4 w-4 text-cyan-300" />Stream Server Controls</h2><p className="mt-2 text-[11px] leading-5 text-white/60">Switch servers or refresh the available streams when playback needs a new signal.</p></div>{hasActiveSources && <div className="mb-5 space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-white/60">Active server</label><div className="relative" ref={sourceDropdownRef}><button onClick={() => setShowSourceDropdown(!showSourceDropdown)} className="flex w-full items-center justify-between rounded-xl border border-white/20 bg-white/10 px-3 py-3 text-left transition hover:border-cyan-300/60"><span className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-white"><Wifi className="h-4 w-4 text-cyan-300" />{selectedSource || 'Select server'}</span><ChevronDown className={`h-4 w-4 text-white/60 transition ${showSourceDropdown ? 'rotate-180' : ''}`} /></button><AnimatePresence>{showSourceDropdown && <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="absolute left-0 top-full z-50 mt-2 w-full overflow-hidden rounded-xl border border-white/25 bg-slate-900/95 shadow-2xl backdrop-blur">{activeSources.map(source => <button key={source.source} onClick={() => handleSourceChange(source)} className="flex w-full items-center justify-between border-b border-white/10 px-3 py-3 text-left text-xs font-black uppercase tracking-wider text-white hover:bg-cyan-400/15">{source.source}{selectedSource === source.source && <Check className="h-4 w-4 text-cyan-300" />}</button>)}</motion.div>}</AnimatePresence></div></div>}{selectedSource && currentStreams.length > 1 && <div className="mb-5 space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-white/60">Available streams</label><div className="grid gap-2">{currentStreams.map((stream, index) => <button key={stream.streamNo} onClick={() => handleStreamChange(stream.streamNo)} className={`rounded-xl border px-3 py-3 text-left transition ${selectedStreamNo === stream.streamNo ? 'border-cyan-300/70 bg-cyan-400/20 text-white shadow-lg' : 'border-white/15 bg-white/5 text-white/65 hover:border-cyan-300/40'}`}><span className="block text-xs font-black uppercase tracking-wider">Server {index + 1}</span><span className="mt-1 flex items-center gap-1 text-[9px] uppercase tracking-wider opacity-60">{stream.language?.trim() || 'Standard'}{stream.hd && ' • HD'}</span></button>)}</div></div>}<Button onClick={handleRefresh} className="h-11 w-full rounded-xl border border-cyan-300/50 bg-gradient-to-r from-cyan-600 to-blue-600 text-xs font-black uppercase tracking-widest text-white shadow-lg hover:from-cyan-500 hover:to-blue-500"><RefreshCw className="h-3.5 w-3.5" />Refresh streams</Button></aside>
+    </div></div></div><Ads /><Footer /></div></PageTransition>;
 };
-
 export default SportMatchPlayer;

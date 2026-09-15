@@ -102,7 +102,7 @@ const Sports = () => {
                 <div className="absolute -right-10 -top-16 h-64 w-64 rounded-full border-[28px] border-cyan-400/5" />
                 <div className="absolute right-20 top-10 hidden text-cyan-300/10 md:block"><Trophy className="h-36 w-36" /></div>
                 <div className="relative max-w-2xl">
-                  <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-cyan-300"><span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_12px_#67e8f9]" /> Live sports desk</div>
+                  <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-cyan-300"><span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_12px_#67e8f9]" /> RabbitMeow Sports Center</div>
                   <h1 className="text-3xl font-black tracking-tight text-white md:text-5xl">Every fixture.<br /><span className="text-cyan-300">One place to watch.</span></h1>
                   <p className="mt-4 max-w-xl text-sm leading-6 text-slate-400 md:text-base">Follow the world’s biggest matchups with live signals, fixtures, and reliable stream access.</p>
                   <div className="mt-6 flex flex-wrap gap-3 text-xs font-semibold">
@@ -117,7 +117,7 @@ const Sports = () => {
             <SportsBanner className="mb-7" />
 
             <a href="https://rmppv.xyz/replays" target="_blank" rel="noopener noreferrer" className="group mb-8 flex items-center justify-between rounded-2xl border border-cyan-400/25 bg-cyan-400/[0.07] px-4 py-4 transition-colors hover:border-cyan-300/60 hover:bg-cyan-400/10 md:px-5">
-              <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-300 text-[#07101d]"><Sparkles className="h-5 w-5" /></span><span><span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">Missed a fixture?</span><span className="block text-sm font-bold text-white md:text-base">Catch up on sports replays</span></span></span><ChevronRight className="h-5 w-5 text-cyan-300 transition-transform group-hover:translate-x-1" />
+              <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-300 text-[#07101d]"><Sparkles className="h-5 w-5" /></span><span><span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">Missed a fixture?</span><span className="block text-sm font-bold text-white md:text-base">Catch up on sports replays</span><span className="mt-0.5 block text-xs font-medium text-cyan-200/75">rmppv.xyz/replays</span></span></span><ChevronRight className="h-5 w-5 text-cyan-300 transition-transform group-hover:translate-x-1" />
             </a>
 
             <section className="rounded-2xl border border-slate-800 bg-[#0a1524]/80 p-3 md:p-5">

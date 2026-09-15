@@ -16,7 +16,7 @@ const SportsMatchCard = ({ match, className }: SportMatchCardProps) => {
   const isFinished = match.status === 'finished' || (!isLive && matchTime.getTime() < Date.now());
   const state = isLive ? 'live' : isFinished ? 'finished' : 'upcoming';
   const stateStyles = { live: 'border-rose-400/40 shadow-rose-950/20', upcoming: 'border-slate-700 hover:border-cyan-400/50', finished: 'border-slate-800 opacity-90' };
-  const renderBadge = (badge: string, name: string) => failedImages.has(badge) ? <span className="text-[10px] font-bold text-slate-500">N/A</span> : <img src={getTeamBadgeUrl(badge)} alt={`${name} crest`} className="h-full w-full object-contain" loading="lazy" onError={() => handleImageError(badge)} />;
+  const renderBadge = (badge: string, name: string) => failedImages.has(badge) ? <span className="text-lg font-black text-cyan-300">{name.split(/\s+/).map((part) => part[0]).join('').slice(0, 3).toUpperCase()}</span> : <img src={getTeamBadgeUrl(badge)} alt={`${name} crest`} className="h-full w-full object-contain" loading="lazy" onError={() => handleImageError(badge)} />;
 
   return <Link to={`/sports/player/${match.id}`} className={cn('group block h-full', className)}>
     <article className={cn('flex h-full min-h-[288px] flex-col overflow-hidden rounded-2xl border bg-[#0e1b2c] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl', stateStyles[state])}>

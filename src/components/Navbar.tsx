@@ -192,7 +192,7 @@ const Navbar = () => {
             : isSports
               ? 'border border-accent/40 bg-accent/10 text-accent hover:border-accent/70 hover:bg-accent/20 hover:text-white'
             : isActive
-              ? 'bg-white text-black shadow-sm'
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30 hover:bg-blue-500'
               : item.external
                 ? 'border border-accent/40 bg-accent/10 text-accent hover:border-accent/70 hover:bg-accent/20 hover:text-white'
                 : 'text-white/75 hover:bg-white/10 hover:text-white'
@@ -203,7 +203,7 @@ const Navbar = () => {
             : isSports
               ? 'border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20'
             : isActive
-              ? 'bg-white text-black'
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30 hover:bg-blue-500'
               : item.external
                 ? 'border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20'
                 : 'text-white/80 hover:bg-white/10 hover:text-white'

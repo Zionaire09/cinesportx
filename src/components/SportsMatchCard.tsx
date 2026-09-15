@@ -1,217 +1,41 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { APIMatch } from '@/utils/sports-types';
 import { getMatchPosterUrl, getTeamBadgeUrl } from '@/utils/sports-api';
-import { formatDistanceToNow, format } from 'date-fns';
-import { Clock, Radio, ShieldAlert, Zap, Eye } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { format } from 'date-fns';
+import { CalendarDays, ChevronRight, Clock3, Eye, Radio, Star, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
-import { getColorForSport } from '@/utils/sports-colors';
 
-interface SportMatchCardProps {
-  match: APIMatch;
-  className?: string;
-}
+interface SportMatchCardProps { match: APIMatch; className?: string }
 
-const SportMatchCard = ({ match, className }: SportMatchCardProps) => {
+const SportsMatchCard = ({ match, className }: SportMatchCardProps) => {
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
-
-  const handleImageError = useCallback((badgeUrl: string) => {
-    setFailedImages(prev => new Set(prev).add(badgeUrl));
-  }, []);
-
-  const now = new Date().getTime();
+  const handleImageError = useCallback((url: string) => setFailedImages((previous) => new Set(previous).add(url)), []);
   const matchTime = new Date(match.date);
-  const matchTimestamp = matchTime.getTime();
+  const isLive = match.status === 'live' || (match.status !== 'finished' && matchTime.getTime() <= Date.now() && Date.now() - matchTime.getTime() < 3 * 60 * 60 * 1000);
+  const isFinished = match.status === 'finished' || (!isLive && matchTime.getTime() < Date.now());
+  const state = isLive ? 'live' : isFinished ? 'finished' : 'upcoming';
+  const stateStyles = { live: 'border-rose-400/40 shadow-rose-950/20', upcoming: 'border-slate-700 hover:border-cyan-400/50', finished: 'border-slate-800 opacity-90' };
+  const renderBadge = (badge: string, name: string) => failedImages.has(badge) ? <span className="text-[10px] font-bold text-slate-500">N/A</span> : <img src={getTeamBadgeUrl(badge)} alt={`${name} crest`} className="h-full w-full object-contain" loading="lazy" onError={() => handleImageError(badge)} />;
 
-  const isLive = matchTimestamp <= now && (now - matchTimestamp < 3 * 60 * 60 * 1000);
-  const isUpcoming = matchTimestamp > now;
-  const matchId = match.id;
-
-  // Determine color based on match category
-  const sportColor = getColorForSport(match.category);
-
-  return (
-    <Link
-      to={`/sports/player/${matchId}`}
-      className={cn(
-        "block group h-full select-none",
-        className
-      )}
-    >
-        <Card
-          className={cn(
-          "overflow-hidden h-full shadow-lg flex flex-col justify-between rounded-xl md:rounded-2xl border border-white/20 bg-gradient-to-br",
-          sportColor.bg
-        )}
-        style={{
-          background: sportColor.gradient,
-          borderColor: sportColor.glow,
-          boxShadow: `0 0 14px ${sportColor.glow}`
-        }}
-      >
-
-        {/* Dynamic Canvas Area with Enhanced Effects */}
-        <div className="relative aspect-[16/9] md:aspect-[16/10] bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center p-2 md:p-4 border-b border-white/20 overflow-hidden">
-          {/* Animated Background Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0" />
-
-          {match.poster && (
-            <>
-              <img
-                src={getMatchPosterUrl(match.poster)}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover opacity-60"
-                loading="lazy"
-              />
-              {/* Overlay Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-5" />
-            </>
-          )}
-
-          <div className="absolute inset-0 bg-black/20 z-0" />
-
-          {/* Versus Interface with Enhanced Styling */}
-          {match.teams ? (
-            <div
-              className="relative z-10 w-full flex items-center justify-between gap-1"
-            >
-              {/* Home Team */}
-              <div className="flex flex-col items-center text-center w-[45%]">
-                <div
-                  className="w-12 h-12 md:w-20 md:h-20 rounded-lg md:rounded-xl bg-gradient-to-br from-white/30 to-white/10 border border-white/40 md:border-2 p-2 md:p-3 flex items-center justify-center shadow-md relative"
-                >
-                  {!failedImages.has(match.teams.home.badge) ? (
-                    <img
-                      src={getTeamBadgeUrl(match.teams.home.badge)}
-                      alt=""
-                      className="w-full h-full object-contain"
-                      loading="lazy"
-                      onError={() => handleImageError(match.teams.home.badge)}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-white/10 to-white/5 rounded-lg">
-                      <span className="text-[10px] font-black text-white/60 uppercase">N/A</span>
-                    </div>
-                  )}
-                </div>
-                <span className="text-[10px] md:text-xs font-black text-white truncate w-full mt-1 md:mt-2.5 tracking-wide uppercase">
-                  {match.teams.home.name}
-                </span>
-              </div>
-
-              {/* VS Badge */}
-              <div
-                className="text-[9px] md:text-[10px] font-black tracking-widest text-white bg-gradient-to-r from-white/30 to-white/10 px-1.5 py-0.5 md:px-2 md:py-1 rounded border border-white/40"
-              >
-                VS
-              </div>
-
-              {/* Away Team */}
-              <div className="flex flex-col items-center text-center w-[45%]">
-                <div
-                  className="w-12 h-12 md:w-20 md:h-20 rounded-lg md:rounded-xl bg-gradient-to-br from-white/30 to-white/10 border border-white/40 md:border-2 p-2 md:p-3 flex items-center justify-center shadow-md relative"
-                >
-                  {!failedImages.has(match.teams.away.badge) ? (
-                    <img
-                      src={getTeamBadgeUrl(match.teams.away.badge)}
-                      alt=""
-                      className="w-full h-full object-contain"
-                      loading="lazy"
-                      onError={() => handleImageError(match.teams.away.badge)}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-white/10 to-white/5 rounded-lg">
-                      <span className="text-[10px] font-black text-white/60 uppercase">N/A</span>
-                    </div>
-                  )}
-                </div>
-                <span className="text-[10px] md:text-xs font-black text-white truncate w-full mt-1 md:mt-2.5 tracking-wide uppercase">
-                  {match.teams.away.name}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="relative z-10 text-center">
-              <ShieldAlert className="h-8 w-8 text-white mx-auto mb-1" />
-              <span className="text-[10px] font-black tracking-widest text-white bg-white/20 px-2 py-1 rounded uppercase">{match.category}</span>
-            </div>
-          )}
-
-          {/* Floated Indicators with Enhanced Effects */}
-          <div className="absolute top-3 right-3 z-20 flex flex-col gap-2">
-            {isLive ? (
-              <div>
-                <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-500 to-cyan-500 text-[9px] font-black tracking-widest px-2 py-0.5 rounded border border-blue-100/40 shadow-[0_0_15px_rgba(56,189,248,0.55)] text-white">
-                  ◉ LIVE
-                </Badge>
-              </div>
-            ) : isUpcoming ? (
-              <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-500 hover:to-blue-600 text-[9px] font-black tracking-widest px-2 py-0.5 rounded border border-white/40">
-                ⏱️ PENDING
-              </Badge>
-            ) : match.popular ? (
-              <Badge className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white text-[9px] font-black tracking-widest px-2 py-0.5 rounded border border-white/40 shadow-md">
-                ⭐ TOP
-              </Badge>
-            ) : null}
-
-            {/* Streaming Quality Indicator */}
-            {match.sources && match.sources.length > 0 && (
-              <div
-                className="bg-white/20 text-[9px] font-black tracking-widest px-2 py-0.5 rounded border border-white/40 text-white flex items-center gap-1"
-              >
-                <Zap className="h-3 w-3 text-yellow-300" />
-                {match.sources.length}
-              </div>
-            )}
-          </div>
+  return <Link to={`/sports/player/${match.id}`} className={cn('group block h-full', className)}>
+    <article className={cn('flex h-full min-h-[288px] flex-col overflow-hidden rounded-2xl border bg-[#0e1b2c] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl', stateStyles[state])}>
+      <div className="relative flex items-center justify-between border-b border-slate-800 bg-[#101f32] px-4 py-3">
+        <div className="min-w-0"><p className="truncate text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-300">{match.league || match.category}</p><p className="mt-1 truncate text-xs text-slate-500">{match.title}</p></div>
+        <span className={cn('ml-3 shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider', isLive ? 'bg-rose-400/15 text-rose-200' : isFinished ? 'bg-slate-700 text-slate-400' : 'bg-cyan-400/10 text-cyan-200')}>{isLive ? <><span className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-rose-300" />Live</> : isFinished ? 'Final' : 'Upcoming'}</span>
+      </div>
+      <div className="relative flex flex-1 flex-col justify-center px-4 py-6">
+        {match.poster && <img src={getMatchPosterUrl(match.poster)} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.07]" loading="lazy" />}
+        <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+          {(['home', 'away'] as const).map((side) => <React.Fragment key={side}><div className={cn('flex min-w-0 flex-col items-center text-center', side === 'away' && 'col-start-3')}><div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-700 bg-slate-900/90 p-2 shadow-lg transition-transform group-hover:scale-105 md:h-16 md:w-16">{match.teams ? renderBadge(match.teams[side].badge, match.teams[side].name) : <Trophy className="h-6 w-6 text-slate-500" />}</div><p className="line-clamp-2 min-h-8 w-full text-xs font-bold leading-4 text-slate-200">{match.teams?.[side].name || (side === 'home' ? 'Home side' : 'Away side')}</p></div>{side === 'home' && <div className="col-start-2 row-start-1 flex flex-col items-center gap-2"><span className="text-[10px] font-black uppercase tracking-widest text-slate-600">{isLive ? 'Now' : 'vs'}</span><span className="h-px w-5 bg-slate-700" /></div>}</React.Fragment>)}
         </div>
-
-        {/* Info Deck with Enhanced Typography */}
-        <CardContent className="p-2.5 md:p-4 bg-gradient-to-b from-white/10 to-white/5 flex-grow flex flex-col justify-between">
-          <div>
-            <div className="text-[9px] font-black tracking-widest text-white/90 uppercase mb-1 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
-              {match.league || match.category}
-            </div>
-            <h3 className="font-bold text-sm text-white line-clamp-2 tracking-wide">
-              {match.title}
-            </h3>
-          </div>
-
-          {/* Bottom Stats Bar with Hover Effects */}
-          <div
-            className="mt-2 md:mt-4 pt-2 md:pt-3 border-t border-white/20 flex justify-between items-center text-[9px] md:text-[10px] font-bold text-white/80 tracking-wide uppercase"
-          >
-            <div className="flex items-center gap-1.5">
-              {isLive ? (
-                <>
-                  <div>
-                    <Radio className="h-3 w-3 text-cyan-200" />
-                  </div>
-                  <span className="text-blue-100">Live Now</span>
-                </>
-              ) : (
-                <>
-                  <Clock className="h-3 w-3" />
-                  <span>{formatDistanceToNow(matchTime, { addSuffix: true })}</span>
-                </>
-              )}
-            </div>
-
-            <div
-              className="bg-white/20 text-white/90 px-2 py-0.5 rounded font-mono text-[9px] border border-white/30 flex items-center gap-1"
-            >
-              <Eye className="h-3 w-3" />
-              {match.sources.length} NODES
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
-  );
+      </div>
+      <div className="border-t border-slate-800 px-4 py-3">
+        <div className="flex items-center justify-between text-[11px] text-slate-400"><span className="flex items-center gap-1.5">{isLive ? <Radio className="h-3.5 w-3.5 text-rose-300" /> : isFinished ? <CalendarDays className="h-3.5 w-3.5" /> : <Clock3 className="h-3.5 w-3.5 text-cyan-300" />}{isLive ? 'Streaming now' : format(matchTime, 'EEE, MMM d · h:mm a')}</span><span className="flex items-center gap-1 text-slate-500"><Eye className="h-3.5 w-3.5" />{match.sources?.length || 0}</span></div>
+        <div className="mt-3 flex items-center justify-between text-xs font-bold"><span className="flex items-center gap-1.5 text-slate-300">{match.popular && <Star className="h-3.5 w-3.5 fill-amber-300 text-amber-300" />}{match.popular ? 'Featured fixture' : 'View match details'}</span><ChevronRight className="h-4 w-4 text-cyan-300 transition-transform group-hover:translate-x-1" /></div>
+      </div>
+    </article>
+  </Link>;
 };
 
-export default memo(SportMatchCard);
+export default memo(SportsMatchCard);

@@ -1,99 +1,13 @@
 import { APIMatch } from '@/utils/sports-types';
 import SportsMatchCard from './SportsMatchCard';
 import { motion } from 'framer-motion';
-import { ExternalLink, Zap } from 'lucide-react';
+import { ExternalLink, Radio } from 'lucide-react';
 
-interface SportMatchGridProps {
-  matches: APIMatch[];
-  title?: string;
-  emptyMessage?: string;
-  backupStreamHref?: string;
-}
+interface SportMatchGridProps { matches: APIMatch[]; title?: string; emptyMessage?: string; backupStreamHref?: string }
 
-const SportsMatchGrid = ({
-  matches,
-  title,
-  emptyMessage = 'No matches found.',
-  backupStreamHref,
-}: SportMatchGridProps) => {
-  if (!matches || matches.length === 0) {
-    return (
-      <motion.div
-        className="py-24 text-center"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="inline-flex max-w-xl flex-col items-center rounded-2xl border border-white/10 bg-white/5 px-6 py-8 shadow-2xl backdrop-blur-sm">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-          >
-            <Zap className="mx-auto mb-4 h-12 w-12 text-white/50 drop-shadow-lg" />
-          </motion.div>
-          <p className="text-xs font-bold uppercase tracking-widest text-white/60 drop-shadow-lg">{emptyMessage}</p>
-          {backupStreamHref && (
-            <a
-              href={backupStreamHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl border border-cyan-300/40 bg-cyan-400/10 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-cyan-100 transition-all hover:border-cyan-200/80 hover:bg-cyan-400/20 hover:text-white"
-            >
-              No stream signal? Try rmppv.xyz
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          )}
-        </div>
-      </motion.div>
-    );
-  }
-
-  return (
-    <div className="py-4">
-      {title && (
-        <motion.h2
-          className="mb-8 flex items-center gap-2 border-b border-white/20 pb-3 text-sm font-black uppercase tracking-widest text-white drop-shadow-lg"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <motion.span
-            className="h-2 w-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-300"
-            animate={{ scale: [1, 1.3, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          />
-          {title}
-        </motion.h2>
-      )}
-
-      <div className="grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5">
-        {matches.map((match) => (
-          <div key={match.id} className="sports-card">
-            <SportsMatchCard match={match} />
-          </div>
-        ))}
-      </div>
-      {backupStreamHref && (
-        <motion.div
-          className="mt-8 flex justify-center"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-        >
-          <a
-            href={backupStreamHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 rounded-2xl border border-cyan-300/40 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 px-5 py-3 text-xs font-black uppercase tracking-wider text-cyan-100 shadow-lg shadow-cyan-950/30 transition-all hover:border-cyan-200/80 hover:from-cyan-500/30 hover:to-blue-500/30 hover:text-white"
-          >
-            <Zap className="h-4 w-4 text-cyan-200" />
-            <span>Alternate stream: rmppv.xyz</span>
-            <ExternalLink className="h-4 w-4" />
-          </a>
-        </motion.div>
-      )}
-    </div>
-  );
+const SportsMatchGrid = ({ matches, title, emptyMessage = 'No matches found.', backupStreamHref }: SportMatchGridProps) => {
+  if (!matches || matches.length === 0) return <motion.div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-800 bg-slate-900/30 px-6 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800 text-slate-500"><Radio className="h-5 w-5" /></span><p className="text-sm font-semibold text-slate-300">{emptyMessage}</p><p className="mt-2 max-w-sm text-xs leading-5 text-slate-500">Try another sport or switch the fixture view to find a different event.</p>{backupStreamHref && <a href={backupStreamHref} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-2 rounded-lg border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 text-xs font-bold text-cyan-200 transition hover:border-cyan-300/60"><span>Open alternate stream hub</span><ExternalLink className="h-3.5 w-3.5" /></a>}</motion.div>;
+  return <div className="pt-1">{title && <h2 className="mb-5 text-sm font-bold uppercase tracking-[0.16em] text-slate-300">{title}</h2>}<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{matches.map((match, index) => <motion.div key={match.id} className="sports-card" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, delay: Math.min(index * 0.035, 0.3) }}><SportsMatchCard match={match} /></motion.div>)}</div>{backupStreamHref && <div className="mt-7 flex justify-center"><a href={backupStreamHref} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 transition hover:text-cyan-300"><span>Need another source? Open alternate stream hub</span><ExternalLink className="h-3.5 w-3.5" /></a></div>}</div>;
 };
 
 export default SportsMatchGrid;

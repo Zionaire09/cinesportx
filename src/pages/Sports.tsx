@@ -86,8 +86,9 @@ const Sports = () => {
 
   const filteredMatches = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    if (!query) return currentMatches;
-    return currentMatches.filter((match) => [match.title, match.league, match.category, match.teams?.home.name, match.teams?.away.name]
+    const availableMatches = currentMatches.filter((match) => match.id !== 'admin-willow-cricket');
+    if (!query) return availableMatches;
+    return availableMatches.filter((match) => [match.title, match.league, match.category, match.teams?.home.name, match.teams?.away.name]
       .some((value) => value?.toLowerCase().includes(query)));
   }, [currentMatches, searchQuery]);
 

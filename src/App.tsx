@@ -70,6 +70,7 @@ const AnimatedRoutes = () => {
         <Route path="/new" element={<New />} />
         <Route path="/trending" element={<Trending />} />
         <Route path="/sports" element={<Sports />} />
+        <Route path="/sports/player/admin-willow-cricket" element={<Navigate to="/takedown" replace />} />
         <Route path="/sports/player/:matchId" element={<SportMatchPlayer />} />
         <Route path="/movie/1368337" element={<Navigate to="/takedown" replace />} />
         <Route path="/movie/969681" element={<Navigate to="/takedown" replace />} />

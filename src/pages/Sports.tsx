@@ -66,6 +66,7 @@ const Sports = () => {
     return date.getFullYear() <= 1970 || (date.getMonth() === 0 && date.getDate() === 1);
   };
   const isCompletedMatch = (match: Parameters<typeof getMatchState>[0]) => getMatchState(match) === 'finished';
+  const liveNowCount = liveMatches.filter((match) => match.id !== 'admin-willow-cricket' && !isCompletedMatch(match)).length;
 
   useEffect(() => {
     if (sportsError) {
@@ -113,7 +114,7 @@ const Sports = () => {
                   <h1 className="text-3xl font-black tracking-tight text-white md:text-5xl">Every match.<br /><span className="text-cyan-300">One place to watch.</span></h1>
                   <p className="mt-4 max-w-xl text-sm leading-6 text-slate-400 md:text-base">Follow the world’s biggest matchups with live signals, matches, and reliable stream access.</p>
                   <div className="mt-6 flex flex-wrap gap-3 text-xs font-semibold">
-                    <div className="flex items-center gap-2 rounded-full border border-rose-400/20 bg-rose-400/10 px-3 py-2 text-rose-200"><Radio className="h-3.5 w-3.5" /> {liveMatches.length} live now</div>
+                    <div className="flex items-center gap-2 rounded-full border border-rose-400/20 bg-rose-400/10 px-3 py-2 text-rose-200"><Radio className="h-3.5 w-3.5" /> {liveNowCount} live now</div>
                     <div className="flex items-center gap-2 rounded-full border border-slate-600 bg-slate-900/60 px-3 py-2 text-slate-300"><CalendarDays className="h-3.5 w-3.5 text-cyan-300" /> {todayMatches.length} today</div>
                     <div className="flex items-center gap-2 rounded-full border border-slate-600 bg-slate-900/60 px-3 py-2 text-slate-300"><Zap className="h-3.5 w-3.5 text-amber-300" /> Multi-source access</div>
                   </div>

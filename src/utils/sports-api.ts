@@ -1,7 +1,8 @@
 import { APIMatch, Sport, Stream, MatchSource } from './sports-types';
 
 const API_BASE_URL = 'https://streamed.pk';
-const STREAM_REQUEST_TIMEOUT_MS = 5000;
+const STREAM_REQUEST_TIMEOUT_MS = 3000;
+const SOURCE_PRIORITY = ['admin', 'alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel', 'intel'];
 
 const fetchWithTimeout = async (url: string): Promise<Response> => {
   const controller = new AbortController();
@@ -178,7 +179,7 @@ export const getActiveSourcesForMatch = async (matchId: string): Promise<Array<{
     return [];
   }
   
-  const sourcePromises = match.sources.map(async (sourceInfo) => {
+  const sourcePromises = [...match.sources].sort((a, b) => SOURCE_PRIORITY.indexOf(a.source) - SOURCE_PRIORITY.indexOf(b.source)).map(async (sourceInfo) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/stream/${sourceInfo.source}/${sourceInfo.id}`);
       if (response.ok) {
@@ -253,7 +254,7 @@ export const getStreamsForMatch = async (match: APIMatch): Promise<{
   activeSources: Array<{ source: string; sourceId: string; streamCount: number }>;
   groupedStreams: Record<string, Stream[]>;
 }> => {
-  const results = await Promise.all(match.sources.map(async (sourceInfo) => {
+  const results = await Promise.all([...match.sources].sort((a, b) => SOURCE_PRIORITY.indexOf(a.source) - SOURCE_PRIORITY.indexOf(b.source)).map(async (sourceInfo) => {
     try {
       const response = await fetchWithTimeout(`${API_BASE_URL}/api/stream/${sourceInfo.source}/${sourceInfo.id}`);
       if (!response.ok) return null;

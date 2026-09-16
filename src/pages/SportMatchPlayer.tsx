@@ -41,7 +41,7 @@ const SportMatchPlayer = () => {
   const currentStream = currentStreams.find(s => s.streamNo === selectedStreamNo) || currentStreams[0];
   const embedUrl = currentStream?.embedUrl || '';
   useEffect(() => { if (selectedSource && currentStream) { setIsLoadingPlayer(true); setIsSignalUnavailable(false); setIframeKey(value => value + 1); } }, [selectedSource, selectedStreamNo, embedUrl]);
-  useEffect(() => { if (!embedUrl || !isLoadingPlayer) return; const timer = window.setTimeout(() => setIsSignalUnavailable(true), 12000); return () => window.clearTimeout(timer); }, [embedUrl, iframeKey, isLoadingPlayer]);
+  useEffect(() => { if (!embedUrl || !isLoadingPlayer) return; const timer = window.setTimeout(() => setIsSignalUnavailable(true), 8000); return () => window.clearTimeout(timer); }, [embedUrl, iframeKey, isLoadingPlayer]);
   useEffect(() => { const handleClickOutside = (event: MouseEvent) => { if (sourceDropdownRef.current && !sourceDropdownRef.current.contains(event.target as Node)) setShowSourceDropdown(false); }; document.addEventListener('mousedown', handleClickOutside); return () => document.removeEventListener('mousedown', handleClickOutside); }, []);
   useEffect(() => { const handler = () => setIsFullscreen(!!document.fullscreenElement); document.addEventListener('fullscreenchange', handler); return () => document.removeEventListener('fullscreenchange', handler); }, []);
   const handleSourceChange = (sourceInfo: { source: string }) => { setSelectedSource(sourceInfo.source); setSelectedStreamNo(1); setShowSourceDropdown(false); toast({ title: 'SERVER CHANGED', description: `Now using ${sourceInfo.source.toUpperCase()}.` }); };

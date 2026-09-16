@@ -65,8 +65,13 @@ const Sports = () => {
     const date = new Date(match.date);
     return date.getFullYear() <= 1970 || (date.getMonth() === 0 && date.getDate() === 1);
   };
-  const isCompletedMatch = (match: { title?: string; status?: string; league?: string; category?: string }) =>
-    match.status === 'finished' || [match.title, match.league, match.category, match.status].some((value) => /\bfinal\b/i.test(value || ''));
+  const isCompletedMatch = (match: { date: string; title?: string; status?: string; league?: string; category?: string }) => {
+    const matchTime = new Date(match.date).getTime();
+    const date = new Date(match.date);
+    const is24Seven = date.getFullYear() <= 1970 || (date.getMonth() === 0 && date.getDate() === 1);
+    const isLive = !is24Seven && (match.status === 'live' || (match.status !== 'finished' && matchTime <= Date.now() && Date.now() - matchTime < 3 * 60 * 60 * 1000));
+    return !is24Seven && (match.status === 'finished' || (!isLive && matchTime < Date.now()) || [match.title, match.league, match.category, match.status].some((value) => /\bfinal\b/i.test(value || '')));
+  };
 
   useEffect(() => {
     if (sportsError) {

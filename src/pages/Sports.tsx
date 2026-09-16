@@ -65,6 +65,8 @@ const Sports = () => {
     const date = new Date(match.date);
     return date.getFullYear() <= 1970 || (date.getMonth() === 0 && date.getDate() === 1);
   };
+  const isCompletedMatch = (match: { title?: string; status?: string; league?: string; category?: string }) =>
+    match.status === 'finished' || [match.title, match.league, match.category, match.status].some((value) => /\bfinal\b/i.test(value || ''));
 
   useEffect(() => {
     if (sportsError) {
@@ -86,7 +88,7 @@ const Sports = () => {
 
   const filteredMatches = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    const availableMatches = currentMatches.filter((match) => match.id !== 'admin-willow-cricket');
+    const availableMatches = currentMatches.filter((match) => match.id !== 'admin-willow-cricket' && !isCompletedMatch(match));
     if (!query) return availableMatches;
     return availableMatches.filter((match) => [match.title, match.league, match.category, match.teams?.home.name, match.teams?.away.name]
       .some((value) => value?.toLowerCase().includes(query)));

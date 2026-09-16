@@ -1,6 +1,17 @@
 import { APIMatch, Sport, Stream, MatchSource } from './sports-types';
 
 const API_BASE_URL = 'https://streamed.pk';
+const STREAM_REQUEST_TIMEOUT_MS = 5000;
+
+const fetchWithTimeout = async (url: string): Promise<Response> => {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), STREAM_REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    window.clearTimeout(timeout);
+  }
+};
 
 // ALL available sources from the API documentation
 export const ALL_SOURCES = ['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel', 'intel', 'admin'];
@@ -236,6 +247,38 @@ export const getStreamsGroupedBySource = async (matchId: string): Promise<Record
   });
   
   return groupedStreams;
+};
+
+export const getStreamsForMatch = async (match: APIMatch): Promise<{
+  activeSources: Array<{ source: string; sourceId: string; streamCount: number }>;
+  groupedStreams: Record<string, Stream[]>;
+}> => {
+  const results = await Promise.all(match.sources.map(async (sourceInfo) => {
+    try {
+      const response = await fetchWithTimeout(`${API_BASE_URL}/api/stream/${sourceInfo.source}/${sourceInfo.id}`);
+      if (!response.ok) return null;
+      const streams: Stream[] = await response.json();
+      if (streams.length === 0) return null;
+      return {
+        source: sourceInfo.source,
+        sourceId: sourceInfo.id,
+        streams: streams.map((stream, index) => ({
+          ...stream,
+          source: sourceInfo.source,
+          id: stream.id || `${sourceInfo.source}_${sourceInfo.id}_${index + 1}`,
+          streamNo: index + 1,
+        })),
+      };
+    } catch {
+      return null;
+    }
+  }));
+  const activeSources = results.filter(Boolean).map(({ source, sourceId, streams }) => ({ source, sourceId, streamCount: streams.length }));
+  const groupedStreams = results.filter(Boolean).reduce<Record<string, Stream[]>>((grouped, result) => {
+    grouped[result.source] = result.streams;
+    return grouped;
+  }, {});
+  return { activeSources, groupedStreams };
 };
 
 // Get all streams from active sources

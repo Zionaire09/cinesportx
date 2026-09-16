@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import SportsMatchGrid from '@/components/SportsMatchGrid';
 import PageTransition from '@/components/PageTransition';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Sport } from '@/utils/sports-types';
+import { Sport, getMatchState } from '@/utils/sports-types';
 import {
   getSportsList,
   getAllPopularMatches,
@@ -57,7 +57,7 @@ const Sports = () => {
     queryFn: async () => {
       if (activeTab === 'popular') return getPopularMatchesBySport(selectedSport);
       const matches = await getMatchesBySport(selectedSport);
-      return activeTab === 'live' ? matches.filter((match) => match.status === 'live') : matches;
+      return activeTab === 'live' ? matches.filter((match) => getMatchState(match) === 'live') : matches;
     },
     enabled: selectedSport !== 'all',
   });
@@ -65,13 +65,7 @@ const Sports = () => {
     const date = new Date(match.date);
     return date.getFullYear() <= 1970 || (date.getMonth() === 0 && date.getDate() === 1);
   };
-  const isCompletedMatch = (match: { date: string; title?: string; status?: string; league?: string; category?: string }) => {
-    const matchTime = new Date(match.date).getTime();
-    const date = new Date(match.date);
-    const is24Seven = date.getFullYear() <= 1970 || (date.getMonth() === 0 && date.getDate() === 1);
-    const isLive = !is24Seven && (match.status === 'live' || (match.status !== 'finished' && matchTime <= Date.now() && Date.now() - matchTime < 3 * 60 * 60 * 1000));
-    return !is24Seven && (match.status === 'finished' || (!isLive && matchTime < Date.now()) || [match.title, match.league, match.category, match.status].some((value) => /\bfinal\b/i.test(value || '')));
-  };
+  const isCompletedMatch = (match: Parameters<typeof getMatchState>[0]) => getMatchState(match) === 'finished';
 
   useEffect(() => {
     if (sportsError) {

@@ -1,6 +1,6 @@
 import { memo, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { APIMatch } from '@/utils/sports-types';
+import { APIMatch, getMatchState } from '@/utils/sports-types';
 import { getMatchPosterUrl } from '@/utils/sports-api';
 import { format } from 'date-fns';
 import { CalendarDays, Clock3, Radio } from 'lucide-react';
@@ -13,10 +13,11 @@ const SportsMatchCard = ({ match, className }: SportMatchCardProps) => {
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 60_000); return () => window.clearInterval(timer); }, []);
   const matchTime = new Date(match.date);
   const is24Seven = matchTime.getFullYear() <= 1970 || (matchTime.getMonth() === 0 && matchTime.getDate() === 1);
-  const isLive = !is24Seven && (match.status === 'live' || (match.status !== 'finished' && matchTime.getTime() <= now && now - matchTime.getTime() < 3 * 60 * 60 * 1000));
-  const isFinished = !is24Seven && (match.status === 'finished' || (!isLive && matchTime.getTime() < now));
-  const isUpcoming = !is24Seven && !isLive && !isFinished;
-  const state = is24Seven || isLive ? 'live' : isFinished ? 'finished' : 'upcoming';
+  const matchState = getMatchState(match, now);
+  const isLive = matchState === 'live';
+  const isFinished = matchState === 'finished';
+  const isUpcoming = matchState === 'upcoming';
+  const state = isLive ? 'live' : isFinished ? 'finished' : 'upcoming';
   const secondsUntilStart = Math.max(0, Math.floor((matchTime.getTime() - now) / 1000));
   const days = Math.floor(secondsUntilStart / 86400);
   const hours = Math.floor((secondsUntilStart % 86400) / 3600);

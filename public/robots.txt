@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /search
+Disallow: /sports/player/
+Disallow: /player/
 
 Sitemap: https://msportsx.xyz/sitemap.xml

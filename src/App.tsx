@@ -39,19 +39,40 @@ const usePageTracking = () => {
   }, [location]);
 };
 
+const SITE_ORIGIN = 'https://msportsx.xyz';
+
 const useCanonical = () => {
   const location = useLocation();
 
   useEffect(() => {
-    let canonicalTag = document.querySelector('link[rel="canonical"]');
+    const rawPath = location.pathname || '/';
+    const normalizedPath = rawPath === '/' ? '/' : rawPath.replace(/\/+$/, '');
+    const canonicalUrl = `${SITE_ORIGIN}${normalizedPath}`;
+    let canonicalTag = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!canonicalTag) {
       canonicalTag = document.createElement('link');
       canonicalTag.setAttribute('rel', 'canonical');
       document.head.appendChild(canonicalTag);
     }
-    const origin = window.location.origin || window.location.protocol + '//' + window.location.host;
-    canonicalTag.setAttribute('href', `${origin}${location.pathname}`);
-  }, [location]);
+    canonicalTag.href = canonicalUrl;
+    const noindex = /^\/(search|player(?:\/|$)|sports\/player(?:\/|$))/.test(normalizedPath);
+    let robotsTag = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (!robotsTag) {
+      robotsTag = document.createElement('meta');
+      robotsTag.name = 'robots';
+      document.head.appendChild(robotsTag);
+    }
+    robotsTag.content = noindex ? 'noindex, follow' : 'index, follow';
+    const titles: Record<string, string> = {
+      '/': 'MSportsX – Watch Sports, Movies & TV Shows Online',
+      '/movie': 'Movies Online – MSportsX',
+      '/tv': 'TV Shows Online – MSportsX',
+      '/new': 'New Releases – MSportsX',
+      '/trending': 'Trending Movies & TV Shows – MSportsX',
+      '/sports': 'Live Sports Streams – MSportsX',
+    };
+    document.title = titles[normalizedPath] || document.title;
+  }, [location.pathname]);
 };
 
 const AnimatedRoutes = () => {

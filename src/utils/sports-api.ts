@@ -1,7 +1,7 @@
 import { APIMatch, Sport, Stream, MatchSource } from './sports-types';
 
 const API_BASE_URL = 'https://streamed.pk';
-const STREAM_REQUEST_TIMEOUT_MS = 3000;
+const STREAM_REQUEST_TIMEOUT_MS = 10000;
 const SOURCE_PRIORITY = ['admin', 'alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel', 'intel'];
 
 const fetchWithTimeout = async (url: string): Promise<Response> => {
@@ -250,6 +250,45 @@ export const getStreamsGroupedBySource = async (matchId: string): Promise<Record
   return groupedStreams;
 };
 
+export const getStreamsForMatchProgressive = async (
+  match: APIMatch,
+  onSourceReady?: (result: { source: string; sourceId: string; streams: Stream[] }) => void,
+): Promise<{ activeSources: Array<{ source: string; sourceId: string; streamCount: number }>; groupedStreams: Record<string, Stream[]> }> => {
+  const sourcePromises = [...match.sources]
+    .sort((a, b) => SOURCE_PRIORITY.indexOf(a.source) - SOURCE_PRIORITY.indexOf(b.source))
+    .map(async (sourceInfo) => {
+      try {
+        const response = await fetchWithTimeout(`${API_BASE_URL}/api/stream/${sourceInfo.source}/${sourceInfo.id}`);
+        if (!response.ok) return null;
+        const streams: Stream[] = await response.json();
+        if (streams.length === 0) return null;
+        const result = {
+          source: sourceInfo.source,
+          sourceId: sourceInfo.id,
+          streams: streams.map((stream, index) => ({
+            ...stream,
+            source: sourceInfo.source,
+            id: stream.id || `${sourceInfo.source}_${sourceInfo.id}_${index + 1}`,
+            streamNo: index + 1,
+          })),
+        };
+        onSourceReady?.(result);
+        return result;
+      } catch {
+        return null;
+      }
+    });
+  const results = await Promise.all(sourcePromises);
+  const validResults = results.filter(Boolean) as Array<{ source: string; sourceId: string; streams: Stream[] }>;
+  return {
+    activeSources: validResults.map(({ source, sourceId, streams }) => ({ source, sourceId, streamCount: streams.length })),
+    groupedStreams: validResults.reduce<Record<string, Stream[]>>((grouped, result) => {
+      grouped[result.source] = result.streams;
+      return grouped;
+    }, {}),
+  };
+};
+
 export const getStreamsForMatch = async (match: APIMatch): Promise<{
   activeSources: Array<{ source: string; sourceId: string; streamCount: number }>;
   groupedStreams: Record<string, Stream[]>;
@@ -370,25 +409,18 @@ export const getMatchPosterUrl = (posterId?: string, homeBadge?: string, awayBad
 
 export const getMatchById = async (matchId: string): Promise<APIMatch | null> => {
   try {
+    // Player links normally point to live or today's matches. Avoid the large all-matches payload first.
+    const candidateLists = await Promise.all([
+      getLiveMatches(),
+      getTodayMatches(),
+      getAllPopularMatches(),
+    ]);
+    for (const matches of candidateLists) {
+      const match = matches.find((candidate) => candidate.id === matchId);
+      if (match) return match;
+    }
     const allMatches = await getAllMatches();
-    let match = allMatches.find(m => m.id === matchId);
-    
-    if (!match) {
-      const popularMatches = await getAllPopularMatches();
-      match = popularMatches.find(m => m.id === matchId);
-    }
-    
-    if (!match) {
-      const todayMatches = await getTodayMatches();
-      match = todayMatches.find(m => m.id === matchId);
-    }
-    
-    if (!match) {
-      const liveMatches = await getLiveMatches();
-      match = liveMatches.find(m => m.id === matchId);
-    }
-    
-    return match || null;
+    return allMatches.find((candidate) => candidate.id === matchId) || null;
   } catch (error) {
     console.error(`Error finding match ${matchId}:`, error);
     return null;

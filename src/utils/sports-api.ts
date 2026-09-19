@@ -368,20 +368,24 @@ export const getMatchPosterUrl = (posterId?: string, homeBadge?: string, awayBad
   return DEFAULT_POSTER_URL;
 };
 
+const withPlayerLookupTimeout = async <T>(promise: Promise<T>, timeoutMs = 10000): Promise<T | null> => {
+  return Promise.race([
+    promise,
+    new Promise<null>((resolve) => window.setTimeout(() => resolve(null), timeoutMs)),
+  ]);
+};
+
 export const getMatchById = async (matchId: string): Promise<APIMatch | null> => {
   try {
-    // Player links normally point to live or today's matches. Avoid the large all-matches payload first.
-    const candidateLists = await Promise.all([
-      getLiveMatches(),
-      getTodayMatches(),
-      getAllPopularMatches(),
-    ]);
-    for (const matches of candidateLists) {
-      const match = matches.find((candidate) => candidate.id === matchId);
+    // Player links normally point to live or today's matches. Stop as soon as the match is found
+    // instead of waiting for several large endpoint requests in parallel.
+    const candidateLoaders = [getLiveMatches, getTodayMatches, getAllPopularMatches, getAllMatches];
+    for (const loadMatches of candidateLoaders) {
+      const matches = await withPlayerLookupTimeout(loadMatches());
+      const match = matches?.find((candidate) => candidate.id === matchId);
       if (match) return match;
     }
-    const allMatches = await getAllMatches();
-    return allMatches.find((candidate) => candidate.id === matchId) || null;
+    return null;
   } catch (error) {
     console.error(`Error finding match ${matchId}:`, error);
     return null;

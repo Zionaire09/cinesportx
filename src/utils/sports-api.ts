@@ -250,45 +250,6 @@ export const getStreamsGroupedBySource = async (matchId: string): Promise<Record
   return groupedStreams;
 };
 
-export const getStreamsForMatchProgressive = async (
-  match: APIMatch,
-  onSourceReady?: (result: { source: string; sourceId: string; streams: Stream[] }) => void,
-): Promise<{ activeSources: Array<{ source: string; sourceId: string; streamCount: number }>; groupedStreams: Record<string, Stream[]> }> => {
-  const sourcePromises = [...match.sources]
-    .sort((a, b) => SOURCE_PRIORITY.indexOf(a.source) - SOURCE_PRIORITY.indexOf(b.source))
-    .map(async (sourceInfo) => {
-      try {
-        const response = await fetchWithTimeout(`${API_BASE_URL}/api/stream/${sourceInfo.source}/${sourceInfo.id}`);
-        if (!response.ok) return null;
-        const streams: Stream[] = await response.json();
-        if (streams.length === 0) return null;
-        const result = {
-          source: sourceInfo.source,
-          sourceId: sourceInfo.id,
-          streams: streams.map((stream, index) => ({
-            ...stream,
-            source: sourceInfo.source,
-            id: stream.id || `${sourceInfo.source}_${sourceInfo.id}_${index + 1}`,
-            streamNo: index + 1,
-          })),
-        };
-        onSourceReady?.(result);
-        return result;
-      } catch {
-        return null;
-      }
-    });
-  const results = await Promise.all(sourcePromises);
-  const validResults = results.filter(Boolean) as Array<{ source: string; sourceId: string; streams: Stream[] }>;
-  return {
-    activeSources: validResults.map(({ source, sourceId, streams }) => ({ source, sourceId, streamCount: streams.length })),
-    groupedStreams: validResults.reduce<Record<string, Stream[]>>((grouped, result) => {
-      grouped[result.source] = result.streams;
-      return grouped;
-    }, {}),
-  };
-};
-
 export const getStreamsForMatch = async (match: APIMatch): Promise<{
   activeSources: Array<{ source: string; sourceId: string; streamCount: number }>;
   groupedStreams: Record<string, Stream[]>;

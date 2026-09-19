@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageTransition from '@/components/PageTransition';
-import { getMatchById, getStreamsForMatchProgressive } from '@/utils/sports-api';
+import { getMatchById, getStreamsForMatch } from '@/utils/sports-api';
 import Ads from '@/components/Ads';
 import SportsBanner from '@/components/SportsBanner';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,6 @@ import { Loader2, Wifi, RefreshCw, Signal, ExternalLink, ArrowLeft, Maximize2, M
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
-import type { Stream } from '@/utils/sports-types';
 
 const BACKUP_STREAM_URL = 'https://rmppv.xyz';
 const BackupStreamLink = () => <a href={BACKUP_STREAM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-300/40 bg-cyan-400/10 px-3 py-2 text-[10px] sm:px-4 sm:py-2.5 sm:text-xs font-black uppercase tracking-wider text-cyan-100 transition-all hover:border-cyan-200/80 hover:bg-cyan-400/20 hover:text-white">Try rmppv.xyz backup stream <ExternalLink className="h-3.5 w-3.5" /></a>;
@@ -30,29 +29,12 @@ const SportMatchPlayer = () => {
   const [isLoadingPlayer, setIsLoadingPlayer] = useState(true);
   const [isSignalUnavailable, setIsSignalUnavailable] = useState(false);
   const [showSourceDropdown, setShowSourceDropdown] = useState(false);
-  const [progressiveStreamData, setProgressiveStreamData] = useState<{ activeSources: Array<{ source: string; sourceId: string; streamCount: number }>; groupedStreams: Record<string, Stream[]> }>({ activeSources: [], groupedStreams: {} });
   const playerRef = useRef<HTMLDivElement>(null);
   const sourceDropdownRef = useRef<HTMLDivElement>(null);
   const { data: matchData, isLoading: matchLoading } = useQuery({ queryKey: ['match-info', matchId], queryFn: () => matchId ? getMatchById(matchId) : Promise.resolve(null), enabled: !!matchId, refetchOnWindowFocus: false, retry: false, staleTime: 30000 });
-  const { data: streamData, isLoading: streamsLoading, refetch: refetchStreamsData } = useQuery({
-    queryKey: ['match-streams', matchId],
-    queryFn: () => {
-      if (!matchData) return Promise.resolve({ activeSources: [], groupedStreams: {} });
-      setProgressiveStreamData({ activeSources: [], groupedStreams: {} });
-      return getStreamsForMatchProgressive(matchData, (result) => {
-        setProgressiveStreamData((current) => ({
-          activeSources: [...current.activeSources.filter((source) => source.source !== result.source), { source: result.source, sourceId: result.sourceId, streamCount: result.streams.length }],
-          groupedStreams: { ...current.groupedStreams, [result.source]: result.streams },
-        }));
-      });
-    },
-    enabled: !!matchId && !!matchData,
-    refetchOnWindowFocus: false,
-    retry: false,
-    staleTime: 30000,
-  });
-  const activeSources = progressiveStreamData.activeSources.length > 0 ? progressiveStreamData.activeSources : (streamData?.activeSources || []);
-  const groupedStreams = progressiveStreamData.activeSources.length > 0 ? progressiveStreamData.groupedStreams : (streamData?.groupedStreams || {});
+  const { data: streamData, isLoading: streamsLoading, refetch: refetchStreamsData } = useQuery({ queryKey: ['match-streams', matchId], queryFn: () => matchData ? getStreamsForMatch(matchData) : Promise.resolve({ activeSources: [], groupedStreams: {} }), enabled: !!matchId && !!matchData, refetchOnWindowFocus: false, retry: false, staleTime: 30000 });
+  const activeSources = streamData?.activeSources || [];
+  const groupedStreams = streamData?.groupedStreams || {};
   useEffect(() => { if (matchData) setMatchInfo(matchData); }, [matchData]);
   useEffect(() => { if (!selectedSource && activeSources[0]) setSelectedSource(activeSources[0].source); }, [activeSources, selectedSource]);
   const currentStreams = selectedSource ? (groupedStreams[selectedSource] || []) : [];
@@ -72,7 +54,7 @@ const SportMatchPlayer = () => {
   };
   const handleRefresh = () => { setIsSignalUnavailable(false); setIsLoadingPlayer(true); setIframeKey(value => value + 1); refetchStreamsData(); toast({ title: 'STREAMS REFRESHED', description: 'Checking for the latest available streams.' }); };
   const toggleFullscreen = () => { if (!playerRef.current) return; if (!isFullscreen) playerRef.current.requestFullscreen?.(); else document.exitFullscreen?.(); };
-  const isLoading = matchLoading || (!hasActiveSources && streamsLoading);
+  const isLoading = matchLoading || streamsLoading;
   const hasActiveSources = activeSources.length > 0;
   if (isLoading) return <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"><Loader2 className="mb-2 h-8 w-8 animate-spin text-white" /><span className="text-[10px] font-black uppercase tracking-widest text-white/60">Loading match streams...</span></div>;
   const title = matchInfo?.title || 'Sports match';

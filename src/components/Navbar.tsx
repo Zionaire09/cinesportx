@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
-import { ArrowRight, ExternalLink, Film, Home, Keyboard, Menu, Search, Sparkles, TrendingUp, Tv, Volleyball, X } from 'lucide-react';
+import { ArrowRight, ExternalLink, Film, Home, Keyboard, Menu, Search, Sparkles, TrendingUp, Tv, Volleyball, WandSparkles, X } from 'lucide-react';
 import { searchMedia } from '@/utils/api';
 import { Media } from '@/utils/types';
 import { DiscordIcon } from '@/components/DiscordButton';
@@ -22,7 +22,7 @@ const navItems: NavItem[] = [
   { title: 'Movies', path: '/movies', icon: <Film className="h-4 w-4" /> },
   { title: 'TV Shows', path: '/tv', icon: <Tv className="h-4 w-4" /> },
   { title: 'Sports', path: '/sports', icon: <Volleyball className="h-4 w-4" /> },
-  { title: 'AI Shorts', path: 'https://ai-shorts.live', icon: <Sparkles className="h-4 w-4" />, external: true },
+  { title: 'AI Shorts', path: 'https://ai-shorts.live', icon: <WandSparkles className="h-4 w-4" />, external: true },
   { title: 'Anime', path: 'https://animeow.live', icon: <ExternalLink className="h-4 w-4" />, external: true },
   { title: 'Discord', path: 'https://discord.gg/Ge7Pe5Nmd', icon: <DiscordIcon className="h-4 w-4" />, external: true },
 ];

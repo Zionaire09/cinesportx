@@ -308,12 +308,8 @@ const Navbar = () => {
         </div>
 
         {isMobileMenuOpen && (
-          <div className="border-t border-white/10 pb-3 pt-2 lg:hidden">
-            <div className="mb-2 flex items-center gap-3 px-2">
-              <img src={Logo} alt="RabbitMeow" className="h-8 w-16 object-contain opacity-80" />
-              <span className="text-sm font-semibold text-white/85">RabbitMeow</span>
-            </div>
-            <nav className="grid gap-1 rounded-xl border border-white/10 bg-black/35 p-2">
+          <div className="absolute left-3 right-3 top-full mt-2 max-h-[calc(100vh-5.5rem)] overflow-y-auto rounded-xl border border-white/10 bg-black/95 p-2 shadow-2xl backdrop-blur-xl lg:hidden">
+            <nav className="grid gap-1">
               <NavLinks mobile />
             </nav>
           </div>

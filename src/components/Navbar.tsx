@@ -198,7 +198,7 @@ const Navbar = () => {
                 ? 'border border-accent/40 bg-accent/10 text-accent hover:border-accent/70 hover:bg-accent/20 hover:text-white'
                 : 'text-white/75 hover:bg-white/10 hover:text-white'
         }`;
-        const mobileClasses = `flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-base font-medium transition-colors ${
+        const mobileClasses = `flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
           isSports && isActive
             ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30 hover:bg-blue-500'
             : isSports
@@ -308,8 +308,12 @@ const Navbar = () => {
         </div>
 
         {isMobileMenuOpen && (
-          <div className="absolute left-3 right-3 top-full mt-2 max-h-[calc(100vh-5.5rem)] overflow-y-auto rounded-xl border border-white/10 bg-black/95 p-2 shadow-2xl backdrop-blur-xl lg:hidden">
-            <nav className="grid gap-1">
+          <div className="absolute left-3 right-3 top-full mt-2 max-h-[calc(100dvh-5.5rem)] overflow-y-auto rounded-xl border border-white/10 bg-black/95 p-2 shadow-2xl backdrop-blur-xl lg:hidden">
+            <div className="mb-2 flex items-center gap-3 px-2">
+              <img src={Logo} alt="RabbitMeow" className="h-8 w-16 object-contain opacity-80" />
+              <span className="text-sm font-semibold text-white/85">RabbitMeow</span>
+            </div>
+            <nav className="grid grid-cols-2 gap-1.5">
               <NavLinks mobile />
             </nav>
           </div>

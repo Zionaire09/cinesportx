@@ -308,12 +308,12 @@ const Navbar = () => {
         </div>
 
         {isMobileMenuOpen && (
-          <div className="absolute left-3 right-3 top-full mt-2 max-h-[calc(100dvh-5.5rem)] overflow-y-auto rounded-xl border border-white/10 bg-black/95 p-2 shadow-2xl backdrop-blur-xl lg:hidden">
+          <div className="absolute right-3 top-full mt-2 w-80 max-w-[calc(100vw-1.5rem)] max-h-[calc(100dvh-5.5rem)] overflow-y-auto rounded-xl border border-white/10 bg-black/95 p-2 shadow-2xl backdrop-blur-xl lg:hidden">
             <div className="mb-2 flex items-center gap-3 px-2">
               <img src={Logo} alt="RabbitMeow" className="h-8 w-16 object-contain opacity-80" />
               <span className="text-sm font-semibold text-white/85">RabbitMeow</span>
             </div>
-            <nav className="grid grid-cols-2 gap-1.5">
+            <nav className="grid grid-cols-1 gap-1.5">
               <NavLinks mobile />
             </nav>
           </div>

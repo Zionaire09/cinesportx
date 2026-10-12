@@ -3,7 +3,7 @@ const ALLOWED_HOSTS = new Set([
   'vidsrc.mov',
   'vidlink.pro',
   'www.vidsrc.wtf',
-  'zxcstream.xyz',
+  'player.zxcprime.xyz',
   'vidfast.pro',
   'vidcore.net',
   'embed.smashystream.com',

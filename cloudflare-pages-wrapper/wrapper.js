@@ -12,7 +12,7 @@
     ['vidsrc.mov', (u) => /^\/embed\/(?:movie\/\d+|tv\/\d+\/\d+\/\d+)\/?$/.test(u.pathname)],
     ['vidlink.pro', (u) => /^\/(?:movie\/\d+|tv\/\d+\/\d+\/\d+)$/.test(u.pathname)],
     ['www.vidsrc.wtf', (u) => /^\/api\/1\/(?:movie|tv)$/.test(u.pathname) && /^\d+$/.test(u.searchParams.get('id') || '') && (u.pathname.endsWith('/movie') || (/^\d+$/.test(u.searchParams.get('s') || '') && /^\d+$/.test(u.searchParams.get('e') || '')))],
-    ['zxcstream.xyz', (u) => /^\/embed\/(?:movie\/\d+|tv\/\d+\/\d+\/\d+)$/.test(u.pathname)],
+    ['player.zxcprime.xyz', (u) => /^\/embed\/(?:movie\/\d+|tv\/\d+\/\d+\/\d+)$/.test(u.pathname)],
     ['vidfast.pro', (u) => /^\/(?:movie\/\d+|tv\/\d+\/\d+\/\d+)$/.test(u.pathname)],
     ['vidcore.net', (u) => /^\/(?:movie\/\d+|tv\/\d+\/\d+\/\d+)$/.test(u.pathname)],
     ['embed.smashystream.com', (u) => u.pathname === '/playere.php' && /^\d+$/.test(u.searchParams.get('tmdb') || '') && ((!u.searchParams.has('season') && !u.searchParams.has('episode')) || (/^\d+$/.test(u.searchParams.get('season') || '') && /^\d+$/.test(u.searchParams.get('episode') || '')))],

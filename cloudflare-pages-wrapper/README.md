@@ -2,7 +2,7 @@
 
 This directory is intended to be deployed as a **separate Cloudflare Pages project**, leaving the main rabbitv3 Worker deployment unchanged.
 
-The Armageddon source (`vidsrc-mov`) loads the direct Vsembed player (`vsembed.ru`) through this wrapper in production. Popup blocking is implemented by a same-origin Cloudflare Pages Function that injects a guard into the fetched provider HTML; no iframe sandbox is used.
+The wrapper contains an experimental same-origin proxy for testing popup guards. Production Armageddon playback remains a direct Vsembed embed because Vsembed challenges Cloudflare edge fetches.
 
 The project root (`/`) provides a manual test page for all 19 current rabbitv3 video sources. It builds provider-specific movie or TV URLs and loads the selected one at `/wrapper?url=<encoded-provider-embed-url>`; opening `/wrapper` with no `url` parameter will show an invalid/missing URL message by design.
 
@@ -20,7 +20,7 @@ Cloudflare Pages serves `wrapper.html`, the static assets, and the proxy through
 
 The wrapper loads `/proxy?url=<encoded-provider-url>` in an ordinary, unsandboxed iframe. The proxy fetches the allowlisted provider HTML, removes conflicting frame/security headers, adds a `<base>` URL, rewrites same-provider iframe URLs, and injects early hooks for `window.open`, `fetch`, `XMLHttpRequest`, dynamically-created iframes, and blank-target links.
 
-Because the provider document is served by the wrapper origin, its scripts see a normal iframe rather than a sandboxed browsing context. Popup windows are blocked by the injected `window.open` hook while normal player scripts, API calls, and playback requests remain available. Provider behavior can still change, so playback must be tested in the deployed Pages project.
+When an upstream permits edge fetching, the provider document is served by the wrapper origin and its scripts see a normal iframe rather than a sandboxed browsing context. Popup windows are then blocked by the injected `window.open` hook. Vsembed currently returns a Cloudflare anti-bot challenge to the Pages edge, so this route is not suitable for production playback.
 
 ## Traffic boundary
 

@@ -53,23 +53,15 @@
   playerFrame.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
   playerFrame.referrerPolicy = 'no-referrer';
   playerFrame.setAttribute('allowfullscreen', '');
-  // The sandbox must be on the provider iframe itself. A CSP sandbox on this
-  // wrapper document does not reliably constrain popups created by a nested,
-  // cross-origin provider frame.
-  // Deliberately omit allow-popups, allow-popups-to-escape-sandbox, and
-  // allow-top-navigation. allow-same-origin is needed by VidSrc and its
-  // nested player to retain their normal origin checks.
-  playerFrame.setAttribute(
-    'sandbox',
-    'allow-scripts allow-same-origin allow-forms allow-presentation'
-  );
-  playerFrame.src = playerUrl.href;
+  // The provider is fetched through a same-origin Pages Function. This lets
+  // the proxy inject the popup guard without triggering iframe sandbox checks.
+  playerFrame.src = `/proxy?url=${encodeURIComponent(playerUrl.href)}`;
   document.body.appendChild(playerFrame);
 
   window.addEventListener('message', (event) => {
     if (event.source !== window.parent || !event.data) return;
     if (!['PLAYER_COMMAND', 'SET_CURRENT_TIME'].includes(event.data.type)) return;
-    playerFrame.contentWindow?.postMessage(event.data, playerUrl.origin);
+    playerFrame.contentWindow?.postMessage(event.data, window.location.origin);
   });
 
   window.addEventListener('message', (event) => {

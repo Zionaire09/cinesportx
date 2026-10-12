@@ -30,8 +30,8 @@
   <body>
     <main>
       <h1>Rabbitv3 popup-restricted stream test</h1>
-      <p>This page tests each of rabbitv3’s stream sources inside the separate Pages wrapper. The provider iframe is explicitly sandboxed to suppress popups; the main app uses this wrapper for Armageddon (Vsembed).</p>
-      <p class="warning">A provider may detect the iframe sandbox and refuse playback. This wrapper blocks popups; it does not proxy or carry the media traffic through Cloudflare Pages.</p>
+      <p>This page tests each of rabbitv3’s stream sources inside the separate Pages wrapper. The provider HTML is fetched through a same-origin Pages Function that injects popup guards; the main app uses this wrapper for Armageddon (Vsembed).</p>
+      <p class="warning">The proxy only handles allowlisted provider pages and does not store or proxy media files. Provider playback still depends on the upstream server.</p>
       <form id="test-form">
         <label>Server
           <select id="server">

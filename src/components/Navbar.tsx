@@ -190,12 +190,12 @@ const Navbar = () => {
         );
         const desktopClasses = `inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 ${
           isActive
-            ? 'bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-500'
+            ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30 hover:bg-blue-500'
             : 'border border-accent/40 bg-accent/10 text-accent hover:border-accent/70 hover:bg-accent/20 hover:text-white'
         }`;
         const mobileClasses = `flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
           isActive
-            ? 'bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-500'
+            ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30 hover:bg-blue-500'
             : 'border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20 hover:text-white'
         }`;
 

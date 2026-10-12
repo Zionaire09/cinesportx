@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
-import { ArrowRight, ExternalLink, Film, Home, Keyboard, Menu, Radio, Search, Sparkles, TrendingUp, Tv, Volleyball, WandSparkles, X } from 'lucide-react';
+import { ArrowRight, ExternalLink, Film, Home, Keyboard, Menu, Search, Sparkles, TrendingUp, Tv, Tv2, Volleyball, WandSparkles, X } from 'lucide-react';
 import { searchMedia } from '@/utils/api';
 import { Media } from '@/utils/types';
 import { DiscordIcon } from '@/components/DiscordButton';
@@ -22,7 +22,7 @@ const navItems: NavItem[] = [
   { title: 'Movies', path: '/movies', icon: <Film className="h-4 w-4" /> },
   { title: 'TV Shows', path: '/tv', icon: <Tv className="h-4 w-4" /> },
   { title: 'Sports', path: '/sports', icon: <Volleyball className="h-4 w-4" /> },
-  { title: 'Live TV', path: '/live-tv', icon: <Radio className="h-4 w-4" /> },
+  { title: 'Live TV', path: '/live-tv', icon: <Tv2 className="h-4 w-4" /> },
   { title: 'AI Shorts', path: 'https://ai-shorts.live', icon: <WandSparkles className="h-4 w-4" />, external: true },
   { title: 'Anime', path: 'https://animeow.live', icon: <ExternalLink className="h-4 w-4" />, external: true },
   { title: 'Discord', path: 'https://discord.gg/Ge7Pe5Nmd', icon: <DiscordIcon className="h-4 w-4" />, external: true },
@@ -191,22 +191,22 @@ const Navbar = () => {
         const isSports = item.title === 'Sports';
         const desktopClasses = `inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 ${
           isSports && isActive
-            ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30 hover:bg-blue-500 hover:text-white'
+            ? 'bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-500 hover:text-white'
             : isSports
               ? 'border border-accent/40 bg-accent/10 text-accent hover:border-accent/70 hover:bg-accent/20 hover:text-white'
             : isActive
-              ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30 hover:bg-blue-500'
+              ? 'bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-500'
               : item.external
                 ? 'border border-accent/40 bg-accent/10 text-accent hover:border-accent/70 hover:bg-accent/20 hover:text-white'
                 : 'text-white/75 hover:bg-white/10 hover:text-white'
         }`;
         const mobileClasses = `flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
           isSports && isActive
-            ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30 hover:bg-blue-500'
+            ? 'bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-500'
             : isSports
               ? 'border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20'
             : isActive
-              ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30 hover:bg-blue-500'
+              ? 'bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-500'
               : item.external
                 ? 'border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20'
                 : 'text-white/80 hover:bg-white/10 hover:text-white'

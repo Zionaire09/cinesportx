@@ -145,8 +145,8 @@ export const videoSources = [
 {
     key: 'peachify',
     name: '04 Rabbi',
-    getMovieUrl: (id: number) => `https://peachify.pro/embed/movie/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://peachify.pro/embed/tv/${id}/${season}/${episode}`,
+    getMovieUrl: (id: number) => `https://zxcstream.xyz/embed/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://zxcstream.xyz/embed/tv/${id}/${season}/${episode}`,
   },
 {
     key: 'vidfast',

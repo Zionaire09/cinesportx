@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
 type SharePromotionProps = {
-  kind: 'movie' | 'sports';
+  kind: 'player' | 'sports';
   sportsTone?: 'red' | 'cyan';
 };
 
@@ -11,10 +11,10 @@ const SharePromotion = ({ kind, sportsTone = 'red' }: SharePromotionProps) => {
   const { toast } = useToast();
   const isSports = kind === 'sports';
   const isCyan = sportsTone === 'cyan';
-  const shareTitle = isSports ? 'RabbitMeow — Don’t miss the moment' : 'RabbitMeow — Your next watch party';
+  const shareTitle = isSports ? 'Share this sports stream on RabbitMeow' : 'Help RabbitMeow grow';
   const shareText = isSports
-    ? 'Don’t let your crew miss the moment. Join me for this match on RabbitMeow.'
-    : 'Your next watch party starts here. Pick a movie with me on RabbitMeow.';
+    ? 'Share this sports stream with friends and help the developer keep RabbitMeow growing.'
+    : 'Enjoying RabbitMeow? Share this link with a friend to help the developer keep building.';
 
   const copyCurrentPage = async () => {
     let copied = false;
@@ -44,8 +44,8 @@ const SharePromotion = ({ kind, sportsTone = 'red' }: SharePromotionProps) => {
     }
 
     toast(copied
-      ? { title: 'Link copied — pass it on!', description: 'Send it to your crew and make it a plan.' }
-      : { title: 'Could not copy the link', description: 'Copy the page address from your browser and send it to your friends.' }
+      ? { title: 'Link copied — thanks for helping!', description: 'Send it to a friend to support the developer.' }
+      : { title: 'Could not copy the link', description: 'Copy the page address from your browser and share it with a friend.' }
     );
   };
 
@@ -77,29 +77,23 @@ const SharePromotion = ({ kind, sportsTone = 'red' }: SharePromotionProps) => {
 
   return (
     <section
-      aria-label="Share RabbitMeow with friends"
+      aria-label="Share this RabbitMeow link to help the developer"
       className={`relative isolate overflow-hidden rounded-2xl border p-4 shadow-xl backdrop-blur sm:p-5 md:p-6 ${cardClasses}`}
     >
       <div aria-hidden="true" className={`pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full blur-3xl ${glowClasses}`} />
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <p className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] ${highlightClasses}`}>
-            <Users className="h-4 w-4" /> {isSports ? 'Make it a group-chat moment' : 'Good picks travel fast'}
+            <Users className="h-4 w-4" /> {isSports ? 'Pass along the sports stream' : 'Support the developer'}
           </p>
           <h3 className="mt-1 text-lg font-black tracking-tight text-white sm:text-xl md:text-2xl">
-            {isSports ? 'Don’t let your crew miss the moment.' : 'Your next watch party starts with a link.'}
+            {isSports ? 'Share this sports stream with friends.' : 'Enjoying RabbitMeow? Share the link.'}
           </h3>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-white/75 sm:text-sm">
             {isSports
-              ? 'Send this match now. Celebrate every goal together.'
-              : 'Found the one? Send it to your crew and make movie night happen.'}
+              ? 'Pass the stream link along and help the developer keep RabbitMeow growing.'
+              : 'Send this page to a friend—every share helps the developer keep RabbitMeow growing.'}
           </p>
-          {isSports && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              <a href="/movies" className={`rounded-lg px-3 py-2 text-xs font-black transition hover:bg-white ${isCyan ? 'bg-cyan-300 text-slate-950' : 'bg-red-300 text-slate-950'}`}>Explore Movies</a>
-              <a href="/tv" className={`rounded-lg border px-3 py-2 text-xs font-black transition ${isCyan ? 'border-cyan-300/40 text-cyan-100 hover:bg-cyan-300/10' : 'border-red-300/40 text-red-100 hover:bg-red-300/10'}`}>Browse TV Shows</a>
-            </div>
-          )}
         </div>
         <Button
           type="button"
@@ -107,8 +101,8 @@ const SharePromotion = ({ kind, sportsTone = 'red' }: SharePromotionProps) => {
           className={`w-full shrink-0 gap-2 rounded-xl font-bold text-white shadow-lg sm:w-auto ${buttonClasses}`}
         >
           <Share2 className="h-4 w-4" />
-          <span className="sm:hidden">{isSports ? 'Send the match' : 'Share the pick'}</span>
-          <span className="hidden sm:inline">{isSports ? 'Bring your crew' : 'Start a watch party'}</span>
+          <span className="sm:hidden">{isSports ? 'Share stream' : 'Share the link'}</span>
+          <span className="hidden sm:inline">{isSports ? 'Share with friends' : 'Help the developer'}</span>
         </Button>
       </div>
     </section>

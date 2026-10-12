@@ -1275,6 +1275,8 @@ const Player = () => {
                   </div>
                 </section>
 
+                <SharePromotion kind="player" />
+
                 {mediaDetails && (
                   <section className="mt-8 space-y-8">
                     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 shadow-xl backdrop-blur-xl">
@@ -1293,7 +1295,6 @@ const Player = () => {
                       </div>
                     </div>
 
-                    <SharePromotion kind="movie" />
                     <SportsBanner />
 
                     {cast.length > 0 && (

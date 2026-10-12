@@ -126,8 +126,8 @@ export const videoSources = [
 {
     key: 'vidsrc-mov',
     name: '01 Armageddon',
-    getMovieUrl: (id: number) => `https://vidsrc.mov/embed/movie/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
+    getMovieUrl: (id: number) => `https://vsembed.ru/embed/movie/${id}/`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vsembed.ru/embed/tv/${id}/${season}/${episode}/`,
   },
 {
     key: 'vidlink',

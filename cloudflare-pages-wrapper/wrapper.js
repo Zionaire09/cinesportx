@@ -8,6 +8,7 @@
   };
 
   const validators = [
+    ['vsembed.ru', (u) => /^\/embed\/(?:movie\/\d+|tv\/\d+\/\d+\/\d+)\/?$/.test(u.pathname)],
     ['vidsrc.mov', (u) => /^\/embed\/(?:movie\/\d+|tv\/\d+\/\d+\/\d+)\/?$/.test(u.pathname)],
     ['vidlink.pro', (u) => /^\/(?:movie\/\d+|tv\/\d+\/\d+\/\d+)$/.test(u.pathname)],
     ['www.vidsrc.wtf', (u) => /^\/api\/1\/(?:movie|tv)$/.test(u.pathname) && /^\d+$/.test(u.searchParams.get('id') || '') && (u.pathname.endsWith('/movie') || (/^\d+$/.test(u.searchParams.get('s') || '') && /^\d+$/.test(u.searchParams.get('e') || '')))],
@@ -48,12 +49,20 @@
   }
 
   const playerFrame = document.createElement('iframe');
-  playerFrame.title = 'CSP sandbox test stream';
+  playerFrame.title = 'Popup-restricted Rabbitv3 stream';
   playerFrame.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
   playerFrame.referrerPolicy = 'no-referrer';
   playerFrame.setAttribute('allowfullscreen', '');
-  // Intentionally no iframe sandbox attribute: the Pages response header tests
-  // CSP sandboxing in isolation from rabbitv3's production player.
+  // The sandbox must be on the provider iframe itself. A CSP sandbox on this
+  // wrapper document does not reliably constrain popups created by a nested,
+  // cross-origin provider frame.
+  // Deliberately omit allow-popups, allow-popups-to-escape-sandbox, and
+  // allow-top-navigation. allow-same-origin is needed by VidSrc and its
+  // nested player to retain their normal origin checks.
+  playerFrame.setAttribute(
+    'sandbox',
+    'allow-scripts allow-same-origin allow-forms allow-presentation'
+  );
   playerFrame.src = playerUrl.href;
   document.body.appendChild(playerFrame);
 
@@ -65,6 +74,6 @@
 
   window.addEventListener('message', (event) => {
     if (event.source !== playerFrame.contentWindow || event.data?.type !== 'PLAYER_EVENT') return;
-    window.parent.postMessage(event.data, '*');
+    window.parent.postMessage(event.data, window.location.origin);
   });
 })();

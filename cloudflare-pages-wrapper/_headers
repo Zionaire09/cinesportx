@@ -1,4 +1,4 @@
-/wrapper.html
+/wrapper*
   Content-Security-Policy: sandbox allow-scripts allow-same-origin allow-forms allow-presentation
   Referrer-Policy: no-referrer
   X-Content-Type-Options: nosniff

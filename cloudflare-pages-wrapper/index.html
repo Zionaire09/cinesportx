@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <title>Armageddon Wrapper Test</title>
+    <style>
+      :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #080b10; color: #f5f7fa; }
+      * { box-sizing: border-box; }
+      body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+      main { width: min(100%, 900px); }
+      h1 { margin: 0 0 8px; font-size: clamp(1.5rem, 4vw, 2.25rem); }
+      p { color: #aeb8c6; line-height: 1.55; }
+      form { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 24px 0 16px; }
+      label { display: grid; gap: 6px; color: #b9c4d2; font-size: .85rem; }
+      input, select, button { min-height: 42px; border: 1px solid #344253; border-radius: 8px; padding: 0 12px; background: #101722; color: #fff; font: inherit; }
+      input { width: 132px; }
+      button { cursor: pointer; border-color: #667eea; background: #4158c9; font-weight: 650; }
+      button:hover { background: #5268df; }
+      .frame { overflow: hidden; aspect-ratio: 16 / 9; border: 1px solid #273342; border-radius: 12px; background: #000; }
+      iframe { display: block; width: 100%; height: 100%; border: 0; }
+      .hint { font-size: .85rem; }
+      code { color: #c8d6ff; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Armageddon wrapper test</h1>
+      <p>This Pages project hosts the static player wrapper. Use this page to test the popup-restricted embed. The media player and its media requests are still fetched by the browser from their providers.</p>
+      <form id="test-form">
+        <label>Type
+          <select id="type"><option value="movie">Movie</option><option value="tv">TV episode</option></select>
+        </label>
+        <label>TMDB ID
+          <input id="id" type="number" min="1" step="1" value="550" required>
+        </label>
+        <label>Season
+          <input id="season" type="number" min="1" step="1" value="1">
+        </label>
+        <label>Episode
+          <input id="episode" type="number" min="1" step="1" value="1">
+        </label>
+        <button type="submit">Load test stream</button>
+      </form>
+      <div class="frame"><iframe id="player" title="Armageddon wrapper test" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="no-referrer"></iframe></div>
+      <p class="hint">Server 1 in rabbitv3 will use this same <code>/wrapper?url=…</code> route. If playback is blocked or fails, try another server in the main player.</p>
+    </main>
+    <script>
+      const form = document.getElementById('test-form');
+      const type = document.getElementById('type');
+      const season = document.getElementById('season');
+      const episode = document.getElementById('episode');
+      type.addEventListener('change', () => {
+        const isTv = type.value === 'tv';
+        season.disabled = !isTv;
+        episode.disabled = !isTv;
+      });
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const id = document.getElementById('id').value;
+        if (!/^\d+$/.test(id) || Number(id) < 1) return;
+        let path = `/embed/movie/${id}`;
+        if (type.value === 'tv') {
+          if (!/^\d+$/.test(season.value) || !/^\d+$/.test(episode.value) || Number(season.value) < 1 || Number(episode.value) < 1) return;
+          path = `/embed/tv/${id}/${season.value}/${episode.value}`;
+        }
+        const upstreamUrl = `https://vidsrc.mov${path}`;
+        document.getElementById('player').src = `/wrapper?url=${encodeURIComponent(upstreamUrl)}`;
+      });
+      form.requestSubmit();
+    </script>
+  </body>
+</html>

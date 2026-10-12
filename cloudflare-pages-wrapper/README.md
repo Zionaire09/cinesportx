@@ -2,6 +2,8 @@
 
 This directory is intended to be deployed as a **separate Cloudflare Pages project**, leaving the main rabbitv3 Worker deployment unchanged.
 
+The project root (`/`) provides a small manual test page. The embedded player page is served at `/wrapper?url=<encoded-vidsrc-embed-url>`; opening `/wrapper` with no `url` parameter will show an invalid/missing URL message by design.
+
 ## Cloudflare Pages settings
 
 - Connect the existing `jrevelacion/rabbitv3` repository.

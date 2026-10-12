@@ -4,6 +4,7 @@ import { getMovieDetails, getTVDetails, videoSources, getSeasonDetails, getMovie
 import { MovieDetails, TVDetails, Episode, CastMember, Media } from '@/utils/types';
 import Navbar from '@/components/Navbar';
 import SportsBanner from '@/components/SportsBanner';
+import SharePromotion from '@/components/SharePromotion';
 import { Button } from '@/components/ui/button';
 import { 
   Select,
@@ -1292,6 +1293,7 @@ const Player = () => {
                       </div>
                     </div>
 
+                    <SharePromotion kind="movie" />
                     <SportsBanner />
 
                     {cast.length > 0 && (

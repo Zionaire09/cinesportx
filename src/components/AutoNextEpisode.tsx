@@ -30,6 +30,12 @@ interface SourceConfig {
 }
 
 const SUPPORTED_SOURCES: Record<string, SourceConfig> = {
+  'zxcprime': {
+    name: 'ZXCPrime',
+    storageKey: 'zxcprimeProgress',
+    supportsEvents: true,
+    origins: ['https://player.zxcprime.xyz'],
+  },
   'vidzee': {
     name: 'Vidzee',
     storageKey: 'vidZeeProgress',

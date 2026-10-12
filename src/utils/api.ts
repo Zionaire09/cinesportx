@@ -130,10 +130,10 @@ export const videoSources = [
     getTVUrl: (id: number, season: number, episode: number) => `https://vsembed.ru/embed/tv/${id}/${season}/${episode}/`,
   },
 {
-    key: 'vidlink',
+    key: 'zxcprime',
     name: '02 Supernova',
-    getMovieUrl: (id: number) => `https://vidlink.pro/movie/${id}?autoplay=true&title=true`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vidlink.pro/tv/${id}/${season}/${episode}?autoplay=true&title=true`,
+    getMovieUrl: (id: number) => `https://player.zxcprime.xyz/player/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://player.zxcprime.xyz/player/tv/${id}/${season}/${episode}`,
   },
 {
     key: 'vidsrc-wtf-1',
@@ -143,10 +143,10 @@ export const videoSources = [
     sandbox: 'allow-scripts allow-same-origin'
   },
 {
-    key: 'peachify',
+    key: 'vidrock',
     name: '04 Rabbi',
-    getMovieUrl: (id: number) => `https://player.zxcprime.xyz/player/movie/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://player.zxcprime.xyz/player/tv/${id}/${season}/${episode}`,
+    getMovieUrl: (id: number) => `https://vidrock.ru/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidrock.ru/tv/${id}/${season}/${episode}`,
   },
 {
     key: 'vidfast',
@@ -203,10 +203,10 @@ export const videoSources = [
     getTVUrl: (id: number, season: number, episode: number) => `https://vidnest.fun/tv/${id}/${season}/${episode}`,
   },
 {
-    key: 'vidrock',
+    key: 'vidlink',
     name: '14 Forge',
-    getMovieUrl: (id: number) => `https://vidrock.ru/movie/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vidrock.ru/tv/${id}/${season}/${episode}`,
+    getMovieUrl: (id: number) => `https://vidlink.pro/movie/${id}?autoplay=true&title=true`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidlink.pro/tv/${id}/${season}/${episode}?autoplay=true&title=true`,
   },
 {
     key: '2embed',
@@ -232,12 +232,7 @@ export const videoSources = [
     getMovieUrl: (id: number) => `https://vidlux.xyz/embed/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://vidlux.xyz/embed/tv/${id}/${season}/${episode}`,
   },
-{
-    key: 'streamxtv',
-    name: '19 Zenith',
-    getMovieUrl: (id: number) => `https://embed.streamxtv.tech/embed/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://embed.streamxtv.tech/embed/${id}/${season}/${episode}`,
-  }
+
 ];
 
 // Fetch reviews for a movie or TV show based on media type

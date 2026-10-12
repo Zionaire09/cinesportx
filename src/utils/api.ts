@@ -136,10 +136,10 @@ export const videoSources = [
     getTVUrl: (id: number, season: number, episode: number) => `https://player.zxcprime.xyz/player/tv/${id}/${season}/${episode}`,
   },
 {
-    key: 'vidsrc-wtf-1',
+    key: 'moviesapi',
     name: '03 Pringle',
-    getMovieUrl: (id: number) => `https://www.vidsrc.wtf/api/1/movie?id=${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://www.vidsrc.wtf/api/1/tv?id=${id}&s=${season}&e=${episode}`,
+    getMovieUrl: (id: number) => `https://moviesapi.to/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://moviesapi.to/tv/${id}/${season}/${episode}`,
     sandbox: 'allow-scripts allow-same-origin'
   },
 {

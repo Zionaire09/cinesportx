@@ -48,11 +48,11 @@ const SUPPORTED_SOURCES: Record<string, SourceConfig> = {
     supportsEvents: true,
     origins: ['https://vidrock.ru', 'https://vidrock.net'],
   },
-  'vidsrc-wtf-1': {
-    name: 'VidSrc.wtf',
-    storageKey: 'vidsrcwtf-Progress',
+  'moviesapi': {
+    name: 'MoviesAPI',
+    storageKey: 'moviesapiProgress',
     supportsEvents: true,
-    origins: ['https://www.vidsrc.wtf'],
+    origins: ['https://moviesapi.to'],
   },
   'vidlink': {
     name: 'VidLink',

@@ -137,6 +137,12 @@ export async function onRequest(context) {
     headers: {
       'User-Agent': context.request.headers.get('User-Agent') || 'Mozilla/5.0',
       'Accept': context.request.headers.get('Accept') || '*/*',
+      'Accept-Language': context.request.headers.get('Accept-Language') || 'en-US,en;q=0.9',
+      'Accept-Encoding': 'gzip, br',
+      'Upgrade-Insecure-Requests': '1',
+      'Sec-Fetch-Dest': 'iframe',
+      'Sec-Fetch-Mode': 'navigate',
+      'Sec-Fetch-Site': 'cross-site',
       'Referer': `${targetUrl.origin}/`,
     },
     redirect: 'follow',

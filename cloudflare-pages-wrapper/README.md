@@ -14,7 +14,7 @@ The project root (`/`) provides a manual test page for all 19 current rabbitv3 v
 - Set the build output directory to `.`.
 - Deploy the `master` branch.
 
-Cloudflare Pages serves `wrapper.html`, the static assets, and `functions/proxy.js`. Use the resulting `https://<project>.pages.dev` URL to access the test harness. The Pages deployment must include Functions; do not configure a static-only export that omits the `functions` directory.
+Cloudflare Pages serves `wrapper.html`, the static assets, and the proxy through `_worker.js` advanced mode. Use the resulting `https://<project>.pages.dev` URL to access the test harness. The Pages deployment must preserve `_worker.js` and `functions/proxy.js`; do not configure a static-only export that omits them.
 
 ## Popup restriction
 

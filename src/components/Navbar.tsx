@@ -188,28 +188,15 @@ const Navbar = () => {
           (item.title === 'Live TV' && (location.pathname === item.path || location.pathname.startsWith(`${item.path}/`))) ||
           (item.title !== 'Movies' && item.title !== 'TV Shows' && item.title !== 'Sports' && item.title !== 'Live TV' && location.pathname === item.path)
         );
-        const isSports = item.title === 'Sports';
         const desktopClasses = `inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 ${
-          isSports && isActive
-            ? 'bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-500 hover:text-white'
-            : isSports
-              ? 'border border-accent/40 bg-accent/10 text-accent hover:border-accent/70 hover:bg-accent/20 hover:text-white'
-            : isActive
-              ? 'bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-500'
-              : item.external
-                ? 'border border-accent/40 bg-accent/10 text-accent hover:border-accent/70 hover:bg-accent/20 hover:text-white'
-                : 'text-white/75 hover:bg-white/10 hover:text-white'
+          isActive
+            ? 'bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-500'
+            : 'border border-accent/40 bg-accent/10 text-accent hover:border-accent/70 hover:bg-accent/20 hover:text-white'
         }`;
         const mobileClasses = `flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-          isSports && isActive
+          isActive
             ? 'bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-500'
-            : isSports
-              ? 'border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20'
-            : isActive
-              ? 'bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-500'
-              : item.external
-                ? 'border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20'
-                : 'text-white/80 hover:bg-white/10 hover:text-white'
+            : 'border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20 hover:text-white'
         }`;
 
         return item.external ? (

@@ -260,6 +260,7 @@ const Player = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
+  const usesArmageddonWrapper = selectedSource === 'vidsrc-mov';
   const observerRef = useRef<IntersectionObserver | null>(null);
   const lastCheckTimeRef = useRef<number>(0);
     const animationFrameRef = useRef<number>();
@@ -545,11 +546,15 @@ const Player = () => {
   const handleIframeLoad = useCallback(() => {
     const resumeSeconds = resumeSecondsRef.current;
     if (!resumeSeconds || !iframeRef.current?.contentWindow) return;
-    let targetOrigin = '*';
-    try {
-      targetOrigin = new URL(embedUrl).origin;
-    } catch {
-      // Keep wildcard target for unusual embed URLs.
+    // The Armageddon wrapper is same-origin; it forwards these commands to the
+    // embedded player after validating the message source and target origin.
+    let targetOrigin = usesArmageddonWrapper ? window.location.origin : '*';
+    if (!usesArmageddonWrapper) {
+      try {
+        targetOrigin = new URL(embedUrl).origin;
+      } catch {
+        // Keep wildcard target for unusual embed URLs.
+      }
     }
     const messages = [
       { type: 'PLAYER_COMMAND', action: 'seek', currentTime: resumeSeconds, time: resumeSeconds },
@@ -559,7 +564,7 @@ const Player = () => {
     window.setTimeout(() => {
       messages.forEach((message) => iframeRef.current?.contentWindow?.postMessage(message, targetOrigin));
     }, 1000);
-  }, [embedUrl]);
+  }, [embedUrl, usesArmageddonWrapper]);
 
   const handleAutoNextToggle = useCallback((enabled: boolean) => {
     setAutoNextEnabled(enabled);
@@ -1127,7 +1132,9 @@ const Player = () => {
               ) : embedUrl ? (
                 <iframe
                   ref={iframeRef}
-                  src={embedUrl}
+                  src={usesArmageddonWrapper
+                    ? `/armageddon-player-wrapper.html?url=${encodeURIComponent(embedUrl)}`
+                    : embedUrl}
                   className="w-full h-full"
                   title={title}
                   allowFullScreen

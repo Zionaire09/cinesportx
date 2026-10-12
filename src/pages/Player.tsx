@@ -222,7 +222,6 @@ EpisodeCard.displayName = 'EpisodeCard';
 
 
 const DEFAULT_STREAM_SOURCE = videoSources[0]?.key ?? 'vidsrc-mov';
-const ARMAGEDDON_WRAPPER_URL = 'https://rabbitv3.pages.dev/wrapper';
 
 const getStreamPreferenceKey = (mediaId: string, isTV: boolean) =>
   `selectedVideoSource:${isTV ? 'tv' : 'movie'}:${mediaId}`;
@@ -261,7 +260,6 @@ const Player = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
-  const usesArmageddonWrapper = selectedSource === 'vidsrc-mov';
   const observerRef = useRef<IntersectionObserver | null>(null);
   const lastCheckTimeRef = useRef<number>(0);
     const animationFrameRef = useRef<number>();
@@ -547,13 +545,11 @@ const Player = () => {
   const handleIframeLoad = useCallback(() => {
     const resumeSeconds = resumeSecondsRef.current;
     if (!resumeSeconds || !iframeRef.current?.contentWindow) return;
-    let targetOrigin = usesArmageddonWrapper ? new URL(ARMAGEDDON_WRAPPER_URL).origin : '*';
-    if (!usesArmageddonWrapper) {
-      try {
-        targetOrigin = new URL(embedUrl).origin;
-      } catch {
-        // Keep wildcard target for unusual embed URLs.
-      }
+    let targetOrigin = '*';
+    try {
+      targetOrigin = new URL(embedUrl).origin;
+    } catch {
+      // Keep wildcard target for unusual embed URLs.
     }
     const messages = [
       { type: 'PLAYER_COMMAND', action: 'seek', currentTime: resumeSeconds, time: resumeSeconds },
@@ -563,7 +559,7 @@ const Player = () => {
     window.setTimeout(() => {
       messages.forEach((message) => iframeRef.current?.contentWindow?.postMessage(message, targetOrigin));
     }, 1000);
-  }, [embedUrl, usesArmageddonWrapper]);
+  }, [embedUrl]);
 
   const handleAutoNextToggle = useCallback((enabled: boolean) => {
     setAutoNextEnabled(enabled);
@@ -1131,9 +1127,7 @@ const Player = () => {
               ) : embedUrl ? (
                 <iframe
                   ref={iframeRef}
-                  src={usesArmageddonWrapper
-                    ? `${ARMAGEDDON_WRAPPER_URL}?url=${encodeURIComponent(embedUrl)}`
-                    : embedUrl}
+                  src={embedUrl}
                   className="w-full h-full"
                   title={title}
                   allowFullScreen

@@ -2,6 +2,8 @@
 
 This directory is intended to be deployed as a **separate Cloudflare Pages project**, leaving the main rabbitv3 Worker deployment unchanged.
 
+**Known limitation:** VidSrc detects the inherited CSP sandbox and refuses to play in this setup. The wrapper is therefore an isolated experiment and is not used by the main rabbitv3 player; Server 1 should remain a direct embed unless a non-sandbox popup-blocking method is found.
+
 The project root (`/`) provides a small manual test page. The embedded player page is served at `/wrapper?url=<encoded-vidsrc-embed-url>`; opening `/wrapper` with no `url` parameter will show an invalid/missing URL message by design.
 
 ## Cloudflare Pages settings

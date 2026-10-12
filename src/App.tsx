@@ -22,6 +22,8 @@ import TakedownNotice from "./pages/TakedownNotice";
 import ContentRemoval from "./pages/ContentRemoval";
 import Sports from "./pages/Sports";
 import SportMatchPlayer from "./pages/SportMatchPlayer";
+import LiveTV from "./pages/LiveTV";
+import LiveTVPlayer from "./pages/LiveTVPlayer";
 import PersonFilmography from "./pages/PersonFilmography";
 import ChristmasGreeting from "./components/ChristmasGreeting";
 
@@ -55,7 +57,7 @@ const useCanonical = () => {
       document.head.appendChild(canonicalTag);
     }
     canonicalTag.href = canonicalUrl;
-    const noindex = /^\/(search|player(?:\/|$)|sports\/player(?:\/|$))/.test(normalizedPath);
+    const noindex = /^\/(search|player(?:\/|$)|sports\/player(?:\/|$)|live-tv\/player(?:\/|$))/.test(normalizedPath);
     let robotsTag = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
     if (!robotsTag) {
       robotsTag = document.createElement('meta');
@@ -70,6 +72,8 @@ const useCanonical = () => {
       '/new': 'New Releases – MSportsX',
       '/trending': 'Trending Movies & TV Shows – MSportsX',
       '/sports': 'Live Sports Streams – MSportsX',
+      '/live-tv': 'Live TV Channels – MSportsX',
+      '/live-tv/player': 'Live TV Player – MSportsX',
     };
     document.title = titles[normalizedPath] || document.title;
   }, [location.pathname]);
@@ -91,6 +95,8 @@ const AnimatedRoutes = () => {
         <Route path="/new" element={<New />} />
         <Route path="/trending" element={<Trending />} />
         <Route path="/sports" element={<Sports />} />
+        <Route path="/live-tv" element={<LiveTV />} />
+        <Route path="/live-tv/player" element={<LiveTVPlayer />} />
         <Route path="/sports/player/admin-willow-cricket" element={<Navigate to="/takedown" replace />} />
         <Route path="/sports/player/:matchId" element={<SportMatchPlayer />} />
         <Route path="/movie/1368337" element={<Navigate to="/takedown" replace />} />

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
-import { ArrowRight, ExternalLink, Film, Home, Keyboard, Menu, Search, Sparkles, TrendingUp, Tv, Volleyball, WandSparkles, X } from 'lucide-react';
+import { ArrowRight, ExternalLink, Film, Home, Keyboard, Menu, Radio, Search, Sparkles, TrendingUp, Tv, Volleyball, WandSparkles, X } from 'lucide-react';
 import { searchMedia } from '@/utils/api';
 import { Media } from '@/utils/types';
 import { DiscordIcon } from '@/components/DiscordButton';
@@ -22,6 +22,7 @@ const navItems: NavItem[] = [
   { title: 'Movies', path: '/movies', icon: <Film className="h-4 w-4" /> },
   { title: 'TV Shows', path: '/tv', icon: <Tv className="h-4 w-4" /> },
   { title: 'Sports', path: '/sports', icon: <Volleyball className="h-4 w-4" /> },
+  { title: 'Live TV', path: '/live-tv', icon: <Radio className="h-4 w-4" /> },
   { title: 'AI Shorts', path: 'https://ai-shorts.live', icon: <WandSparkles className="h-4 w-4" />, external: true },
   { title: 'Anime', path: 'https://animeow.live', icon: <ExternalLink className="h-4 w-4" />, external: true },
   { title: 'Discord', path: 'https://discord.gg/Ge7Pe5Nmd', icon: <DiscordIcon className="h-4 w-4" />, external: true },
@@ -184,7 +185,8 @@ const Navbar = () => {
           (item.title === 'Movies' && isMovieRoute) ||
           (item.title === 'TV Shows' && isTVRoute) ||
           (item.title === 'Sports' && (location.pathname === item.path || location.pathname.startsWith(`${item.path}/`))) ||
-          (item.title !== 'Movies' && item.title !== 'TV Shows' && item.title !== 'Sports' && location.pathname === item.path)
+          (item.title === 'Live TV' && (location.pathname === item.path || location.pathname.startsWith(`${item.path}/`))) ||
+          (item.title !== 'Movies' && item.title !== 'TV Shows' && item.title !== 'Sports' && item.title !== 'Live TV' && location.pathname === item.path)
         );
         const isSports = item.title === 'Sports';
         const desktopClasses = `inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 ${

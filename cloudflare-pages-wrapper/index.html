@@ -4,31 +4,58 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
-    <title>Armageddon Wrapper Test</title>
+    <title>Rabbitv3 CSP Sandbox Server Test</title>
     <style>
       :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #080b10; color: #f5f7fa; }
       * { box-sizing: border-box; }
       body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; }
-      main { width: min(100%, 900px); }
+      main { width: min(100%, 1000px); }
       h1 { margin: 0 0 8px; font-size: clamp(1.5rem, 4vw, 2.25rem); }
       p { color: #aeb8c6; line-height: 1.55; }
+      .warning { padding: 12px 14px; border: 1px solid #806222; border-radius: 8px; background: #241d0b; color: #ffe2a0; }
       form { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 24px 0 16px; }
       label { display: grid; gap: 6px; color: #b9c4d2; font-size: .85rem; }
       input, select, button { min-height: 42px; border: 1px solid #344253; border-radius: 8px; padding: 0 12px; background: #101722; color: #fff; font: inherit; }
-      input { width: 132px; }
+      #server { min-width: 220px; }
+      input { width: 118px; }
       button { cursor: pointer; border-color: #667eea; background: #4158c9; font-weight: 650; }
       button:hover { background: #5268df; }
       .frame { overflow: hidden; aspect-ratio: 16 / 9; border: 1px solid #273342; border-radius: 12px; background: #000; }
       iframe { display: block; width: 100%; height: 100%; border: 0; }
       .hint { font-size: .85rem; }
       code { color: #c8d6ff; }
+      @media (max-width: 600px) { #server { width: 100%; } }
     </style>
   </head>
   <body>
     <main>
-      <h1>Armageddon wrapper test</h1>
-      <p>This Pages project hosts the static player wrapper. Use this page to test the popup-restricted embed. The media player and its media requests are still fetched by the browser from their providers.</p>
+      <h1>Rabbitv3 CSP sandbox server test</h1>
+      <p>This page tests each of rabbitv3’s stream sources inside the separate Pages wrapper. Only the test iframe is sandboxed by the Pages response header; rabbitv3’s production player remains direct.</p>
+      <p class="warning">A provider may detect the inherited sandbox and refuse playback. This experiment blocks popups; it does not proxy or carry the media traffic through Cloudflare Pages.</p>
       <form id="test-form">
+        <label>Server
+          <select id="server">
+            <option value="vidsrc-mov">01 Armageddon — Vidsrc</option>
+            <option value="vidlink">02 Supernova — Vidlink</option>
+            <option value="vidsrc-wtf-1">03 Pringle — Vidsrc WTF</option>
+            <option value="peachify">04 Rabbi — Peachify</option>
+            <option value="vidfast">05 Ember — Vidfast</option>
+            <option value="vidcore">06 Atlas — Vidcore</option>
+            <option value="smashystream">07 Pulse — SmashyStream</option>
+            <option value="vidup">08 Swift — Vidup</option>
+            <option value="111movies">09 Prism — 111Movies</option>
+            <option value="vidsrc-me">10 Echo — VidsrcME</option>
+            <option value="vidzee">11 Flux — Vidzee</option>
+            <option value="videasy">12 Aura — Videasy</option>
+            <option value="vidnest">13 Haven — Vidnest</option>
+            <option value="vidrock">14 Forge — Vidrock</option>
+            <option value="2embed">15 Link — 2Embed</option>
+            <option value="multiembed">16 Loop — Multiembed</option>
+            <option value="primesrc">17 Prime — PrimeSrc</option>
+            <option value="vidlux">18 Nova — Vidlux</option>
+            <option value="streamxtv">19 Zenith — StreamXTV</option>
+          </select>
+        </label>
         <label>Type
           <select id="type"><option value="movie">Movie</option><option value="tv">TV episode</option></select>
         </label>
@@ -36,17 +63,38 @@
           <input id="id" type="number" min="1" step="1" value="550" required>
         </label>
         <label>Season
-          <input id="season" type="number" min="1" step="1" value="1">
+          <input id="season" type="number" min="1" step="1" value="1" disabled>
         </label>
         <label>Episode
-          <input id="episode" type="number" min="1" step="1" value="1">
+          <input id="episode" type="number" min="1" step="1" value="1" disabled>
         </label>
         <button type="submit">Load test stream</button>
       </form>
-      <div class="frame"><iframe id="player" title="Armageddon wrapper test" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="no-referrer"></iframe></div>
-      <p class="hint">Server 1 in rabbitv3 will use this same <code>/wrapper?url=…</code> route. If playback is blocked or fails, try another server in the main player.</p>
+      <div class="frame"><iframe id="player" title="CSP sandbox server test" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="no-referrer"></iframe></div>
+      <p class="hint">The selected stream URL is allowlisted by the wrapper and loaded at <code>/wrapper?url=…</code>. Testing does not change any source setting in the main app.</p>
     </main>
     <script>
+      const providers = {
+        'vidsrc-mov': { origin: 'https://vidsrc.mov', movie: id => `/embed/movie/${id}`, tv: (id, s, e) => `/embed/tv/${id}/${s}/${e}` },
+        'vidlink': { origin: 'https://vidlink.pro', movie: id => `/movie/${id}?autoplay=true&title=true`, tv: (id, s, e) => `/tv/${id}/${s}/${e}?autoplay=true&title=true` },
+        'vidsrc-wtf-1': { origin: 'https://www.vidsrc.wtf', movie: id => `/api/1/movie?id=${id}`, tv: (id, s, e) => `/api/1/tv?id=${id}&s=${s}&e=${e}` },
+        'peachify': { origin: 'https://peachify.pro', movie: id => `/embed/movie/${id}`, tv: (id, s, e) => `/embed/tv/${id}/${s}/${e}` },
+        'vidfast': { origin: 'https://vidfast.pro', movie: id => `/movie/${id}?autoPlay=true`, tv: (id, s, e) => `/tv/${id}/${s}/${e}?autoPlay=true` },
+        'vidcore': { origin: 'https://vidcore.net', movie: id => `/movie/${id}`, tv: (id, s, e) => `/tv/${id}/${s}/${e}` },
+        'smashystream': { origin: 'https://embed.smashystream.com', movie: id => `/playere.php?tmdb=${id}`, tv: (id, s, e) => `/playere.php?tmdb=${id}&season=${s}&episode=${e}` },
+        'vidup': { origin: 'https://vidup.to', movie: id => `/movie/${id}?autoPlay=true`, tv: (id, s, e) => `/tv/${id}/${s}/${e}?autoPlay=true` },
+        '111movies': { origin: 'https://111movies.com', movie: id => `/movie/${id}`, tv: (id, s, e) => `/tv/${id}/${s}/${e}` },
+        'vidsrc-me': { origin: 'https://vidsrcme.ru', movie: id => `/embed/movie/${id}`, tv: (id, s, e) => `/embed/tv/${id}/${s}/${e}` },
+        'vidzee': { origin: 'https://player.vidzee.wtf', movie: id => `/embed/movie/${id}`, tv: (id, s, e) => `/embed/tv/${id}/${s}/${e}` },
+        'videasy': { origin: 'https://player.videasy.net', movie: id => `/movie/${id}`, tv: (id, s, e) => `/tv/${id}/${s}/${e}` },
+        'vidnest': { origin: 'https://vidnest.fun', movie: id => `/movie/${id}`, tv: (id, s, e) => `/tv/${id}/${s}/${e}` },
+        'vidrock': { origin: 'https://vidrock.ru', movie: id => `/movie/${id}`, tv: (id, s, e) => `/tv/${id}/${s}/${e}` },
+        '2embed': { origin: 'https://www.2embed.cc', movie: id => `/embed/${id}`, tv: (id, s, e) => `/embedtv/${id}&s=${s}&e=${e}` },
+        'multiembed': { origin: 'https://multiembed.mov', movie: id => `/?video_id=${id}&tmdb=1`, tv: (id, s, e) => `/?video_id=${id}&tmdb=1&s=${s}&e=${e}` },
+        'primesrc': { origin: 'https://primesrc.me', movie: id => `/embed/movie?tmdb=${id}`, tv: (id, s, e) => `/embed/tv?tmdb=${id}&season=${s}&episode=${e}` },
+        'vidlux': { origin: 'https://vidlux.xyz', movie: id => `/embed/movie/${id}`, tv: (id, s, e) => `/embed/tv/${id}/${s}/${e}` },
+        'streamxtv': { origin: 'https://embed.streamxtv.tech', movie: id => `/embed/${id}`, tv: (id, s, e) => `/embed/${id}/${s}/${e}` },
+      };
       const form = document.getElementById('test-form');
       const type = document.getElementById('type');
       const season = document.getElementById('season');
@@ -60,13 +108,12 @@
         event.preventDefault();
         const id = document.getElementById('id').value;
         if (!/^\d+$/.test(id) || Number(id) < 1) return;
-        let path = `/embed/movie/${id}`;
-        if (type.value === 'tv') {
-          if (!/^\d+$/.test(season.value) || !/^\d+$/.test(episode.value) || Number(season.value) < 1 || Number(episode.value) < 1) return;
-          path = `/embed/tv/${id}/${season.value}/${episode.value}`;
-        }
-        const upstreamUrl = `https://vidsrc.mov${path}`;
-        document.getElementById('player').src = `/wrapper?url=${encodeURIComponent(upstreamUrl)}`;
+        if (type.value === 'tv' && (!/^\d+$/.test(season.value) || !/^\d+$/.test(episode.value) || Number(season.value) < 1 || Number(episode.value) < 1)) return;
+        const provider = providers[document.getElementById('server').value];
+        if (!provider) return;
+        const path = type.value === 'tv' ? provider.tv(id, season.value, episode.value) : provider.movie(id);
+        const playerUrl = new URL(path, provider.origin).href;
+        document.getElementById('player').src = `/wrapper?url=${encodeURIComponent(playerUrl)}`;
       });
       form.requestSubmit();
     </script>

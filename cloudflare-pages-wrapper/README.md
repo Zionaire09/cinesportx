@@ -1,10 +1,10 @@
-# Armageddon static player wrapper
+# Rabbitv3 CSP sandbox test wrapper
 
 This directory is intended to be deployed as a **separate Cloudflare Pages project**, leaving the main rabbitv3 Worker deployment unchanged.
 
-**Known limitation:** VidSrc detects the inherited CSP sandbox and refuses to play in this setup. The wrapper is therefore an isolated experiment and is not used by the main rabbitv3 player; Server 1 should remain a direct embed unless a non-sandbox popup-blocking method is found.
+**Known limitation:** VidSrc detects the inherited CSP sandbox and refuses to play in this setup. Other providers may also reject it. This project is only an isolated experiment and is not used by the main rabbitv3 player; all production servers remain direct embeds unless a non-sandbox popup-blocking method is found.
 
-The project root (`/`) provides a small manual test page. The embedded player page is served at `/wrapper?url=<encoded-vidsrc-embed-url>`; opening `/wrapper` with no `url` parameter will show an invalid/missing URL message by design.
+The project root (`/`) provides a manual test page for all 19 current rabbitv3 video sources. It builds provider-specific movie or TV URLs and loads the selected one at `/wrapper?url=<encoded-provider-embed-url>`; opening `/wrapper` with no `url` parameter will show an invalid/missing URL message by design.
 
 ## Cloudflare Pages settings
 
@@ -14,11 +14,11 @@ The project root (`/`) provides a small manual test page. The embedded player pa
 - Set the build output directory to `.`.
 - Deploy the `master` branch.
 
-Cloudflare Pages serves `wrapper.html` and applies the adjacent `_headers` rules to its response. Use the resulting `https://<project>.pages.dev` URL in rabbitv3's player integration.
+Cloudflare Pages serves `wrapper.html` and applies the adjacent `_headers` rules to its response. Use the resulting `https://<project>.pages.dev` URL to access this isolated test harness; production rabbitv3 playback is not routed through it.
 
 ## Popup restriction
 
-The response header applies CSP `sandbox` restrictions to the wrapper document and its embedded browsing context. It allows scripts, same-origin behavior, forms, and presentation, but deliberately does not grant `allow-popups` or top-level navigation. The VidSrc iframe element itself does **not** have a `sandbox` attribute.
+The response header applies CSP `sandbox` restrictions to the wrapper document and its embedded browsing context. It allows scripts, same-origin behavior, forms, and presentation, but deliberately does not grant `allow-popups` or top-level navigation. The provider iframe itself does **not** have a `sandbox` attribute.
 
 This is intended to suppress popup windows opened by the embedded player. The restriction can also affect provider features that rely on popups, downloads, or top-level navigation; playback must be tested in the deployed Pages project.
 

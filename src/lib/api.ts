@@ -131,8 +131,8 @@ export const videoSources = [
   {
     key: 'vidrock',
     name: 'VidRock',
-    getMovieUrl: (id: number) => `https://vidrock.ru/movie/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vidrock.ru/tv/${id}/${season}/${episode}`,
+    getMovieUrl: (id: number) => `https://vidrock.to/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidrock.to/tv/${id}/${season}/${episode}`,
   },
   {
     key: 'moviesapi',
@@ -144,8 +144,8 @@ export const videoSources = [
   {
     key: 'vidlink',
     name: 'VidLink',
-    getMovieUrl: (id: number) => `https://vidlink.pro/movie/${id}?autoplay=true&title=true`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vidlink.pro/tv/${id}/${season}/${episode}?autoplay=true&title=true`,
+    getMovieUrl: (id: number) => `https://zxcstream.cc/movie/${id}?autoplay=true&title=true`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://zxcstream.cc/tv/${id}/${season}/${episode}?autoplay=true&title=true`,
   },
   {
     key: 'vidfast',

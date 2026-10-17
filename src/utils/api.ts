@@ -132,8 +132,8 @@ export const videoSources = [
 {
     key: 'zxcprime',
     name: '02 Supernova',
-    getMovieUrl: (id: number) => `https://player.zxcprime.xyz/player/movie/${id}`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://player.zxcprime.xyz/player/tv/${id}/${season}/${episode}`,
+    getMovieUrl: (id: number) => `https://zxcstream.cc/player/movie/${id}`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://zxcstream.cc/player/tv/${id}/${season}/${episode}`,
   },
 {
     key: 'moviesapi',
@@ -205,8 +205,8 @@ export const videoSources = [
 {
     key: 'vidlink',
     name: '14 Forge',
-    getMovieUrl: (id: number) => `https://zxcstream.cc/movie/${id}?autoplay=true&title=true`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://zxcstream.cc/tv/${id}/${season}/${episode}?autoplay=true&title=true`,
+    getMovieUrl: (id: number) => `https://vidlink.pro/movie/${id}?autoplay=true&title=true`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidlink.pro/tv/${id}/${season}/${episode}?autoplay=true&title=true`,
   },
 {
     key: '2embed',

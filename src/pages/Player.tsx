@@ -52,11 +52,11 @@ const backdropSizes = {
 
 // Define types for video source origins
 const SOURCE_ORIGINS: Record<string, string[]> = {
-  'zxcprime': ['https://player.zxcprime.xyz'],
+  'zxcprime': ['https://zxcstream.cc'],
   'vidzee': ['https://player.vidzee.wtf'],
   'vidrock': ['https://vidrock.to'],
   'moviesapi': ['https://moviesapi.to'],
-  'vidlink': ['https://zxcstream.cc'],
+  'vidlink': ['https://vidlink.pro'],
   'vidfast': [
     'https://vidfast.pro',
     'https://vidfast.in',

@@ -144,8 +144,8 @@ export const videoSources = [
   {
     key: 'vidlink',
     name: 'VidLink',
-    getMovieUrl: (id: number) => `https://zxcstream.cc/movie/${id}?autoplay=true&title=true`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://zxcstream.cc/tv/${id}/${season}/${episode}?autoplay=true&title=true`,
+    getMovieUrl: (id: number) => `https://vidlink.pro/movie/${id}?autoplay=true&title=true`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vidlink.pro/tv/${id}/${season}/${episode}?autoplay=true&title=true`,
   },
   {
     key: 'vidfast',

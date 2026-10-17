@@ -34,7 +34,7 @@ const SUPPORTED_SOURCES: Record<string, SourceConfig> = {
     name: 'ZXCPrime',
     storageKey: 'zxcprimeProgress',
     supportsEvents: true,
-    origins: ['https://player.zxcprime.xyz'],
+    origins: ['https://zxcstream.cc'],
   },
   'vidzee': {
     name: 'Vidzee',
@@ -58,7 +58,7 @@ const SUPPORTED_SOURCES: Record<string, SourceConfig> = {
     name: 'VidLink',
     storageKey: 'vidlinkProgress',
     supportsEvents: true,
-    origins: ['https://zxcstream.cc'],
+    origins: ['https://vidlink.pro'],
   },
   'vidfast': {
     name: 'VidFast',

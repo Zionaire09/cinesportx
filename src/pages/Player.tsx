@@ -54,9 +54,9 @@ const backdropSizes = {
 const SOURCE_ORIGINS: Record<string, string[]> = {
   'zxcprime': ['https://player.zxcprime.xyz'],
   'vidzee': ['https://player.vidzee.wtf'],
-  'vidrock': ['https://vidrock.ru'],
+  'vidrock': ['https://vidrock.to'],
   'moviesapi': ['https://moviesapi.to'],
-  'vidlink': ['https://vidlink.pro'],
+  'vidlink': ['https://zxcstream.cc'],
   'vidfast': [
     'https://vidfast.pro',
     'https://vidfast.in',

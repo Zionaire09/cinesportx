@@ -46,7 +46,7 @@ const SUPPORTED_SOURCES: Record<string, SourceConfig> = {
     name: 'VidRock',
     storageKey: 'vidRockProgress',
     supportsEvents: true,
-    origins: ['https://vidrock.ru', 'https://vidrock.net'],
+    origins: ['https://vidrock.to', 'https://vidrock.net'],
   },
   'moviesapi': {
     name: 'MoviesAPI',
@@ -58,7 +58,7 @@ const SUPPORTED_SOURCES: Record<string, SourceConfig> = {
     name: 'VidLink',
     storageKey: 'vidlinkProgress',
     supportsEvents: true,
-    origins: ['https://vidlink.pro'],
+    origins: ['https://zxcstream.cc'],
   },
   'vidfast': {
     name: 'VidFast',

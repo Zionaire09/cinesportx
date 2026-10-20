@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getMovieDetails, getTVDetails, videoSources, getSeasonDetails, getMovieCredits, getTVCredits, getMovieRecommendations, getTVRecommendations } from '@/utils/api';
 import { MovieDetails, TVDetails, Episode, CastMember, Media } from '@/utils/types';
 import Navbar from '@/components/Navbar';
-import SportsBanner from '@/components/SportsBanner';
 import SharePromotion from '@/components/SharePromotion';
 import { Button } from '@/components/ui/button';
 import { 
@@ -1295,8 +1294,6 @@ const Player = () => {
                         </div>
                       </div>
                     </div>
-
-                    <SportsBanner />
 
                     {cast.length > 0 && (
                       <div>

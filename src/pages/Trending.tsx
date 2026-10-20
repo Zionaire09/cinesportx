@@ -13,8 +13,6 @@ import Ads from '@/components/Ads';
 import { TypeFilter, CategoryFilter } from './New';
 import { genresForType } from '@/config/mediaFilters';
 import { matchesMediaFilters, MediaFilterType } from '@/config/mediaFilters';
-import SportsBanner from '@/components/SportsBanner';
-
 const Trending = () => {
   const [timeWindow, setTimeWindow] = useState<'day' | 'week'>('week');
   const [page, setPage] = useState(1);
@@ -50,7 +48,7 @@ const Trending = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
-      <div className="pt-24"><SportsBanner className="mb-0" /></div>
+      
       <main className="flex-1"><div className="container px-4 pb-8 pt-0 md:px-8">
         <div className="mb-6 flex flex-col gap-5 pt-0 md:flex-row md:items-center md:justify-between"><div className="flex items-center gap-3"><TrendingUp className="h-8 w-8 text-accent" /><div><h1 className="text-3xl font-bold text-white">Trending</h1><p className="mt-1 text-sm text-white/60">See what movies and TV shows everyone is watching right now.</p></div></div><div className="flex flex-col gap-3 sm:flex-row sm:items-center"><TypeFilter type={type} onChange={(nextType) => { setType(nextType); if (!genresForType(nextType).some((item) => item.id === genre)) setGenre('all'); }} /><Tabs value={timeWindow} onValueChange={(value) => handleTimeWindowChange(value as 'day' | 'week')}><TabsList className="bg-transparent border-none"><TabsTrigger value="day" className="data-[state=active]:bg-accent/20">Today</TabsTrigger><TabsTrigger value="week" className="data-[state=active]:bg-accent/20">This Week</TabsTrigger></TabsList></Tabs></div></div>
         <CategoryFilter type={type} genre={genre} onChange={setGenre} />

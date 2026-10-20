@@ -3,8 +3,6 @@ import { getMovieCredits, getTVCredits, posterSizes } from '@/utils/api';
 import { CastMember } from '@/utils/types';
 import { useEffect, useState } from 'react';
 import { UserRound } from 'lucide-react';
-import SportsBanner from '@/components/SportsBanner';
-
 interface InfoProps {
   mediaId: number;
   mediaType?: 'movie' | 'tv';
@@ -29,13 +27,10 @@ const Info = ({ mediaId, mediaType = 'movie' }: InfoProps) => {
     loadCast();
     return () => { cancelled = true; };
   }, [mediaId, mediaType]);
-
-  const banner = <SportsBanner className="mb-0" />;
-
-  if (isLoading) {
+if (isLoading) {
     return (
       <>
-        {banner}
+        
         <section className="mt-8">
         <h2 className="text-xl font-semibold text-white mb-4">Cast</h2>
         <div className="flex gap-4 overflow-hidden">
@@ -55,7 +50,7 @@ const Info = ({ mediaId, mediaType = 'movie' }: InfoProps) => {
 
   return (
     <>
-      {banner}
+      
       <section className="mt-8" aria-labelledby="cast-heading">
       <div className="flex items-center justify-between mb-4">
         <h2 id="cast-heading" className="text-xl font-semibold text-white">Cast</h2>

@@ -101,11 +101,33 @@ const AnimatedRoutes = () => {
         <Route path="/sports/player/:matchId" element={<SportMatchPlayer />} />
         <Route path="/movie/1368337" element={<Navigate to="/takedown" replace />} />
         <Route path="/movie/969681" element={<Navigate to="/takedown" replace />} />
+        <Route path="/movie/936075" element={<Navigate to="/takedown" replace />} />
+        <Route path="/movie/1339713" element={<Navigate to="/takedown" replace />} />
+        <Route path="/movie/1291595" element={<Navigate to="/takedown" replace />} />
+        <Route path="/movie/1423191" element={<Navigate to="/takedown" replace />} />
+        <Route path="/movie/1400837" element={<Navigate to="/takedown" replace />} />
+        <Route path="/movie/1255833" element={<Navigate to="/takedown" replace />} />
+        <Route path="/movie/1560520" element={<Navigate to="/takedown" replace />} />
+        <Route path="/movie/1248832" element={<Navigate to="/takedown" replace />} />
+        <Route path="/movie/1302904" element={<Navigate to="/takedown" replace />} />
+        <Route path="/movie/1236045" element={<Navigate to="/takedown" replace />} />
+        <Route path="/movie/1007757" element={<Navigate to="/takedown" replace />} />
         <Route path="/movie/:id" element={<MovieDetails />} />
         <Route path="/tv/:id" element={<TVDetails />} />
         <Route path="/person/:id" element={<PersonFilmography />} />
         <Route path="/player/movie/1368337" element={<Navigate to="/takedown" replace />} />
         <Route path="/player/movie/969681" element={<Navigate to="/takedown" replace />} />
+        <Route path="/player/movie/936075" element={<Navigate to="/takedown" replace />} />
+        <Route path="/player/movie/1339713" element={<Navigate to="/takedown" replace />} />
+        <Route path="/player/movie/1291595" element={<Navigate to="/takedown" replace />} />
+        <Route path="/player/movie/1423191" element={<Navigate to="/takedown" replace />} />
+        <Route path="/player/movie/1400837" element={<Navigate to="/takedown" replace />} />
+        <Route path="/player/movie/1255833" element={<Navigate to="/takedown" replace />} />
+        <Route path="/player/movie/1560520" element={<Navigate to="/takedown" replace />} />
+        <Route path="/player/movie/1248832" element={<Navigate to="/takedown" replace />} />
+        <Route path="/player/movie/1302904" element={<Navigate to="/takedown" replace />} />
+        <Route path="/player/movie/1236045" element={<Navigate to="/takedown" replace />} />
+        <Route path="/player/movie/1007757" element={<Navigate to="/takedown" replace />} />
         <Route path="/player/movie/:id" element={<Player />} />
         <Route path="/player/tv/:id/:season/:episode" element={<Player />} />
         <Route path="/search" element={<Search />} />

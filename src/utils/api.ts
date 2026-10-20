@@ -24,7 +24,21 @@ interface TMDBVideoResponse {
 }
 
 // Create axios instance for TMDB
-const BLOCKED_MOVIE_IDS = new Set([1368337, 969681]);
+const BLOCKED_MOVIE_IDS = new Set([
+  1368337,
+  969681,
+  936075,
+  1339713,
+  1291595,
+  1423191,
+  1400837,
+  1255833,
+  1560520,
+  1248832,
+  1302904,
+  1236045,
+  1007757,
+]);
 
 const tmdb = axios.create({
   baseURL: 'https://api.themoviedb.org/3',
@@ -260,7 +274,7 @@ export const getTrending = async (timeWindow: 'day' | 'week' = 'day', page: numb
         params: { page },
       }
     );
-    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
+    return response.data.results.filter(item => item.media_type !== 'tv' && !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
       title: (item as TMDBMovieResult).title,
       name: (item as TMDBTVResult).name,
@@ -434,7 +448,7 @@ export const getMovieReviews = async (movieId: number): Promise<Review[]> => {
 export const getTVReviews = async (tvId: number): Promise<Review[]> => {
   try {
     const response = await tmdb.get<{ results: any[] }>(`/tv/${tvId}/reviews`);
-    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((r) => ({
+    return response.data.results.map((r) => ({
       id: r.id,
       author: r.author,
       content: r.content,
@@ -481,7 +495,7 @@ export const getPopularTVShows = async (page: number = 1, sortBy: 'popularity.de
     const response = await tmdb.get<{ results: TMDBTVResult[] }>(useDiscover ? '/discover/tv' : '/tv/popular', {
       params: useDiscover ? { page, sort_by: sortBy, ...(genreId !== 'all' ? { with_genres: genreId } : {}), ...(countryCode !== 'all' ? { with_origin_country: countryCode } : {}) } : { page },
     });
-    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
+    return response.data.results.map((item) => ({
       id: item.id,
       name: item.name,
       title: item.title,
@@ -531,7 +545,7 @@ export const getTopRatedTVShows = async (page: number = 1, sortBy: 'vote_average
     const response = await tmdb.get<{ results: TMDBTVResult[] }>(useDiscover ? '/discover/tv' : '/tv/top_rated', {
       params: useDiscover ? { page, sort_by: sortBy, ...(genreId !== 'all' ? { with_genres: genreId } : {}), ...(countryCode !== 'all' ? { with_origin_country: countryCode } : {}) } : { page },
     });
-    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
+    return response.data.results.map((item) => ({
       id: item.id,
       name: item.name,
       title: item.title,
@@ -616,7 +630,6 @@ export const getKoreanDramas = async (
     });
 
     return response.data.results
-      .filter(item => !BLOCKED_MOVIE_IDS.has(item.id))
       .map((item) => ({
         id: item.id,
         name: item.name,
@@ -654,7 +667,6 @@ export const getNewKoreanEpisodes = async (page: number = 1): Promise<Media[]> =
     });
 
     return response.data.results
-      .filter(item => !BLOCKED_MOVIE_IDS.has(item.id))
       .map((item) => ({
         id: item.id,
         name: item.name,
@@ -750,7 +762,7 @@ export const getComedySeries = async (page: number = 1): Promise<Media[]> => {
         with_genres: '35', // Comedy genre ID
       },
     });
-    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
+    return response.data.results.map((item) => ({
       id: item.id,
       name: item.name,
       title: item.title,
@@ -798,7 +810,7 @@ export const getTVRecommendations = async (tvId: number, page: number = 1): Prom
     const response = await tmdb.get<{ results: TMDBTVResult[] }>(`/tv/${tvId}/recommendations`, {
       params: { page },
     });
-    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
+    return response.data.results.map((item) => ({
       id: item.id,
       name: item.name,
       title: item.title,
@@ -825,7 +837,7 @@ export const searchMedia = async (query: string, page: number = 1): Promise<Medi
         params: { query, page },
       }
     );
-    return response.data.results.filter(item => !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
+    return response.data.results.filter(item => item.media_type !== 'tv' && !BLOCKED_MOVIE_IDS.has(item.id)).map((item) => ({
       id: item.id,
       title: (item as TMDBMovieResult).title,
       name: (item as TMDBTVResult).name,

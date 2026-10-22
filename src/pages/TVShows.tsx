@@ -179,7 +179,7 @@ const TVShows = () => {
         <Navbar />
         
         <main className="flex-1 animate-fade-in" style={{ animationDuration: '0.5s' }}>
-          <div className="container px-4 pb-8 pt-0">
+          <div className="container px-4 pb-8 pt-24">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
               <div className="flex items-center gap-3 pt-0">
                 <h1 className="text-3xl font-bold text-white"></h1>

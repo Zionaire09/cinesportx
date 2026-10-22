@@ -180,7 +180,7 @@ const Movies = () => {
       <div className="min-h-screen bg-background text-white flex flex-col">
         <Navbar />
         
-        <main className="flex-1 container mx-auto px-4 pb-8 pt-0">
+        <main className="flex-1 container mx-auto px-4 pb-8 pt-24">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <h1 className="text-2xl font-bold mb-4"> </h1>

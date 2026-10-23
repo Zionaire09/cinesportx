@@ -16,6 +16,7 @@ import {
 } from '@/utils/sports-api';
 import { useToast } from '@/hooks/use-toast';
 import Ads from '@/components/Ads';
+import SportsBanner from '@/components/SportsBanner';
 import {
   Activity,
   CalendarDays,
@@ -120,6 +121,8 @@ const Sports = () => {
                 </div>
               </div>
             </motion.section>
+
+            <SportsBanner className="mb-7" />
 
             <a href="https://rmppv.xyz/replays" target="_blank" rel="noopener noreferrer" className="group mb-8 flex items-center justify-between rounded-2xl border border-cyan-400/25 bg-cyan-400/[0.07] px-4 py-4 transition-colors hover:border-cyan-300/60 hover:bg-cyan-400/10 md:px-5">
               <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-300 text-[#07101d]"><Sparkles className="h-5 w-5" /></span><span><span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">Missed a match?</span><span className="block text-sm font-bold text-white md:text-base">Catch up on sports replays</span><span className="mt-0.5 block text-xs font-medium text-cyan-200/75">rmppv.xyz/replays</span></span></span><ChevronRight className="h-5 w-5 text-cyan-300 transition-transform group-hover:translate-x-1" />

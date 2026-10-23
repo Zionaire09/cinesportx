@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import PageTransition from '@/components/PageTransition';
 import { getMatchById, getStreamsForMatch } from '@/utils/sports-api';
 import Ads from '@/components/Ads';
+import SportsBanner from '@/components/SportsBanner';
 import SharePromotion from '@/components/SharePromotion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -51,7 +52,7 @@ const SportMatchPlayer = () => {
   if (isLoading) return <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"><Loader2 className="mb-2 h-8 w-8 animate-spin text-white" /><span className="text-[10px] font-black uppercase tracking-widest text-white/60">Loading match streams...</span></div>;
   const title = matchInfo?.title || 'Sports match';
   const teams = matchInfo?.teams?.home?.name && matchInfo?.teams?.away?.name ? `${matchInfo.teams.home.name} vs ${matchInfo.teams.away.name}` : '';
-  return <PageTransition><div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-neutral-200 antialiased"><Navbar /><div className="px-0 pb-10 pt-20 sm:px-4 sm:pb-16 sm:pt-24 md:px-6"><div className="container mx-auto max-w-7xl">
+  return <PageTransition><div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-neutral-200 antialiased"><Navbar /><div className="px-0 pb-10 pt-20 sm:px-4 sm:pb-16 sm:pt-24 md:px-6"><div className="container mx-auto max-w-7xl"><SportsBanner />
     <div className="mx-2 mb-2 flex items-center justify-between sm:mx-0 sm:mb-5"><button onClick={() => navigate('/sports')} className="flex items-center gap-2 rounded-lg border border-cyan-400/50 bg-gradient-to-r from-cyan-600 to-blue-600 px-3 py-2 text-[10px] sm:px-4 sm:py-2.5 sm:text-xs font-black uppercase tracking-wider text-white shadow-lg transition hover:border-cyan-200"><ArrowLeft className="h-4 w-4" /> Back</button><span className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 font-mono text-[10px] text-white/60">MATCH {matchId?.slice(0, 8)}</span></div>
     <motion.header className="mx-0 mb-3 rounded-xl sm:mx-0 sm:mb-5 sm:rounded-2xl border border-cyan-400/20 bg-gradient-to-r from-cyan-400/[0.12] to-blue-500/[0.08] px-3 py-3 text-center sm:px-5 sm:py-5 shadow-xl" initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}><p className="text-[10px] font-black uppercase tracking-[0.25em] text-cyan-300">{matchInfo?.category || 'Sports'}{matchInfo?.league ? ` • ${matchInfo.league}` : ''}</p><h1 className="mt-2 text-lg font-black sm:text-2xl tracking-tight text-white md:text-4xl">{teams || title}</h1>{teams && <p className="mt-1 text-sm font-bold text-cyan-100/80">{title}</p>}<p className="mt-2 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white/60"><Clock className="h-3.5 w-3.5" />{matchInfo?.date ? format(new Date(matchInfo.date), 'MMM d, yyyy • h:mm a') : 'Match details unavailable'}</p></motion.header>
     <div className="w-full grid items-start gap-2 lg:gap-5 lg:grid-cols-[minmax(0,4fr)_minmax(250px,1fr)]">

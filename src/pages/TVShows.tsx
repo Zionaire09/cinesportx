@@ -14,6 +14,9 @@ import { MediaGridSkeleton } from '@/components/MediaSkeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Ads from '@/components/Ads';
 import { CategoryFilter, CountryFilter } from './New';
+import SportsBanner from '@/components/SportsBanner';
+
+
 const TV_PAGE_STATE_KEY = 'tvShowsPageState';
 
 type TVPageState = {
@@ -177,9 +180,9 @@ const TVShows = () => {
     <PageTransition>
       <div className="min-h-screen flex flex-col bg-background">
         <Navbar />
-        
+        <div className="pt-24"><SportsBanner className="mb-0" /></div>
         <main className="flex-1 animate-fade-in" style={{ animationDuration: '0.5s' }}>
-          <div className="container px-4 pb-8 pt-24">
+          <div className="container px-4 pb-8 pt-0">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
               <div className="flex items-center gap-3 pt-0">
                 <h1 className="text-3xl font-bold text-white"></h1>

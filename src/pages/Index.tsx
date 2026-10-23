@@ -49,7 +49,31 @@ const Index = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const trendingPromise = getTrending();
+      const trendingPromise = (async () => {
+        const firstPages = await Promise.all([
+          getTrending('day', 1),
+          getTrending('day', 2),
+        ]);
+        const seen = new Set<string>();
+        const merged = firstPages.flat().filter((item) => {
+          const key = `${item.media_type}-${item.id}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        const withBackdrop = () => merged.filter((item) => item.backdrop_path);
+        if (withBackdrop().length < 20) {
+          const nextPage = await getTrending('day', 3);
+          nextPage.forEach((item) => {
+            const key = `${item.media_type}-${item.id}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              merged.push(item);
+            }
+          });
+        }
+        return merged;
+      })();
       const secondaryPromise = Promise.allSettled([
         getPopularMovies(),
         getPopularTVShows(),
@@ -63,7 +87,7 @@ const Index = () => {
       // The Home banner only needs Trending data. Release it without waiting for every content row.
       const trendingResult = await Promise.allSettled([trendingPromise]);
       const trendingData = trendingResult[0].status === 'fulfilled' ? trendingResult[0].value : [];
-      setTrendingMedia(trendingData.filter(item => item.backdrop_path));
+      setTrendingMedia(trendingData.filter(item => item.backdrop_path).slice(0, 20));
       setIsLoading(false);
       setTimeout(() => setContentVisible(true), 300);
 

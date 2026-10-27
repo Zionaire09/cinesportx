@@ -13,11 +13,9 @@ import SportsBanner from '@/components/SportsBanner';
 import {
   Activity,
   CalendarDays,
-  ChevronRight,
   Flame,
   Radio,
   Search,
-  Sparkles,
   Trophy,
   Zap,
 } from 'lucide-react';
@@ -113,10 +111,6 @@ const Sports = () => {
             </motion.section>
 
             <SportsBanner className="mb-7" />
-
-            <Link to="/replays" className="group mb-8 flex items-center justify-between rounded-2xl border border-cyan-400/25 bg-cyan-400/[0.07] px-4 py-4 transition-colors hover:border-cyan-300/60 hover:bg-cyan-400/10 md:px-5">
-              <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-300 text-[#07101d]"><Sparkles className="h-5 w-5" /></span><span><span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">Missed a match?</span><span className="block text-sm font-bold text-white md:text-base">Catch up on sports replays</span><span className="mt-0.5 block text-xs font-medium text-cyan-200/75">Browse the full replay archive</span></span></span><ChevronRight className="h-5 w-5 text-cyan-300 transition-transform group-hover:translate-x-1" />
-            </Link>
 
             <section className="rounded-2xl border border-slate-800 bg-[#0a1524]/80 p-3 md:p-5">
               <div className="mb-5 flex items-center gap-2"><Activity className="h-4 w-4 text-cyan-300" /><h2 className="text-sm font-bold uppercase tracking-[0.16em] text-slate-200">Browse the desk</h2></div>

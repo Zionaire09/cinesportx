@@ -22,6 +22,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const Sports = () => {
   const [activeTab, setActiveTab] = useState('popular');
@@ -113,9 +114,9 @@ const Sports = () => {
 
             <SportsBanner className="mb-7" />
 
-            <a href="https://rmppv.xyz/replays" target="_blank" rel="noopener noreferrer" className="group mb-8 flex items-center justify-between rounded-2xl border border-cyan-400/25 bg-cyan-400/[0.07] px-4 py-4 transition-colors hover:border-cyan-300/60 hover:bg-cyan-400/10 md:px-5">
-              <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-300 text-[#07101d]"><Sparkles className="h-5 w-5" /></span><span><span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">Missed a match?</span><span className="block text-sm font-bold text-white md:text-base">Catch up on sports replays</span><span className="mt-0.5 block text-xs font-medium text-cyan-200/75">rmppv.xyz/replays</span></span></span><ChevronRight className="h-5 w-5 text-cyan-300 transition-transform group-hover:translate-x-1" />
-            </a>
+            <Link to="/replays" className="group mb-8 flex items-center justify-between rounded-2xl border border-cyan-400/25 bg-cyan-400/[0.07] px-4 py-4 transition-colors hover:border-cyan-300/60 hover:bg-cyan-400/10 md:px-5">
+              <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-300 text-[#07101d]"><Sparkles className="h-5 w-5" /></span><span><span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">Missed a match?</span><span className="block text-sm font-bold text-white md:text-base">Catch up on sports replays</span><span className="mt-0.5 block text-xs font-medium text-cyan-200/75">Browse the full replay archive</span></span></span><ChevronRight className="h-5 w-5 text-cyan-300 transition-transform group-hover:translate-x-1" />
+            </Link>
 
             <section className="rounded-2xl border border-slate-800 bg-[#0a1524]/80 p-3 md:p-5">
               <div className="mb-5 flex items-center gap-2"><Activity className="h-4 w-4 text-cyan-300" /><h2 className="text-sm font-bold uppercase tracking-[0.16em] text-slate-200">Browse the desk</h2></div>
@@ -126,11 +127,12 @@ const Sports = () => {
 
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <div className="flex flex-col gap-3 border-t border-slate-800 pt-4 lg:flex-row lg:items-center lg:justify-between">
-                  <TabsList className="grid h-11 w-full grid-cols-4 gap-1 rounded-xl bg-slate-900 p-1 lg:w-[500px]">
+                  <TabsList className="grid h-11 w-full grid-cols-5 gap-1 rounded-xl bg-slate-900 p-1 lg:w-[620px]">
                     <TabsTrigger value="popular" className="gap-2 rounded-lg text-xs font-bold text-slate-500 data-[state=active]:bg-amber-400/15 data-[state=active]:text-amber-200"><Flame className="h-3.5 w-3.5" /> Featured</TabsTrigger>
                     <TabsTrigger value="live" className="gap-2 rounded-lg text-xs font-bold text-slate-500 data-[state=active]:bg-rose-400/15 data-[state=active]:text-rose-200"><Radio className="h-3.5 w-3.5" /> Live</TabsTrigger>
                     <TabsTrigger value="upcoming" className="gap-2 rounded-lg text-xs font-bold text-slate-500 data-[state=active]:bg-cyan-400/15 data-[state=active]:text-cyan-200"><CalendarDays className="h-3.5 w-3.5" /> Upcoming</TabsTrigger>
                     <TabsTrigger value="247" className="rounded-lg text-xs font-bold text-slate-500 data-[state=active]:bg-cyan-400/15 data-[state=active]:text-cyan-200">24/7</TabsTrigger>
+                    <Link to="/replays" className="flex items-center justify-center rounded-lg text-xs font-bold text-slate-500 transition hover:bg-cyan-400/10 hover:text-cyan-200">Replays</Link>
                   </TabsList>
                   <label className="relative block w-full lg:max-w-sm"><Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" /><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search teams, leagues..." className="h-11 w-full rounded-xl border border-slate-700 bg-slate-900 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/70 focus:ring-2 focus:ring-cyan-400/10" /></label>
                 </div>

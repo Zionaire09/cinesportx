@@ -26,6 +26,7 @@ import LiveTV from "./pages/LiveTV";
 import LiveTVPlayer from "./pages/LiveTVPlayer";
 import PersonFilmography from "./pages/PersonFilmography";
 import ChristmasGreeting from "./components/ChristmasGreeting";
+import { ReplayPlayer, Replays } from "./pages/Replays";
 
 const queryClient = new QueryClient();
 const GA_MEASUREMENT_ID = import.meta.env.VITE_FIREBASE_MEASUREMENT_ID;
@@ -57,7 +58,7 @@ const useCanonical = () => {
       document.head.appendChild(canonicalTag);
     }
     canonicalTag.href = canonicalUrl;
-    const noindex = /^\/(search|player(?:\/|$)|sports\/player(?:\/|$)|live-tv\/player(?:\/|$))/.test(normalizedPath);
+    const noindex = /^\/(search|player(?:\/|$)|sports\/player(?:\/|$)|live-tv\/player(?:\/|$)|replay(?:\/|$))/.test(normalizedPath);
     let robotsTag = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
     if (!robotsTag) {
       robotsTag = document.createElement('meta');
@@ -72,6 +73,7 @@ const useCanonical = () => {
       '/new': 'New Releases – MSportsX',
       '/trending': 'Trending Movies & TV Shows – MSportsX',
       '/sports': 'Live Sports Streams – MSportsX',
+      '/replays': 'Sports Replays – MSportsX',
       '/live-tv': 'Live TV Channels – MSportsX',
       '/live-tv/player': 'Live TV Player – MSportsX',
     };
@@ -95,6 +97,8 @@ const AnimatedRoutes = () => {
         <Route path="/new" element={<New />} />
         <Route path="/trending" element={<Trending />} />
         <Route path="/sports" element={<Sports />} />
+        <Route path="/replays" element={<Replays />} />
+        <Route path="/replay/:id" element={<ReplayPlayer />} />
         <Route path="/live-tv" element={<LiveTV />} />
         <Route path="/live-tv/player" element={<LiveTVPlayer />} />
         <Route path="/sports/player/admin-willow-cricket" element={<Navigate to="/takedown" replace />} />

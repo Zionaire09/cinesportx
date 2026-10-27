@@ -39,11 +39,16 @@ const Sports = () => {
     const date = new Date(match.date);
     return date.getFullYear() <= 1970 || (date.getMonth() === 0 && date.getDate() === 1);
   };
+  const isSports247Match = (match: APIMatch) => {
+    if (!is24SevenMatch(match)) return false;
+    const searchable = `${match.title} ${match.category || ''} ${match.league || ''}`.toLowerCase();
+    return ['sport', 'football', 'soccer', 'baseball', 'basketball', 'cricket', 'rugby', 'golf', 'hockey', 'racing', 'motorsport', 'tennis', 'boxing', 'mma', 'nfl', 'nhl', 'nba', 'mlb', 'rally', 'formula', 'nascar', 'footy', 'willow'].some((term) => searchable.includes(term));
+  };
 
   const isCompletedMatch = (match: APIMatch) => getMatchState(match) === 'finished';
   const activeMatches = useMemo(() => allMatches.filter((match) => !isCompletedMatch(match)), [allMatches]);
   const liveMatches = useMemo(
-    () => activeMatches.filter((match) => !is24SevenMatch(match) && getMatchState(match) === 'live'),
+    () => activeMatches.filter((match) => isSports247Match(match) || (!is24SevenMatch(match) && getMatchState(match) === 'live')),
     [activeMatches],
   );
   const upcomingMatches = useMemo(
@@ -70,7 +75,7 @@ const Sports = () => {
   const currentMatches = useMemo(() => {
     const source = selectedSport === 'all' ? featuredMatches : selectedMatches;
     if (activeTab === '247') return source.filter(is24SevenMatch);
-    if (activeTab === 'live') return source.filter((match) => !is24SevenMatch(match) && getMatchState(match) === 'live');
+    if (activeTab === 'live') return source.filter((match) => isSports247Match(match) || (!is24SevenMatch(match) && getMatchState(match) === 'live'));
     if (activeTab === 'upcoming') return source.filter((match) => getMatchState(match) === 'upcoming');
     return source;
   }, [activeTab, featuredMatches, selectedMatches, selectedSport]);

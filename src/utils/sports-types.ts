@@ -8,20 +8,28 @@ export interface Sport {
 export interface MatchSource {
   source: string;
   id: string;
+  streamCount?: number;
 }
+
+export type StreamType = 'iframe' | 'video';
 
 export interface Stream {
   id?: string;
   source?: string;
   streamNo?: number;
   embedUrl: string;
+  streamType?: StreamType;
   name?: string;
   quality?: string;
   language?: string;
+  hd?: boolean;
 }
 
 export interface APIMatch {
   id: string;
+  catalogId?: number | string;
+  sportId?: string;
+  uriName?: string;
   title: string;
   date: string;
   category: string;
@@ -29,6 +37,10 @@ export interface APIMatch {
   popular?: boolean;
   poster?: string;
   status?: 'live' | 'upcoming' | 'finished';
+  startsAt?: number;
+  endsAt?: number;
+  alwaysLive?: boolean;
+  tag?: string;
   teams?: {
     home: {
       name: string;
@@ -44,23 +56,43 @@ export interface APIMatch {
 
 export type MatchState = 'live' | 'upcoming' | 'finished';
 
-const LIVE_WINDOW_HOURS: Record<string, number> = {
-  football: 3, soccer: 3, basketball: 3, tennis: 6, ufc: 6, mma: 6,
-  boxing: 6, baseball: 5, cricket: 8, rugby: 3.5, hockey: 3,
-  'ice hockey': 3, 'american football': 4, motorsport: 6, golf: 8,
-  darts: 5, volleyball: 3,
+const LIVE_WINDOW_SECONDS: Record<string, number> = {
+  football: 3 * 60 * 60,
+  soccer: 3 * 60 * 60,
+  basketball: 3 * 60 * 60,
+  tennis: 6 * 60 * 60,
+  ufc: 6 * 60 * 60,
+  mma: 6 * 60 * 60,
+  boxing: 6 * 60 * 60,
+  baseball: 5 * 60 * 60,
+  cricket: 8 * 60 * 60,
+  rugby: 3.5 * 60 * 60,
+  hockey: 3 * 60 * 60,
+  'ice hockey': 3 * 60 * 60,
+  'american football': 4 * 60 * 60,
+  motorsport: 6 * 60 * 60,
+  golf: 8 * 60 * 60,
+  darts: 5 * 60 * 60,
+  volleyball: 3 * 60 * 60,
+  wrestling: 3 * 60 * 60,
 };
 
 export const getMatchState = (match: APIMatch, now = Date.now()): MatchState => {
+  if (match.alwaysLive) return 'live';
+
   const date = new Date(match.date);
-  const matchTime = date.getTime();
-  const text = [match.title, match.category, match.league].filter(Boolean).join(' ').toLowerCase();
-  const is24Seven = date.getFullYear() <= 1970 || (date.getMonth() === 0 && date.getDate() === 1);
-  if (is24Seven || match.status === 'live') return 'live';
-  if (match.status === 'finished' || /\bfinal\b/i.test(text)) return 'finished';
-  if (match.status === 'upcoming' && matchTime > now) return 'upcoming';
-  const sport = Object.keys(LIVE_WINDOW_HOURS).find((name) => text.includes(name));
-  const windowMs = (LIVE_WINDOW_HOURS[sport || 'football'] || 3) * 60 * 60 * 1000;
+  const matchTime = match.startsAt != null ? match.startsAt * 1000 : date.getTime();
+  const endTime = match.endsAt != null ? match.endsAt * 1000 : undefined;
+  const text = [match.title, match.category, match.league, match.tag].filter(Boolean).join(' ').toLowerCase();
+  const explicitStatus = match.status;
+
+  if (explicitStatus === 'finished') return 'finished';
+  if (explicitStatus === 'live') return 'live';
+  if (explicitStatus === 'upcoming' && matchTime > now) return 'upcoming';
   if (matchTime > now) return 'upcoming';
-  return now - matchTime < windowMs ? 'live' : 'finished';
+  if (endTime != null) return endTime > now ? 'live' : 'finished';
+
+  const sport = Object.keys(LIVE_WINDOW_SECONDS).find((name) => text.includes(name));
+  const liveWindow = (LIVE_WINDOW_SECONDS[sport || 'football'] || 3 * 60 * 60) * 1000;
+  return now - matchTime < liveWindow ? 'live' : 'finished';
 };

@@ -1,402 +1,349 @@
-import { APIMatch, Sport, Stream, MatchSource } from './sports-types';
+import { APIMatch, MatchSource, Sport, Stream, StreamType } from './sports-types';
 
-const API_BASE_URL = 'https://streamed.pk';
-const STREAM_REQUEST_TIMEOUT_MS = 10000;
-const SOURCE_PRIORITY = ['admin', 'alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel', 'intel'];
+type CatalogStream = {
+  id?: number | string;
+  name?: string;
+  tag?: string;
+  poster?: string;
+  uri_name?: string;
+  starts_at?: number;
+  ends_at?: number;
+  start_timestamp?: number;
+  end_timestamp?: number;
+  always_live?: number | boolean;
+  category_name?: string;
+  iframe?: string;
+  m3u8?: string;
+  playlist_full?: string;
+  player_type?: string;
+  source_type?: string;
+  uri?: string;
+  sources?: RawSource[];
+  vip_source?: string;
+};
 
-const fetchWithTimeout = async (url: string): Promise<Response> => {
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), STREAM_REQUEST_TIMEOUT_MS);
+type CatalogGroup = {
+  id?: number | string;
+  category?: string;
+  always_live?: number | boolean;
+  streams?: CatalogStream[];
+};
+
+type CatalogResponse = {
+  success?: boolean;
+  streams?: CatalogGroup[];
+  data?: { streams?: CatalogGroup[] };
+  error?: string;
+};
+
+type RawSource = {
+  name?: string;
+  default?: boolean;
+  type?: string;
+  data?: string;
+  url?: string;
+  file?: string;
+};
+
+type DetailStream = CatalogStream & {
+  category?: number | string;
+  description?: string;
+  end_timestamp?: number;
+  start_timestamp?: number;
+  vip_mpegts?: string;
+  vip_stream?: boolean;
+};
+
+type DetailResponse = {
+  success?: boolean;
+  data?: DetailStream;
+  error?: string;
+};
+
+const API_DOMAINS = ['ppv.st', 'ppv.tj', 'ppvs.pk', 'ppv.rw', 'ppv.ms', 'ppv.bi'] as const;
+const API_BASES = API_DOMAINS.map((domain) => `https://api.${domain}/api`);
+const API_TIMEOUT_MS = 7000;
+const CATALOG_CACHE_MS = 30_000;
+const API_PREFERRED_BASE_KEY = 'rabbitmeow-preferred-sports-api-base';
+
+export const SPORTS_CATEGORIES: Sport[] = [
+  { id: 'american-football', name: 'American Football' },
+  { id: 'australian-football', name: 'Australian Football' },
+  { id: 'baseball', name: 'Baseball' },
+  { id: 'basketball', name: 'Basketball' },
+  { id: 'cricket', name: 'Cricket' },
+  { id: 'football', name: 'Football' },
+  { id: 'rugby', name: 'Rugby' },
+  { id: '247-streams', name: '24/7 Streams' },
+];
+
+let catalogCache: { expiresAt: number; matches: APIMatch[] } | null = null;
+
+const joinUrl = (base: string, path: string) => `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
+
+const getPreferredApiBase = () => {
   try {
-    return await fetch(url, { signal: controller.signal });
-  } finally {
-    window.clearTimeout(timeout);
+    return window.sessionStorage.getItem(API_PREFERRED_BASE_KEY);
+  } catch {
+    return null;
   }
 };
 
-// ALL available sources from the API documentation
-export const ALL_SOURCES = ['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel', 'intel', 'admin'];
-
-export const getSportsList = async (): Promise<Sport[]> => {
+const rememberApiBase = (base: string) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/sports`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch sports list');
+    window.sessionStorage.setItem(API_PREFERRED_BASE_KEY, base);
+  } catch {
+    // Storage can be unavailable in private browsing; the request still succeeded.
+  }
+};
+
+const apiGet = async <T>(path: string): Promise<T> => {
+  let lastError: unknown;
+  const preferredBase = getPreferredApiBase();
+  const bases = preferredBase && API_BASES.includes(preferredBase as (typeof API_BASES)[number])
+    ? [preferredBase, ...API_BASES.filter((base) => base !== preferredBase)]
+    : API_BASES;
+
+  for (const base of bases) {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+    try {
+      const response = await fetch(joinUrl(base, path), {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'X-FS-Client': 'Rabbitmeow PPV WebClient 01054bb',
+        },
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+      const payload = (await response.json()) as T & { success?: boolean; error?: string };
+      if (payload.success === false) throw new Error(payload.error || 'Sports API returned an error');
+      rememberApiBase(base);
+      return payload;
+    } catch (error) {
+      lastError = error;
+    } finally {
+      window.clearTimeout(timeout);
     }
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching sports list:', error);
-    return [];
   }
+
+  throw lastError instanceof Error ? lastError : new Error('All sports API mirrors are unavailable');
 };
+
+export const encodeStreamPath = (uri: string) => uri.split('/').map((segment) => encodeURIComponent(segment)).join('/');
+export const encodeSportsPath = encodeStreamPath;
+
+const toNumber = (value: unknown) => {
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const cleanCategory = (category?: string) => (category || 'Sports event').replace(/^VIP \| /, '').trim();
+
+const categoryId = (category: string) => {
+  const normalized = cleanCategory(category).toLowerCase();
+  return normalized === '24/7 streams' ? '247-streams' : normalized.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+};
+
+const toDate = (startsAt?: number, alwaysLive = false) => {
+  if (alwaysLive || startsAt == null || startsAt <= 0) return new Date(0).toISOString();
+  return new Date(startsAt * 1000).toISOString();
+};
+
+const normalizeMatch = (stream: CatalogStream, group: CatalogGroup): APIMatch | null => {
+  const uriName = typeof stream.uri_name === 'string' && stream.uri_name ? stream.uri_name : undefined;
+  const title = typeof stream.name === 'string' && stream.name ? stream.name : undefined;
+  if (!uriName || !title) return null;
+
+  const category = cleanCategory(stream.category_name || group.category);
+  const startsAt = toNumber(stream.starts_at ?? stream.start_timestamp);
+  const endsAt = toNumber(stream.ends_at ?? stream.end_timestamp);
+  const alwaysLive = Boolean(stream.always_live || group.always_live || category === '24/7 Streams');
+
+  return {
+    id: uriName,
+    catalogId: stream.id,
+    sportId: categoryId(category),
+    uriName,
+    title,
+    date: toDate(startsAt, alwaysLive),
+    category,
+    league: stream.tag || undefined,
+    poster: stream.poster || undefined,
+    startsAt,
+    endsAt,
+    alwaysLive,
+    tag: stream.tag || undefined,
+    sources: [],
+  };
+};
+
+const loadCatalog = async (force = false) => {
+  if (!force && catalogCache && catalogCache.expiresAt > Date.now()) return catalogCache.matches;
+
+  const response = await apiGet<CatalogResponse>('/streams');
+  const groups = response.streams || response.data?.streams || [];
+  const matches = groups.flatMap((group) => (group.streams || [])
+    .map((stream) => normalizeMatch(stream, group))
+    .filter((match): match is APIMatch => Boolean(match)));
+
+  catalogCache = { expiresAt: Date.now() + CATALOG_CACHE_MS, matches };
+  return matches;
+};
+
+const sortMatches = (matches: APIMatch[]) => [...matches].sort((a, b) => {
+  const aStart = a.startsAt ?? Number.MAX_SAFE_INTEGER;
+  const bStart = b.startsAt ?? Number.MAX_SAFE_INTEGER;
+  return aStart - bStart;
+});
+
+export const getSportsList = async (): Promise<Sport[]> => SPORTS_CATEGORIES;
+export const getAllMatches = async (): Promise<APIMatch[]> => loadCatalog();
 
 export const getMatchesBySport = async (sportId: string): Promise<APIMatch[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/matches/${sportId}`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch matches for sport: ${sportId}`);
-    }
-    const matches: APIMatch[] = await response.json();
-    return matches;
-  } catch (error) {
-    console.error(`Error fetching matches for sport ${sportId}:`, error);
-    return [];
-  }
+  const matches = await loadCatalog();
+  if (sportId === '247-streams') return matches.filter((match) => match.alwaysLive);
+  return matches.filter((match) => match.sportId === sportId || categoryId(match.category) === sportId);
 };
 
-export const getPopularMatchesBySport = async (sportId: string): Promise<APIMatch[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/matches/${sportId}/popular`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch popular matches for sport: ${sportId}`);
-    }
-    const matches: APIMatch[] = await response.json();
-    return matches;
-  } catch (error) {
-    console.error(`Error fetching popular matches for sport ${sportId}:`, error);
-    return [];
-  }
-};
-
-export const getAllMatches = async (): Promise<APIMatch[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/matches/all`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch all matches');
-    }
-    const matches: APIMatch[] = await response.json();
-    return matches;
-  } catch (error) {
-    console.error('Error fetching all matches:', error);
-    return [];
-  }
-};
-
-export const getAllPopularMatches = async (): Promise<APIMatch[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/matches/all/popular`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch all popular matches');
-    }
-    const matches: APIMatch[] = await response.json();
-    return matches;
-  } catch (error) {
-    console.error('Error fetching all popular matches:', error);
-    return [];
-  }
-};
-
-export const getTodayMatches = async (): Promise<APIMatch[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/matches/all-today`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch today's matches");
-    }
-    const matches: APIMatch[] = await response.json();
-    return matches;
-  } catch (error) {
-    console.error("Error fetching today's matches:", error);
-    return [];
-  }
-};
-
-export const getTodayPopularMatches = async (): Promise<APIMatch[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/matches/all-today/popular`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch today's popular matches");
-    }
-    const matches: APIMatch[] = await response.json();
-    return matches;
-  } catch (error) {
-    console.error("Error fetching today's popular matches:", error);
-    return [];
-  }
-};
-
+export const getPopularMatchesBySport = async (sportId: string): Promise<APIMatch[]> => sortMatches(await getMatchesBySport(sportId));
+export const getAllPopularMatches = async (): Promise<APIMatch[]> => sortMatches(await loadCatalog());
+export const getTodayMatches = async (): Promise<APIMatch[]> => loadCatalog();
 export const getLiveMatches = async (): Promise<APIMatch[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/matches/live`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch live matches');
-    }
-    const matches: APIMatch[] = await response.json();
-    return matches;
-  } catch (error) {
-    console.error('Error fetching live matches:', error);
-    return [];
-  }
+  const matches = await loadCatalog();
+  return matches.filter((match) => match.alwaysLive || (match.startsAt != null && match.endsAt != null && match.startsAt * 1000 <= Date.now() && match.endsAt * 1000 > Date.now()));
 };
 
-export const getLivePopularMatches = async (): Promise<APIMatch[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/matches/live/popular`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch live popular matches');
-    }
-    const matches: APIMatch[] = await response.json();
-    return matches;
-  } catch (error) {
-    console.error('Error fetching live popular matches:', error);
-    return [];
-  }
+const sourceValue = (source?: RawSource) => source?.data || source?.url || source?.file || '';
+const isHttpUrl = (value?: string) => Boolean(value && /^https?:\/\//i.test(value.trim()));
+
+const resolveDetailSources = (detail: DetailStream): Array<{ value: string; type: StreamType; name: string; index: number }> => {
+  const sources = [...(detail.sources || [])]
+    .map((source, index) => ({ source, index }))
+    .sort((a, b) => Number(Boolean(b.source.default)) - Number(Boolean(a.source.default)));
+  const resolved = sources
+    .map(({ source, index }) => {
+      const value = sourceValue(source).trim();
+      if (!isHttpUrl(value)) return null;
+      const sourceType = (source.type || '').toLowerCase();
+      const type: StreamType = sourceType.includes('iframe') || sourceType.includes('embed') ? 'iframe' : 'video';
+      return { value, type, name: source.name || (type === 'iframe' ? 'External Player Frame' : 'Direct stream'), index };
+    })
+    .filter((source): source is { value: string; type: StreamType; name: string; index: number } => Boolean(source));
+
+  if (resolved.length) return resolved;
+
+  const legacyCandidates: Array<{ value?: string; type: StreamType; name: string }> = [
+    { value: detail.iframe, type: 'iframe', name: 'External Player Frame' },
+    { value: detail.m3u8, type: 'video', name: 'HLS stream' },
+    { value: detail.playlist_full, type: 'video', name: 'Playlist stream' },
+    { value: detail.vip_source, type: 'video', name: 'Backup stream' },
+    { value: detail.vip_mpegts, type: 'video', name: 'Backup stream' },
+  ];
+  return legacyCandidates
+    .map((candidate, index) => candidate.value && isHttpUrl(candidate.value) ? { value: candidate.value, type: candidate.type, name: candidate.name, index } : null)
+    .filter((source): source is { value: string; type: StreamType; name: string; index: number } => Boolean(source));
 };
 
-// Helper function to find source ID for a specific source
-const findSourceIdForSource = (sources: MatchSource[], sourceName: string): string | null => {
-  const source = sources.find(s => s.source === sourceName);
-  return source ? source.id : null;
-};
-
-export const getMatchStreams = async (source: string | null, sourceId: string): Promise<Stream[]> => {
-  if (source) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/stream/${source}/${sourceId}`);
-      if (!response.ok) {
-        return [];
-      }
-      const streams: Stream[] = await response.json();
-      return streams.map((stream: Stream, index) => ({
-        ...stream,
-        source: source,
-        id: stream.id || `${source}_${sourceId}_${index + 1}`,
-        streamNo: index + 1
-      }));
-    } catch (error) {
-      console.error(`Error fetching streams from ${source} for match ${sourceId}:`, error);
-      return [];
-    }
-  } else {
-    return [];
-  }
-};
-
-// Get only sources that have active streams
-export const getActiveSourcesForMatch = async (matchId: string): Promise<Array<{source: string, sourceId: string, streamCount: number}>> => {
-  // First, get the match to access its sources array
-  const match = await getMatchById(matchId);
-  if (!match) {
-    return [];
-  }
-  
-  const sourcePromises = [...match.sources].sort((a, b) => SOURCE_PRIORITY.indexOf(a.source) - SOURCE_PRIORITY.indexOf(b.source)).map(async (sourceInfo) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/stream/${sourceInfo.source}/${sourceInfo.id}`);
-      if (response.ok) {
-        const streams: Stream[] = await response.json();
-        if (streams.length > 0) {
-          return {
-            source: sourceInfo.source,
-            sourceId: sourceInfo.id,
-            streamCount: streams.length
-          };
-        }
-      }
-      return null;
-    } catch {
-      return null;
-    }
-  });
-
-  const results = await Promise.all(sourcePromises);
-  const activeSources = results.filter(result => result !== null) as Array<{source: string, sourceId: string, streamCount: number}>;
-  
-  return activeSources;
-};
-
-// Get streams grouped by source
-export const getStreamsGroupedBySource = async (matchId: string): Promise<Record<string, Stream[]>> => {
-  const activeSources = await getActiveSourcesForMatch(matchId);
-  if (activeSources.length === 0) {
-    return {};
-  }
-  
-  const streamPromises = activeSources.map(async (sourceInfo) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/stream/${sourceInfo.source}/${sourceInfo.sourceId}`);
-      if (response.ok) {
-        const streams: Stream[] = await response.json();
-        return {
-          source: sourceInfo.source,
-          streams: streams.map((stream, index) => ({
-            ...stream,
-            source: sourceInfo.source,
-            id: stream.id || `${sourceInfo.source}_${sourceInfo.sourceId}_${index + 1}`,
-            streamNo: index + 1
-          }))
-        };
-      }
-      return {
-        source: sourceInfo.source,
-        streams: []
-      };
-    } catch {
-      return {
-        source: sourceInfo.source,
-        streams: []
-      };
-    }
-  });
-
-  const results = await Promise.all(streamPromises);
-  const groupedStreams: Record<string, Stream[]> = {};
-  
-  results.forEach(result => {
-    if (result.streams.length > 0) {
-      groupedStreams[result.source] = result.streams;
-    }
-  });
-  
-  return groupedStreams;
+const loadDetail = async (match: APIMatch): Promise<DetailStream> => {
+  const response = await apiGet<DetailResponse>(`/streams/${encodeStreamPath(match.uriName || match.id)}`);
+  if (!response.data) throw new Error(response.error || 'This sports stream is unavailable');
+  return response.data;
 };
 
 export const getStreamsForMatch = async (match: APIMatch): Promise<{
   activeSources: Array<{ source: string; sourceId: string; streamCount: number }>;
   groupedStreams: Record<string, Stream[]>;
 }> => {
-  const results = await Promise.all([...match.sources].sort((a, b) => SOURCE_PRIORITY.indexOf(a.source) - SOURCE_PRIORITY.indexOf(b.source)).map(async (sourceInfo) => {
-    try {
-      const response = await fetchWithTimeout(`${API_BASE_URL}/api/stream/${sourceInfo.source}/${sourceInfo.id}`);
-      if (!response.ok) return null;
-      const streams: Stream[] = await response.json();
-      if (streams.length === 0) return null;
-      return {
-        source: sourceInfo.source,
-        sourceId: sourceInfo.id,
-        streams: streams.map((stream, index) => ({
-          ...stream,
-          source: sourceInfo.source,
-          id: stream.id || `${sourceInfo.source}_${sourceInfo.id}_${index + 1}`,
-          streamNo: index + 1,
-        })),
-      };
-    } catch {
-      return null;
-    }
+  const detail = await loadDetail(match);
+  const resolvedSources = resolveDetailSources(detail);
+  const groupedStreams: Record<string, Stream[]> = {};
+
+  resolvedSources.forEach((source, index) => {
+    const sourceName = source.name || `Player ${index + 1}`;
+    const stream: Stream = {
+      id: `${match.id}-${index + 1}`,
+      source: sourceName,
+      streamNo: index + 1,
+      embedUrl: source.value,
+      streamType: source.type,
+      name: sourceName,
+      quality: source.type === 'video' ? 'Direct' : 'Embed',
+    };
+    groupedStreams[sourceName] = [stream];
+  });
+
+  const activeSources = Object.entries(groupedStreams).map(([source, streams]) => ({
+    source,
+    sourceId: match.id,
+    streamCount: streams.length,
   }));
-  const activeSources = results.filter(Boolean).map(({ source, sourceId, streams }) => ({ source, sourceId, streamCount: streams.length }));
-  const groupedStreams = results.filter(Boolean).reduce<Record<string, Stream[]>>((grouped, result) => {
-    grouped[result.source] = result.streams;
-    return grouped;
-  }, {});
   return { activeSources, groupedStreams };
 };
 
-// Get all streams from active sources
-export const getAllActiveStreams = async (matchId: string): Promise<Stream[]> => {
-  const activeSources = await getActiveSourcesForMatch(matchId);
-  if (activeSources.length === 0) {
-    return [];
-  }
-  
-  const streamPromises = activeSources.map(async (sourceInfo) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/stream/${sourceInfo.source}/${sourceInfo.sourceId}`);
-      if (response.ok) {
-        const streams: Stream[] = await response.json();
-        return streams.map((stream, index) => ({
-          ...stream,
-          source: sourceInfo.source,
-          id: stream.id || `${sourceInfo.source}_${sourceInfo.sourceId}_${index + 1}`,
-          streamNo: index + 1
-        }));
-      }
-      return [];
-    } catch {
-      return [];
-    }
-  });
-
-  const results = await Promise.all(streamPromises);
-  const allStreams: Stream[] = [];
-  
-  results.forEach(streams => {
-    if (streams.length > 0) {
-      allStreams.push(...streams);
-    }
-  });
-  
-  // Sort by source and stream number
-  allStreams.sort((a, b) => {
-    if (a.source === b.source) {
-      return a.streamNo - b.streamNo;
-    }
-    return activeSources.findIndex(s => s.source === a.source) - 
-           activeSources.findIndex(s => s.source === b.source);
-  });
-  
-  return allStreams;
-};
-
-export const getTeamBadgeUrl = (badgeId: string): string => {
-  if (!badgeId) return '/placeholder.svg';
-  const cleanBadgeId = badgeId.replace(/\.(webp|png|jpg|jpeg)$/i, '');
-  return `${API_BASE_URL}/api/images/badge/${cleanBadgeId}.webp`;
-};
-
-const DEFAULT_POSTER_URL = '/placeholder.svg';
-
-export const getMatchPosterUrl = (posterId?: string, homeBadge?: string, awayBadge?: string): string => {
-  if (posterId) {
-    if (posterId.includes(`${API_BASE_URL}/api/images/proxy/`)) {
-      return posterId;
-    }
-    
-    if (posterId.startsWith('http')) {
-      const encodedUrl = encodeURIComponent(posterId);
-      return `${API_BASE_URL}/api/images/proxy/${encodedUrl}.webp`;
-    }
-    
-    if (posterId.length > 30 && !posterId.includes('/') && !posterId.endsWith('.webp')) {
-      return `${API_BASE_URL}/api/images/proxy/${posterId}.webp`;
-    }
-    
-    if (posterId.includes('/proxy/')) {
-      const proxyPath = posterId.split('/proxy/')[1];
-      return `${API_BASE_URL}/api/images/proxy/${proxyPath}`;
-    }
-    
-    return `${API_BASE_URL}/api/images/poster/${posterId}.webp`;
-  }
-  
-  if (homeBadge && awayBadge) {
-    const cleanHomeBadge = homeBadge.replace(/\.(webp|png|jpg|jpeg)$/i, '');
-    const cleanAwayBadge = awayBadge.replace(/\.(webp|png|jpg|jpeg)$/i, '');
-    return `${API_BASE_URL}/api/images/poster/${cleanHomeBadge}/${cleanAwayBadge}.webp`;
-  }
-  
-  return DEFAULT_POSTER_URL;
-};
-
-const withPlayerLookupTimeout = async <T>(promise: Promise<T>, timeoutMs = 10000): Promise<T | null> => {
-  return Promise.race([
-    promise,
-    new Promise<null>((resolve) => window.setTimeout(() => resolve(null), timeoutMs)),
-  ]);
-};
-
 export const getMatchById = async (matchId: string): Promise<APIMatch | null> => {
-  try {
-    // Player links normally point to live or today's matches. Stop as soon as the match is found
-    // instead of waiting for several large endpoint requests in parallel.
-    const candidateLoaders = [getLiveMatches, getTodayMatches, getAllPopularMatches, getAllMatches];
-    for (const loadMatches of candidateLoaders) {
-      const matches = await withPlayerLookupTimeout(loadMatches());
-      const match = matches?.find((candidate) => candidate.id === matchId);
-      if (match) return match;
+  const decodedId = (() => {
+    try {
+      return decodeURIComponent(matchId);
+    } catch {
+      return matchId;
     }
-    return null;
-  } catch (error) {
-    console.error(`Error finding match ${matchId}:`, error);
+  })();
+  const matches = await loadCatalog();
+  const match = matches.find((candidate) => candidate.id === decodedId || String(candidate.catalogId) === decodedId);
+  if (match) return match;
+
+  try {
+    const response = await apiGet<DetailResponse>(`/streams/${encodeStreamPath(decodedId)}`);
+    const detail = response.data;
+    if (!detail?.uri && !detail?.name) return null;
+    const startsAt = toNumber(detail.start_timestamp);
+    return {
+      id: detail.uri || decodedId,
+      catalogId: detail.id,
+      sportId: categoryId(String(detail.category || 'Sports event')),
+      uriName: detail.uri || decodedId,
+      title: detail.name || 'Sports match',
+      date: toDate(startsAt),
+      category: String(detail.category || 'Sports event'),
+      league: detail.tag || undefined,
+      poster: detail.poster || undefined,
+      startsAt,
+      endsAt: toNumber(detail.end_timestamp),
+      tag: detail.tag || undefined,
+      sources: [],
+    };
+  } catch {
     return null;
   }
 };
 
-// Helper function to get source ID for a specific source
-export const getSourceIdForSource = async (matchId: string, sourceName: string): Promise<string | null> => {
+export const getActiveSourcesForMatch = async (matchId: string) => {
+  const match = await getMatchById(matchId);
+  if (!match) return [];
+  return (await getStreamsForMatch(match)).activeSources;
+};
+
+export const getStreamsGroupedBySource = async (matchId: string) => {
+  const match = await getMatchById(matchId);
+  return match ? (await getStreamsForMatch(match)).groupedStreams : {};
+};
+
+export const getAllActiveStreams = async (matchId: string) => {
+  const match = await getMatchById(matchId);
+  if (!match) return [];
+  const grouped = (await getStreamsForMatch(match)).groupedStreams;
+  return Object.values(grouped).flat();
+};
+
+export const getSourceIdForSource = async (matchId: string, sourceName: string) => {
   const match = await getMatchById(matchId);
   if (!match) return null;
-  
-  const source = match.sources.find(s => s.source === sourceName);
-  return source ? source.id : null;
+  const streams = await getStreamsForMatch(match);
+  return streams.activeSources.some((source) => source.source === sourceName) ? match.id : null;
 };
+
+export const getTeamBadgeUrl = () => '/placeholder.svg';
+
+export const getMatchPosterUrl = (posterId?: string) => posterId && isHttpUrl(posterId) ? posterId : '/no-match-photo.png';

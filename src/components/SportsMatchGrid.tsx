@@ -9,8 +9,8 @@ const SportsMatchGrid = ({ matches, title, emptyMessage = 'No matches found.', b
   const orderedMatches = [...(matches || [])].sort((a, b) => {
     const aDate = new Date(a.date);
     const bDate = new Date(b.date);
-    const a24Seven = aDate.getFullYear() <= 1970 || (aDate.getMonth() === 0 && aDate.getDate() === 1);
-    const b24Seven = bDate.getFullYear() <= 1970 || (bDate.getMonth() === 0 && bDate.getDate() === 1);
+    const a24Seven = Boolean(a.alwaysLive) || aDate.getFullYear() <= 1970 || (aDate.getMonth() === 0 && aDate.getDate() === 1);
+    const b24Seven = Boolean(b.alwaysLive) || bDate.getFullYear() <= 1970 || (bDate.getMonth() === 0 && bDate.getDate() === 1);
     return Number(a24Seven) - Number(b24Seven);
   });
   if (!matches || matches.length === 0) return <motion.div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-800 bg-slate-900/30 px-6 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800 text-slate-500"><Radio className="h-5 w-5" /></span><p className="text-sm font-semibold text-slate-300">{emptyMessage}</p><p className="mt-2 max-w-sm text-xs leading-5 text-slate-500">Try another sport or switch the match view to find a different event.</p>{backupStreamHref && <a href={backupStreamHref} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-2 rounded-lg border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 text-xs font-bold text-cyan-200 transition hover:border-cyan-300/60"><span>Alternate stream: rmppv.xyz</span><ExternalLink className="h-3.5 w-3.5" /></a>}</motion.div>;

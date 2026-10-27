@@ -98,7 +98,7 @@ const AnimatedRoutes = () => {
         <Route path="/live-tv" element={<LiveTV />} />
         <Route path="/live-tv/player" element={<LiveTVPlayer />} />
         <Route path="/sports/player/admin-willow-cricket" element={<Navigate to="/takedown" replace />} />
-        <Route path="/sports/player/:matchId" element={<SportMatchPlayer />} />
+        <Route path="/sports/player/*" element={<SportMatchPlayer />} />
         <Route path="/movie/1368337" element={<Navigate to="/takedown" replace />} />
         <Route path="/movie/969681" element={<Navigate to="/takedown" replace />} />
         <Route path="/movie/936075" element={<Navigate to="/takedown" replace />} />

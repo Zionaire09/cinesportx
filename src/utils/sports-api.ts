@@ -61,7 +61,13 @@ type DetailResponse = {
 };
 
 const API_DOMAINS = ['ppv.st', 'ppv.tj', 'ppvs.pk', 'ppv.rw', 'ppv.ms', 'ppv.bi'] as const;
-const API_BASES = API_DOMAINS.map((domain) => `https://api.${domain}/api`);
+export const SPORTS_API_SERVERS = API_DOMAINS.map((domain, index) => ({
+  number: index + 1,
+  label: `Server ${index + 1}`,
+  host: `api.${domain}`,
+  base: `https://api.${domain}/api`,
+}));
+const API_BASES = SPORTS_API_SERVERS.map((server) => server.base);
 const API_TIMEOUT_MS = 7000;
 const CATALOG_CACHE_MS = 30_000;
 const API_PREFERRED_BASE_KEY = 'rabbitmeow-preferred-sports-api-base';
@@ -77,7 +83,7 @@ export const SPORTS_CATEGORIES: Sport[] = [
   { id: '247-streams', name: '24/7 Streams' },
 ];
 
-let catalogCache: { expiresAt: number; matches: APIMatch[] } | null = null;
+const catalogCache = new Map<number, { expiresAt: number; matches: APIMatch[] }>();
 
 const joinUrl = (base: string, path: string) => `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 
@@ -97,12 +103,18 @@ const rememberApiBase = (base: string) => {
   }
 };
 
-const apiGet = async <T>(path: string): Promise<T> => {
+const apiGet = async <T>(path: string, serverNumber?: number): Promise<T> => {
   let lastError: unknown;
   const preferredBase = getPreferredApiBase();
-  const bases = preferredBase && API_BASES.includes(preferredBase as (typeof API_BASES)[number])
-    ? [preferredBase, ...API_BASES.filter((base) => base !== preferredBase)]
-    : API_BASES;
+  const selectedBase = serverNumber === undefined ? undefined : API_BASES[serverNumber - 1];
+  if (serverNumber !== undefined && !selectedBase) {
+    throw new Error(`Unknown sports API server: ${serverNumber}`);
+  }
+  const bases = selectedBase
+    ? [selectedBase]
+    : preferredBase && API_BASES.includes(preferredBase as (typeof API_BASES)[number])
+      ? [preferredBase, ...API_BASES.filter((base) => base !== preferredBase)]
+      : API_BASES;
 
   for (const base of bases) {
     const controller = new AbortController();
@@ -119,7 +131,7 @@ const apiGet = async <T>(path: string): Promise<T> => {
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
       const payload = (await response.json()) as T & { success?: boolean; error?: string };
       if (payload.success === false) throw new Error(payload.error || 'Sports API returned an error');
-      rememberApiBase(base);
+      if (serverNumber === undefined) rememberApiBase(base);
       return payload;
     } catch (error) {
       lastError = error;
@@ -179,16 +191,18 @@ const normalizeMatch = (stream: CatalogStream, group: CatalogGroup): APIMatch | 
   };
 };
 
-const loadCatalog = async (force = false) => {
-  if (!force && catalogCache && catalogCache.expiresAt > Date.now()) return catalogCache.matches;
+const loadCatalog = async (force = false, serverNumber?: number) => {
+  const cacheKey = serverNumber ?? 0;
+  const cached = catalogCache.get(cacheKey);
+  if (!force && cached && cached.expiresAt > Date.now()) return cached.matches;
 
-  const response = await apiGet<CatalogResponse>('/streams');
+  const response = await apiGet<CatalogResponse>('/streams', serverNumber);
   const groups = response.streams || response.data?.streams || [];
   const matches = groups.flatMap((group) => (group.streams || [])
     .map((stream) => normalizeMatch(stream, group))
     .filter((match): match is APIMatch => Boolean(match)));
 
-  catalogCache = { expiresAt: Date.now() + CATALOG_CACHE_MS, matches };
+  catalogCache.set(cacheKey, { expiresAt: Date.now() + CATALOG_CACHE_MS, matches });
   return matches;
 };
 
@@ -246,17 +260,17 @@ const resolveDetailSources = (detail: DetailStream): Array<{ value: string; type
     .filter((source): source is { value: string; type: StreamType; name: string; index: number } => Boolean(source));
 };
 
-const loadDetail = async (match: APIMatch): Promise<DetailStream> => {
-  const response = await apiGet<DetailResponse>(`/streams/${encodeStreamPath(match.uriName || match.id)}`);
+const loadDetail = async (match: APIMatch, serverNumber?: number): Promise<DetailStream> => {
+  const response = await apiGet<DetailResponse>(`/streams/${encodeStreamPath(match.uriName || match.id)}`, serverNumber);
   if (!response.data) throw new Error(response.error || 'This sports stream is unavailable');
   return response.data;
 };
 
-export const getStreamsForMatch = async (match: APIMatch): Promise<{
+export const getStreamsForMatch = async (match: APIMatch, serverNumber?: number): Promise<{
   activeSources: Array<{ source: string; sourceId: string; streamCount: number }>;
   groupedStreams: Record<string, Stream[]>;
 }> => {
-  const detail = await loadDetail(match);
+  const detail = await loadDetail(match, serverNumber);
   const resolvedSources = resolveDetailSources(detail);
   const groupedStreams: Record<string, Stream[]> = {};
 
@@ -282,7 +296,7 @@ export const getStreamsForMatch = async (match: APIMatch): Promise<{
   return { activeSources, groupedStreams };
 };
 
-export const getMatchById = async (matchId: string): Promise<APIMatch | null> => {
+export const getMatchById = async (matchId: string, serverNumber?: number): Promise<APIMatch | null> => {
   const decodedId = (() => {
     try {
       return decodeURIComponent(matchId);
@@ -290,12 +304,12 @@ export const getMatchById = async (matchId: string): Promise<APIMatch | null> =>
       return matchId;
     }
   })();
-  const matches = await loadCatalog();
+  const matches = await loadCatalog(false, serverNumber);
   const match = matches.find((candidate) => candidate.id === decodedId || String(candidate.catalogId) === decodedId);
   if (match) return match;
 
   try {
-    const response = await apiGet<DetailResponse>(`/streams/${encodeStreamPath(decodedId)}`);
+    const response = await apiGet<DetailResponse>(`/streams/${encodeStreamPath(decodedId)}`, serverNumber);
     const detail = response.data;
     if (!detail?.uri && !detail?.name) return null;
     const startsAt = toNumber(detail.start_timestamp);

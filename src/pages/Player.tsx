@@ -1118,7 +1118,7 @@ const Player = () => {
               ref={playerContainerRef}
               className={cn(
                 "relative aspect-video rounded-lg overflow-hidden shadow-2xl bg-black group",
-                isFullscreen && "rounded-none w-screen h-screen z-[9999]"
+                isFullscreen && "!fixed !inset-0 !h-full !w-full !max-h-none !max-w-none !aspect-auto !rounded-none !z-[9999]"
               )}
             >
               {isLoading ? (
@@ -1129,7 +1129,7 @@ const Player = () => {
                 <iframe
                   ref={iframeRef}
                   src={embedUrl}
-                  className="w-full h-full"
+                  className="absolute inset-0 h-full w-full border-0"
                   title={title}
                   allowFullScreen
                   referrerPolicy="no-referrer"

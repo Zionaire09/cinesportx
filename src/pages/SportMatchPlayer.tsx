@@ -9,7 +9,7 @@ import { Stream } from '@/utils/sports-types';
 import Ads from '@/components/Ads';
 import SharePromotion from '@/components/SharePromotion';
 import { Button } from '@/components/ui/button';
-import { Loader2, Wifi, RefreshCw, Signal, ExternalLink, ArrowLeft, Maximize2, Minimize2, Clock, Check } from 'lucide-react';
+import { Wifi, RefreshCw, Signal, ExternalLink, ArrowLeft, Maximize2, Minimize2, Clock, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
@@ -20,7 +20,6 @@ const BackupStreamLink = () => <a href={BACKUP_STREAM_URL} target="_blank" rel="
 const StreamLoadingPlaceholder = ({ fullscreen = false }: { fullscreen?: boolean }) => (
   <div className={`${fullscreen ? 'flex min-h-screen' : 'absolute inset-0 z-20'} flex flex-col items-center justify-center gap-4 bg-slate-950/95 p-6 text-center`} role="status" aria-live="polite">
     <img src="/logo2.png" alt="Rabbitmeow" className="h-12 w-36 object-contain sm:h-16 sm:w-48" />
-    <Loader2 className="h-7 w-7 animate-spin text-red-300" />
     <p className="max-w-sm text-sm font-semibold text-white/85">Please wait as the stream is being loaded</p>
   </div>
 );

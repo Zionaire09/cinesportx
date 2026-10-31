@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageTransition from '@/components/PageTransition';
 import Ads from '@/components/Ads';
+import AdBanners from '@/components/AdBanners';
 import { channelKey, countryName, fetchCountryChannels, fetchCountries, LIVE_TV_SOURCES, LiveChannel, LiveCountry } from '@/utils/live-tv';
 
 const FAVORITES_KEY = 'rabbitv3:live-tv:favorites';
@@ -74,6 +75,7 @@ const LiveTV = () => {
         <main className="relative overflow-hidden pb-20 pt-24 md:pt-28">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(circle_at_80%_0%,rgba(79,110,255,0.18),transparent_42%)]" />
           <div className="relative mx-auto max-w-7xl px-4 md:px-8">
+            <AdBanners />
             <section className="mb-7 rounded-2xl border border-white/10 bg-black/20 p-3 shadow-xl md:p-5">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
                 <label className="relative min-w-0 flex-1"><Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search channels, languages, or categories..." className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.06] pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-indigo-300/60 focus:ring-2 focus:ring-indigo-300/10" /></label>

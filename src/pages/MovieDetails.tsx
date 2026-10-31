@@ -11,6 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import Ads from '@/components/Ads';
 import DownloadButton from '@/components/DownloadButton';
 import Info from '@/components/Info';
+import AdBanners from '@/components/AdBanners';
 
 
 
@@ -283,8 +284,10 @@ const MovieDetailsPage = () => {
       
  
       
+      <div className="max-w-6xl mx-auto px-4"><AdBanners /></div>
+
       {/* Tabs for About and Reviews */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 pt-0 pb-8">
         <div className="flex border-b border-white/10 mb-6">
           <button
             className={`py-2 px-4 font-medium ${

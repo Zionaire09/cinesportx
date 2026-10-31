@@ -13,6 +13,7 @@ import Ads from '@/components/Ads';
 import DownloadTVButton from '@/components/DownloadTVButton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Info from '@/components/Info';
+import AdBanners from '@/components/AdBanners';
 
 
 const TVDetailsPage = () => {
@@ -371,7 +372,9 @@ const TVDetailsPage = () => {
       
  
       
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4"><AdBanners /></div>
+
+      <div className="max-w-6xl mx-auto px-4 pt-0 pb-8">
         <div className="flex border-b border-white/10 mb-6 overflow-x-auto pb-1 hide-scrollbar">
           <button
             className={`py-2 px-4 font-medium whitespace-nowrap ${

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getMovieDetails, getTVDetails, videoSources, getSeasonDetails, getMovieCredits, getTVCredits, getMovieRecommendations, getTVRecommendations } from '@/utils/api';
 import { MovieDetails, TVDetails, Episode, CastMember, Media } from '@/utils/types';
 import Navbar from '@/components/Navbar';
+import AdBanners from '@/components/AdBanners';
 import SharePromotion from '@/components/SharePromotion';
 import { Button } from '@/components/ui/button';
 import { 
@@ -1278,7 +1279,8 @@ const Player = () => {
                 <SharePromotion kind="player" />
 
                 {mediaDetails && (
-                  <section className="mt-8 space-y-8">
+                  <section className="mt-4 space-y-4">
+                    <AdBanners />
                     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 shadow-xl backdrop-blur-xl">
                       <div className="flex flex-col gap-5 sm:flex-row">
                         <div className="w-28 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-lg sm:w-32">
@@ -1294,7 +1296,6 @@ const Player = () => {
                         </div>
                       </div>
                     </div>
-
 
                     {cast.length > 0 && (
                       <div>

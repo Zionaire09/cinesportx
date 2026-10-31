@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Ads from '@/components/Ads';
 import { CategoryFilter, CountryFilter } from './New';
+import AdBanners from '@/components/AdBanners';
 
 
 
@@ -182,7 +183,7 @@ const Movies = () => {
     <PageTransition>
       <div className="min-h-screen bg-background text-white flex flex-col">
         <Navbar />
-        <div className="pt-24"></div>
+        <div className="h-16 lg:h-20"></div><div className="px-4 md:px-8"><AdBanners className="mb-0" /></div>
         <main className="flex-1 container mx-auto px-4 pb-8 pt-0">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">

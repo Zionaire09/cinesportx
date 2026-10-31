@@ -13,6 +13,7 @@ import { Media } from '@/utils/types';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import ContentRow from '@/components/ContentRow';
+import AdBanners from '@/components/AdBanners';
 import Footer from '@/components/Footer';
 import Spinner from '@/components/ui/spinner';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
@@ -154,6 +155,7 @@ const Index = () => {
             >
               <ContinueWatching />
               <ContentRow title="Trending Now" media={trendingMedia} />
+              <div className="px-4 md:px-8"><AdBanners /></div>
               <ContentRow title="Popular Movies" media={popularMovies} />
               <ContentRow title="Popular TV Shows" media={popularTVShows} />
               <ContentRow title="Top Rated Movies" media={topRatedMovies} />

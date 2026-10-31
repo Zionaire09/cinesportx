@@ -9,7 +9,6 @@ import { APIMatch, getMatchState } from '@/utils/sports-types';
 import { getAllMatches, SPORTS_CATEGORIES } from '@/utils/sports-api';
 import { useToast } from '@/hooks/use-toast';
 import Ads from '@/components/Ads';
-import SportsBanner from '@/components/SportsBanner';
 import {
   Activity,
   CalendarDays,
@@ -115,7 +114,6 @@ const Sports = () => {
               </div>
             </motion.section>
 
-            <SportsBanner className="mb-7" />
 
             <section className="rounded-2xl border border-slate-800 bg-[#0a1524]/80 p-3 md:p-5">
               <div className="mb-5 flex items-center gap-2"><Activity className="h-4 w-4 text-cyan-300" /><h2 className="text-sm font-bold uppercase tracking-[0.16em] text-slate-200">Browse the desk</h2></div>

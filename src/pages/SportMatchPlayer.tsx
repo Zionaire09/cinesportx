@@ -141,7 +141,7 @@ const SportMatchPlayer = () => {
     const server = SPORTS_API_SERVERS.find((entry) => entry.number === serverNumber);
     toast({
       title: `${server?.label || `Server ${serverNumber}`} selected`,
-      description: `Loading this match from ${server?.host || 'the selected API server'}.`,
+      description: `Loading this match from Server ${serverNumber}.`,
     });
   };
 
@@ -162,7 +162,7 @@ const SportMatchPlayer = () => {
   const isLoading = matchLoading || streamsLoading;
 
   if (isLoading) return <StreamLoadingPlaceholder fullscreen />;
-  if (!matchData) return <PageTransition><div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-neutral-200"><Navbar /><main className="flex min-h-[70vh] items-center justify-center px-4 py-12"><div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-center shadow-2xl sm:p-8"><Signal className="mx-auto mb-4 h-8 w-8 text-cyan-300" /><h1 className="text-xl font-black text-white">This match is unavailable from Server {selectedServerNo}.</h1><p className="mt-2 text-sm text-white/60">Choose another API server below, or select the current server to retry.</p><div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3">{SPORTS_API_SERVERS.map((server) => { const selected = selectedServerNo === server.number; return <button key={server.number} type="button" onClick={() => handleServerChange(server.number)} aria-pressed={selected} className={`rounded-xl border px-3 py-3 text-left transition ${selected ? 'border-cyan-300/80 bg-cyan-400/20 text-white' : 'border-white/15 bg-white/5 text-white/70 hover:border-cyan-300/50'}`}><span className="block text-xs font-black uppercase">{server.label}</span><span className="mt-1 block text-[9px] text-white/50">{server.host}</span></button>; })}</div><Button onClick={handleRefresh} className="mt-5 border border-cyan-300/50 bg-gradient-to-r from-cyan-600 to-blue-600 text-xs font-bold uppercase text-white">Retry Server {selectedServerNo}</Button><div className="mt-4"><Button variant="ghost" onClick={() => navigate('/sports')} className="text-white/70">Back to sports</Button></div></div></main><Footer /></div></PageTransition>;
+  if (!matchData) return <PageTransition><div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-neutral-200"><Navbar /><main className="flex min-h-[70vh] items-center justify-center px-4 py-12"><div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-center shadow-2xl sm:p-8"><Signal className="mx-auto mb-4 h-8 w-8 text-cyan-300" /><h1 className="text-xl font-black text-white">This match is unavailable from Server {selectedServerNo}.</h1><p className="mt-2 text-sm text-white/60">Choose another API server below, or select the current server to retry.</p><div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3">{SPORTS_API_SERVERS.map((server) => { const selected = selectedServerNo === server.number; return <button key={server.number} type="button" onClick={() => handleServerChange(server.number)} aria-pressed={selected} className={`rounded-xl border px-3 py-3 text-left transition ${selected ? 'border-cyan-300/80 bg-cyan-400/20 text-white' : 'border-white/15 bg-white/5 text-white/70 hover:border-cyan-300/50'}`}><span className="block text-xs font-black uppercase">{server.label}</span></button>; })}</div><Button onClick={handleRefresh} className="mt-5 border border-cyan-300/50 bg-gradient-to-r from-cyan-600 to-blue-600 text-xs font-bold uppercase text-white">Retry Server {selectedServerNo}</Button><div className="mt-4"><Button variant="ghost" onClick={() => navigate('/sports')} className="text-white/70">Back to sports</Button></div></div></main><Footer /></div></PageTransition>;
 
   const title = matchData.title || 'Sports match';
   const matchDate = matchData.date && new Date(matchData.date).getTime() > 0 ? format(new Date(matchData.date), 'MMM d, yyyy • h:mm a') : 'Live stream';
@@ -194,13 +194,13 @@ const SportMatchPlayer = () => {
                 className={`relative flex min-h-16 flex-col items-start justify-center rounded-xl border px-3 py-2.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${selected ? 'border-cyan-300/80 bg-cyan-400/20 text-white shadow-lg shadow-cyan-950/20' : 'border-white/15 bg-white/5 text-white/70 hover:border-cyan-300/50 hover:bg-white/10'}`}
               >
                 <span className="flex w-full items-center justify-between text-xs font-black uppercase tracking-wider">{server.label}{selected && <Check className="h-4 w-4 text-cyan-200" />}</span>
-                <span className="mt-1 text-[9px] font-medium text-white/50">{server.host}</span>
+
               </button>
             );
           })}
         </div>
         <div className="mt-3 flex items-center gap-2 rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-[10px] text-white/55">
-          <span className="h-2 w-2 rounded-full bg-cyan-300" />Selected API: <span className="font-semibold text-white/80">{SPORTS_API_SERVERS[selectedServerNo - 1]?.host}</span>
+          <span className="h-2 w-2 rounded-full bg-cyan-300" />Selected: <span className="font-semibold text-white/80">Server {selectedServerNo}</span>
         </div>
         <Button onClick={handleRefresh} className="mt-3 h-10 w-full rounded-xl border border-cyan-300/50 bg-gradient-to-r from-cyan-600 to-blue-600 text-xs font-black uppercase tracking-widest text-white shadow-lg hover:from-cyan-500 hover:to-blue-500">
           <RefreshCw className="h-3.5 w-3.5" />Refresh streams

@@ -4,29 +4,31 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { useEffect } from "react";
-import Index from "./pages/Index";
-import Movies from "./pages/Movies";
-import TVShows from "./pages/TVShows";
-import New from "./pages/New";
-import Trending from "./pages/Trending";
-import MovieDetails from "./pages/MovieDetails";
-import TVDetails from "./pages/TVDetails";
-import Player from "./pages/Player";
-import Search from "./pages/Search";
-import NotFound from "./pages/NotFound";
-import TermsOfService from "./pages/TermsOfService";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import DMCANotice from "./pages/DMCANotice";
-import TakedownNotice from "./pages/TakedownNotice";
-import ContentRemoval from "./pages/ContentRemoval";
-import Sports from "./pages/Sports";
-import SportMatchPlayer from "./pages/SportMatchPlayer";
-import LiveTV from "./pages/LiveTV";
-import LiveTVPlayer from "./pages/LiveTVPlayer";
-import PersonFilmography from "./pages/PersonFilmography";
+import { lazy, Suspense, useEffect } from "react";
 import ChristmasGreeting from "./components/ChristmasGreeting";
-import { ReplayPlayer, Replays } from "./pages/Replays";
+
+const Index = lazy(() => import("./pages/Index"));
+const Movies = lazy(() => import("./pages/Movies"));
+const TVShows = lazy(() => import("./pages/TVShows"));
+const New = lazy(() => import("./pages/New"));
+const Trending = lazy(() => import("./pages/Trending"));
+const MovieDetails = lazy(() => import("./pages/MovieDetails"));
+const TVDetails = lazy(() => import("./pages/TVDetails"));
+const Player = lazy(() => import("./pages/Player"));
+const Search = lazy(() => import("./pages/Search"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const DMCANotice = lazy(() => import("./pages/DMCANotice"));
+const TakedownNotice = lazy(() => import("./pages/TakedownNotice"));
+const ContentRemoval = lazy(() => import("./pages/ContentRemoval"));
+const Sports = lazy(() => import("./pages/Sports"));
+const SportMatchPlayer = lazy(() => import("./pages/SportMatchPlayer"));
+const PersonFilmography = lazy(() => import("./pages/PersonFilmography"));
+const LiveTV = lazy(() => import("./pages/LiveTV"));
+const LiveTVPlayer = lazy(() => import("./pages/LiveTVPlayer"));
+const Replays = lazy(() => import("./pages/Replays").then((module) => ({ default: module.Replays })));
+const ReplayPlayer = lazy(() => import("./pages/Replays").then((module) => ({ default: module.ReplayPlayer })));
 
 const queryClient = new QueryClient();
 const GA_MEASUREMENT_ID = import.meta.env.VITE_FIREBASE_MEASUREMENT_ID;
@@ -88,6 +90,7 @@ const AnimatedRoutes = () => {
 
   return (
     <AnimatePresence mode="wait">
+      <Suspense fallback={<div className="flex min-h-[50vh] items-center justify-center bg-background" role="status" aria-label="Loading page"><div className="h-8 w-8 animate-spin rounded-full border-2 border-current border-t-transparent text-muted-foreground" /></div>}>
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Index />} />
         <Route path="/home" element={<Navigate to="/" replace />} />
@@ -142,6 +145,7 @@ const AnimatedRoutes = () => {
         <Route path="/content-removal" element={<ContentRemoval />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
     </AnimatePresence>
   );
 };

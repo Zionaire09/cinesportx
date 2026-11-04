@@ -144,17 +144,17 @@ export const videoSources = [
     getTVUrl: (id: number, season: number, episode: number) => `https://zxcstream.cc/player/tv/${id}/${season}/${episode}`,
   },
 {
-    key: 'vidsrc-mov',
-    name: '02 Armageddon',
-    getMovieUrl: (id: number) => `https://vsembed.ru/embed/movie/${id}/`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vsembed.ru/embed/tv/${id}/${season}/${episode}/`,
-  },
-{
     key: 'moviesapi',
-    name: '03 Pringle',
+    name: '02 Pringle',
     getMovieUrl: (id: number) => `https://moviesapi.to/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://moviesapi.to/tv/${id}/${season}/${episode}`,
     sandbox: 'allow-scripts allow-same-origin'
+  },
+{
+    key: 'vidsrc-mov',
+    name: '03 Armageddon',
+    getMovieUrl: (id: number) => `https://vsembed.ru/embed/movie/${id}/`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vsembed.ru/embed/tv/${id}/${season}/${episode}/`,
   },
 {
     key: 'vidrock',

@@ -138,16 +138,16 @@ export const backdropSizes = {
 
 export const videoSources = [
 {
-    key: 'vidsrc-mov',
-    name: '01 Armageddon',
-    getMovieUrl: (id: number) => `https://vsembed.ru/embed/movie/${id}/`,
-    getTVUrl: (id: number, season: number, episode: number) => `https://vsembed.ru/embed/tv/${id}/${season}/${episode}/`,
-  },
-{
     key: 'zxcprime',
-    name: '02 Supernova',
+    name: '01 Supernova',
     getMovieUrl: (id: number) => `https://zxcstream.cc/player/movie/${id}`,
     getTVUrl: (id: number, season: number, episode: number) => `https://zxcstream.cc/player/tv/${id}/${season}/${episode}`,
+  },
+{
+    key: 'vidsrc-mov',
+    name: '02 Armageddon',
+    getMovieUrl: (id: number) => `https://vsembed.ru/embed/movie/${id}/`,
+    getTVUrl: (id: number, season: number, episode: number) => `https://vsembed.ru/embed/tv/${id}/${season}/${episode}/`,
   },
 {
     key: 'moviesapi',

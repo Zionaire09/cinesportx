@@ -222,7 +222,7 @@ EpisodeCard.displayName = 'EpisodeCard';
 
 
 
-const DEFAULT_STREAM_SOURCE = videoSources[0]?.key ?? 'vidsrc-mov';
+const DEFAULT_STREAM_SOURCE = 'zxcprime';
 
 const getStreamPreferenceKey = (mediaId: string, isTV: boolean) =>
   `selectedVideoSource:${isTV ? 'tv' : 'movie'}:${mediaId}`;

@@ -1,4 +1,4 @@
-# RabbitV3 Static-Asset and SPA Routing Resolution
+# CineSportX Static-Asset and SPA Routing Resolution
 
 ## Incident Summary
 
@@ -36,13 +36,13 @@ The generated `dist/index.html` should reference Vite assets under `/assets/`, a
 
 ## Scope and Deployment Boundary
 
-This correction changes GitHub repository source only. It does not perform any dashboard operation or change any Cloudflare service configuration. The intended deployment service is **cineby**; no changes should be made to the separate `msportsx` Worker.
+This correction changes GitHub repository source only. It does not perform any dashboard operation or change any Cloudflare service configuration. The intended deployment service is **cineby**; no changes should be made to the separate `cinesportx` Worker.
 
 ## Complete Artifact Publication
 
 A subsequent comparison with RabbitV1 established the remaining deployment difference. The Git-tracked `dist/index.html` referenced hash-named Vite modules, but `dist/assets/` was excluded by the ignore rule and had not been committed. A deployment that publishes repository files without rebuilding therefore served the application shell for those missing module paths.
 
-RabbitV3 now matches RabbitV1’s build fallback behavior by running `vite build && cp dist/index.html dist/404.html`. The complete generated `dist` release is committed with the HTML that references it, including every JavaScript and CSS file under `dist/assets/`.
+CineSportX now matches RabbitV1’s build fallback behavior by running `vite build && cp dist/index.html dist/404.html`. The complete generated `dist` release is committed with the HTML that references it, including every JavaScript and CSS file under `dist/assets/`.
 
 | Validation check | Result |
 |---|---|

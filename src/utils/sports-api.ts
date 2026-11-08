@@ -70,7 +70,7 @@ export const SPORTS_API_SERVERS = API_DOMAINS.map((domain, index) => ({
 const API_BASES = SPORTS_API_SERVERS.map((server) => server.base);
 const API_TIMEOUT_MS = 7000;
 const CATALOG_CACHE_MS = 30_000;
-const API_PREFERRED_BASE_KEY = 'rabbitmeow-preferred-sports-api-base';
+const API_PREFERRED_BASE_KEY = 'cinesportx-preferred-sports-api-base';
 
 export const SPORTS_CATEGORIES: Sport[] = [
   { id: 'american-football', name: 'American Football' },
@@ -124,7 +124,7 @@ const apiGet = async <T>(path: string, serverNumber?: number): Promise<T> => {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
-          'X-FS-Client': 'Rabbitmeow PPV WebClient 01054bb',
+          'X-FS-Client': 'CineSportX PPV WebClient 01054bb',
         },
         signal: controller.signal,
       });

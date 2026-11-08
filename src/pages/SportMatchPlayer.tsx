@@ -20,7 +20,7 @@ const BackupStreamLink = () => <a href={BACKUP_STREAM_URL} target="_blank" rel="
 
 const StreamLoadingPlaceholder = () => (
   <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-slate-950/95 p-6 text-center" role="status" aria-live="polite">
-    <img src="/logo2.png" alt="Rabbitmeow" className="h-12 w-36 object-contain sm:h-16 sm:w-48" />
+    <img src="/logo2.png" alt="CineSportX" className="h-12 w-36 object-contain sm:h-16 sm:w-48" />
     <p className="max-w-sm text-sm font-semibold text-white/85">Please wait as the stream is being loaded</p>
   </div>
 );

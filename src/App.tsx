@@ -44,7 +44,7 @@ const usePageTracking = () => {
   }, [location]);
 };
 
-const SITE_ORIGIN = 'https://msportsx.xyz';
+const SITE_ORIGIN = 'https://cinesportx.com';
 
 const useCanonical = () => {
   const location = useLocation();
@@ -69,15 +69,15 @@ const useCanonical = () => {
     }
     robotsTag.content = noindex ? 'noindex, follow' : 'index, follow';
     const titles: Record<string, string> = {
-      '/': 'MSportsX – Watch Sports, Movies & TV Shows Online',
-      '/movie': 'Movies Online – MSportsX',
-      '/tv': 'TV Shows Online – MSportsX',
-      '/new': 'New Releases – MSportsX',
-      '/trending': 'Trending Movies & TV Shows – MSportsX',
-      '/sports': 'Live Sports Streams – MSportsX',
-      '/replays': 'Sports Replays – MSportsX',
-      '/live-tv': 'Live TV Channels – MSportsX',
-      '/live-tv/player': 'Live TV Player – MSportsX',
+      '/': 'CineSportX – Watch Sports, Movies & TV Shows Online',
+      '/movie': 'Movies Online – CineSportX',
+      '/tv': 'TV Shows Online – CineSportX',
+      '/new': 'New Releases – CineSportX',
+      '/trending': 'Trending Movies & TV Shows – CineSportX',
+      '/sports': 'Live Sports Streams – CineSportX',
+      '/replays': 'Sports Replays – CineSportX',
+      '/live-tv': 'Live TV Channels – CineSportX',
+      '/live-tv/player': 'Live TV Player – CineSportX',
     };
     document.title = titles[normalizedPath] || document.title;
   }, [location.pathname]);

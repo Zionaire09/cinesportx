@@ -1,6 +1,6 @@
 import { Media } from '@/utils/types';
 
-export const CONTINUE_WATCHING_STORAGE_KEY = 'rabbitmeow:continue-watching:v1';
+export const CONTINUE_WATCHING_STORAGE_KEY = 'cinesportx:continue-watching:v1';
 const MAX_CONTINUE_WATCHING_ITEMS = 30;
 
 export interface ContinueWatchingItem extends Media {

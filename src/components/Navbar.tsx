@@ -233,9 +233,9 @@ const Navbar = () => {
           <Link
             to="/"
             className="hidden h-12 w-28 shrink-0 items-center justify-center overflow-hidden lg:flex lg:justify-self-start"
-            aria-label="RabbitMeow home"
+            aria-label="CineSportX home"
           >
-            <img src={Logo} alt="RabbitMeow" className="h-10 w-24 object-contain opacity-80" />
+            <img src={Logo} alt="CineSportX" className="h-10 w-24 object-contain opacity-80" />
           </Link>
           <nav className="hidden items-center gap-1 rounded-xl border border-white/10 bg-black/35 p-1 shadow-lg lg:flex lg:justify-self-center">
             <NavLinks />
@@ -299,8 +299,8 @@ const Navbar = () => {
         {isMobileMenuOpen && (
           <div className="absolute right-3 top-full mt-2 w-52 max-w-[calc(100vw-1.5rem)] max-h-[calc(100dvh-5.5rem)] overflow-y-auto rounded-xl border border-white/10 bg-black/95 p-2 shadow-2xl backdrop-blur-xl lg:hidden">
             <div className="mb-2 flex items-center gap-3 px-2">
-              <img src={Logo} alt="RabbitMeow" className="h-8 w-16 object-contain opacity-80" />
-              <span className="text-sm font-semibold text-white/85">RabbitMeow</span>
+              <img src={Logo} alt="CineSportX" className="h-8 w-16 object-contain opacity-80" />
+              <span className="text-sm font-semibold text-white/85">CineSportX</span>
             </div>
             <nav className="grid grid-cols-1 gap-1.5">
               <NavLinks mobile />

@@ -1,8 +1,8 @@
-# Rabbitv3 Midnight-Blue Theme Update
+# CineSportX Midnight-Blue Theme Update
 
 ## Objective
 
-Revise the MSportsX interface so that **midnight navy, blue, cyan, and sky-blue** form the dominant visual system while preserving layout, content, routes, and functionality.
+Revise the CineSportX interface so that **midnight navy, blue, cyan, and sky-blue** form the dominant visual system while preserving layout, content, routes, and functionality.
 
 ## Implemented Changes
 
@@ -10,7 +10,7 @@ Revise the MSportsX interface so that **midnight navy, blue, cyan, and sky-blue*
 |---|---|
 | Global design tokens | Replaced the warm dark-red background, card, secondary, accent, border, input, and focus-ring tokens with navy and blue equivalents in `src/index.css`. |
 | Shared glass treatment | Replaced neutral white glass styling with a subtle blue-tinted glass surface and blue border. |
-| Welcome card | Reworked the MSportsX welcome dialog from red/rose gradients to midnight-blue, blue, cyan, and sky-blue accents. |
+| Welcome card | Reworked the CineSportX welcome dialog from red/rose gradients to midnight-blue, blue, cyan, and sky-blue accents. |
 | Sports views | Updated active live and all-sports tabs, match-player connection cues, information panel, live badges, and loading accents to blue/cyan. |
 | Sport color mappings | Rebalanced hockey, volleyball, and baseball mappings to distinct blue-based shades while retaining per-sport visual differentiation. |
 | Media fallback states | Updated invalid media fallback surfaces from decorative red to blue. |

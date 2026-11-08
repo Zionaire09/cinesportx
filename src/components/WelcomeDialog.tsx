@@ -128,7 +128,7 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({ onClose, isOpen }) => {
                   >
                     <img
                       src="/logo.png"
-                      alt="MSportsX"
+                      alt="CineSportX"
                       className="h-28 w-28 object-contain drop-shadow-[0_0_15px_rgba(56,189,248,0.35)]"
                     />
                     {/* Glow effect */}
@@ -139,7 +139,7 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({ onClose, isOpen }) => {
                 {/* Title */}
                 <motion.div variants={itemVariants} className="mb-4">
                   <h2 className="text-3xl font-black bg-gradient-to-r from-blue-300 via-cyan-400 to-sky-500 bg-clip-text text-transparent mb-2">
-                    Welcome to MSportsX
+                    Welcome to CineSportX
                   </h2>
                   <div className="flex items-center justify-center gap-2 text-xs font-medium uppercase tracking-wider text-blue-300/80">
                     <Sparkles className="h-3 w-3" />

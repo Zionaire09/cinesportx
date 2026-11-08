@@ -2,19 +2,19 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  
+
   return (
     <footer className="mt-auto bg-black/40 border-t border-white/10 pt-8 pb-6">
       <div className="max-w-6xl mx-auto px-4 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* About Section */}
           <div>
-            <h3 className="text-white font-medium text-lg mb-4">RabbitMeow</h3>
+            <h3 className="text-white font-medium text-lg mb-4">CineSportX</h3>
             <p className="text-white/70 text-sm">
-              Discover and enjoy the best movies and TV shows all in one place. RabbitMeow helps you find, explore, and watch your favorite content online.
+              Discover and enjoy the best movies and TV shows all in one place. CineSportX helps you find, explore, and watch your favorite content online.
             </p>
           </div>
-          
+
           {/* Quick Links */}
           <div>
             <h3 className="text-white font-medium mb-4">Explore</h3>
@@ -46,7 +46,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
           {/* Legal */}
           <div>
             <h3 className="text-white font-medium mb-4">Legal</h3>
@@ -80,9 +80,9 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        
+
         <div className="mt-8 pt-4 border-t border-white/10 text-center text-white/50 text-xs">
-          <p>© {currentYear} RabbitMeow All rights reserved.</p>
+          <p>© {currentYear} CineSportX All rights reserved.</p>
           <p className="mt-1">
             This site does not store any files on its server. All contents are provided by non-affiliated third parties.
           </p>

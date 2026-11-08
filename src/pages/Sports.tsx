@@ -103,7 +103,7 @@ const Sports = () => {
                 <div className="absolute -right-10 -top-16 h-64 w-64 rounded-full border-[28px] border-cyan-400/5" />
                 <div className="absolute right-20 top-10 hidden text-cyan-300/10 md:block"><Trophy className="h-36 w-36" /></div>
                 <div className="relative max-w-2xl">
-                  <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-cyan-300"><span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_12px_#67e8f9]" /> RabbitMeow Sports Center</div>
+                  <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-cyan-300"><span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_12px_#67e8f9]" /> CineSportX Sports Center</div>
                   <h1 className="text-3xl font-black tracking-tight text-white md:text-5xl">Every match.<br /><span className="text-cyan-300">One place to watch.</span></h1>
                   <p className="mt-4 max-w-xl text-sm leading-6 text-slate-400 md:text-base">Follow the world’s biggest matchups with live signals, matches, and reliable stream access.</p>
                   <div className="mt-6 flex flex-wrap gap-3 text-xs font-semibold">

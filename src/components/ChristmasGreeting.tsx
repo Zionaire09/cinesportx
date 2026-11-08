@@ -12,10 +12,10 @@ const ChristmasGreeting = () => {
     const today = new Date();
     // Force show on December 25 only (month 11 = December, day 25)
     const isChristmasDay = today.getMonth() === 11 && today.getDate() === 25;
-    
+
     const dismissedDate = localStorage.getItem('christmas-greeting-dismissed');
     const alreadyDismissed = dismissedDate === today.toDateString();
-    
+
     if (isChristmasDay && !alreadyDismissed) {
       setTimeout(() => setIsVisible(true), 1000);
     }
@@ -68,7 +68,7 @@ const ChristmasGreeting = () => {
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
         >
-          <div 
+          <div
             className="absolute inset-0 bg-gradient-to-br from-gray-950 via-purple-950/10 to-emerald-950/10"
             style={{
               backgroundImage: `radial-gradient(circle at 25% 25%, rgba(120, 119, 198, 0.05) 0%, transparent 55%),
@@ -85,10 +85,10 @@ const ChristmasGreeting = () => {
           >
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-emerald-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
+
               <div className="relative bg-gray-900/80 backdrop-blur-md rounded-2xl border border-gray-800/70 shadow-2xl overflow-hidden">
                 <div className="h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600" />
-                
+
                 <div className="relative aspect-video overflow-hidden cursor-pointer" onClick={handleVideoClick}>
                   <video
                     ref={videoRef}
@@ -134,7 +134,7 @@ const ChristmasGreeting = () => {
                     <div className="relative inline-block mb-6">
                       <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-green-500/20 rounded-full blur-lg" />
                       <motion.span
-                        animate={{ 
+                        animate={{
                           rotate: [0, 5, -5, 0],
                           scale: [1, 1.05, 0.95, 1]
                         }}
@@ -152,15 +152,15 @@ const ChristmasGreeting = () => {
                     <h3 className="text-2xl font-normal text-white mb-2 tracking-wide">
                       Merry Christmas!
                     </h3>
-                    
+
                     <div className="flex items-center justify-center gap-2 mb-4">
                       <div className="w-12 h-px bg-gradient-to-r from-transparent to-gray-600" />
                       <span className="text-xs text-gray-400 font-light">from</span>
                       <div className="w-12 h-px bg-gradient-to-l from-transparent to-gray-600" />
                     </div>
-                    
+
                     <p className="text-sm text-gray-400 mb-6">
-                      RabbitMeow Team
+                      CineSportX Team
                     </p>
 
                     <div className="relative mb-8">

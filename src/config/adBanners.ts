@@ -5,7 +5,7 @@ export const AD_BANNER_PROFILES = {
   former: {
     kind: 'atOptions',
     key: '0094e8b6ab0ae7b1c688593cbd0fcfe7',
-    scriptUrl: 'https://www.highrevenueformat.com/0094e8b6ab0ae7b1c688593cbd0fcfe7/invoke.js',
+    scriptUrl: '',
     width: 728,
     height: 90,
   },
